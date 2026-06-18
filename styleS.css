@@ -74,3 +74,6 @@ img{
     transform: rotate(3deg);
     border-radius: 30px;
 }
+a{
+    color: red;
+}
