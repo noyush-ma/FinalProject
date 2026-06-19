@@ -20,11 +20,15 @@
     <div>
         <p>username</p>
         <input type="email" id="name">
+        <p id="emailError" class="error"></p>
     </div>
+
     <div>
         <p>password</p>
-        <input type="password">
+        <input type="password" id="password">
+        <p id="passwordError" class="error"></p>
     </div>
+
     <div class = "text">
         <p id ="info">DISCOVER NEW IDEAS ON <br>PINTEREST <br><br><br>
             FIND NEW AESTHETIC <br><br><br>SHARE YOUR LIFE STYLE</p>
@@ -36,7 +40,10 @@
     </div>
 
     <br><br>
-    <a href="feed.html">Enter</a>
+    
+    <button onclick="checkForm()">Enter</button>
+    <script src="login.js"></script>
+
     
 </body>
 
