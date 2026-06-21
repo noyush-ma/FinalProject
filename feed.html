@@ -58,18 +58,40 @@
         </div>
         
         <div class="modal-right-side">
-            <div class="modal-info">
-                <p id="modalDesc"></p>
+            
+            <div class="modal-top-actions">
+                <div class="modal-icons-group">
+                    <div class="like-container">
+                        <span id="like-count"></span> 
+                        <button id="likeBtn" onclick="doLike()">
+                            <img id="heartIcon" src="emptyHeart.png" alt="Like"> 
+                        </button>
+                    </div>
+
+                    <button class="action-icon-btn">
+                        <img src="commentLogo.png" alt="Comment" class="modal-svg-icon">
+                    </button>
+
+                    <button class="action-icon-btn">
+                        <img src="shareLogo.png" alt="Share" class="modal-svg-icon">
+                    </button>
+
+                    <button class="action-icon-btn">
+                        <img src="threedotsLogo.png" alt="dots" class="modal-svg-icon">
+                    </button>
+
+                    <button class="action-icon-btn">
+                        <img src="arrow.png" alt="Arrow" class="modal-svg-icon arrow-flip">
+                    </button>
+                </div>
+                
+                <button id="saveBtn" class="save-button" onclick="doSave()">שמירה</button>
             </div>
 
-            <div class="like-container">
-                <span id="like-count"></span> 
-                <button id="likeBtn" onclick="doLike()">
-                    <img id="heartIcon" src="emptyHeart.png" alt="Like"> 
-                </button>
+            <div class="modal-info">
+                <p id="modalDesc"></p>
+                <div id="modalUsername" class="creator-username">username</div>
             </div>
-            
-            <div id="modalUsername" class="creator-username">username</div>
         </div> 
     </div> 
 </div>
