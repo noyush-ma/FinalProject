@@ -1,3 +1,4 @@
+<!-- /*mahlev-noya-219037850-benshoshan-shir-334830486*/ -->
 <html>
 
     <html dir="rtl"></html>
@@ -27,28 +28,50 @@
         <a href="#"><img src="settingsLogo1.png"></a>
     </nav>
 
+<div class="images">
     <div>
-    <div>
-        <img src="view.png" alt="view">
+        <img src="view.png" alt="view" onclick="openModal(this)">
     </div>
     <div>
-        <img src="flower.png" alt="flower">
-    </div>
-
-    <div>
-        <img src="koala.png" alt="koala">
+        <img src="flower.png" alt="flower" onclick="openModal(this)">
     </div>
     <div>
-        <img src="sea.png" alt="sea">
-    </div>
-
-    <div>
-        <img src="dog.png" alt="dog">
+        <img src="koala.png" alt="koala" onclick="openModal(this)">
     </div>
     <div>
-        <img src="cat.png" alt="cat">
+        <img src="sea.png" alt="sea" onclick="openModal(this)">
+    </div>
+    <div>
+        <img src="dog.png" alt="dog" onclick="openModal(this)">
+    </div>
+    <div>
+        <img src="cat.png" alt="cat" onclick="openModal(this)">
     </div>
 </div>
+
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        
+        <div class="modal-left-side">
+            <img id="modalImg" src="" alt="Modal Image">
+        </div>
+        
+        <div class="modal-right-side">
+            <div class="modal-info">
+                <h2 id="modalTitle">view.png</h2>
+                <p id="modalDesc">nature</p>
+            </div>
+
+            <div class="like-container">
+                <span id="like-count">38</span> 
+                <button id="likeBtn" onclick="doLike()">
+                    <img id="heartIcon" src="emptyHeart.png" alt="Like"> 
+                </button>
+            </div>
+            
+            <div class="creator-username">username</div>
+        </div> </div> </div> <script src="feed.js"></script>
 
 </body>
 
