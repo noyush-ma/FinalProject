@@ -50,21 +50,28 @@
 </div>
 
 <div id="imageModal" class="modal">
-    <span class="close-btn" onclick="closeModal()">X</span>
-    
     <div class="modal-content">
-        <img id="modalImg" src="" alt="תמונה מוגדלת">
+        <span class="close" onclick="closeModal()">&times;</span>
         
-        <div>
-            <button id="likeBtn" onclick="doLike()">❤️לייק</button>
-            <button id="saveBtn">📌שמירה</button>
-            <button id="commentBtn">💬תגובה</button>
-            <button id="shareBtn">🔗שיתוף</button>
+        <div class="modal-left-side">
+            <img id="modalImg" src="" alt="Modal Image">
         </div>
-    </div>
-</div>
+        
+        <div class="modal-right-side">
+            <div class="modal-info">
+                <h2 id="modalTitle">view.png</h2>
+                <p id="modalDesc">nature</p>
+            </div>
 
-<script src="feed.js"></script>
+            <div class="like-container">
+                <span id="like-count">38</span> 
+                <button id="likeBtn" onclick="doLike()">
+                    <img id="heartIcon" src="emptyHeart.png" alt="Like"> 
+                </button>
+            </div>
+            
+            <div class="creator-username">username</div>
+        </div> </div> </div> <script src="feed.js"></script>
 
 </body>
 
