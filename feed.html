@@ -30,22 +30,22 @@
 
 <div class="images">
     <div>
-        <img src="view.png" alt="view" onclick="openModal(this)">
+        <img src="view.png" alt="view" data-likes="120" data-username="karin" data-description="Austrian nature" onclick="openModal(this)">
     </div>
     <div>
-        <img src="flower.png" alt="flower" onclick="openModal(this)">
+        <img src="flower.png" alt="flower" data-likes="45" data-username="floraa" data-description="pink drowing flower" onclick="openModal(this)">
     </div>
     <div>
-        <img src="koala.png" alt="koala" onclick="openModal(this)">
+        <img src="koala.png" alt="koala" data-likes="38" data-username="Israel_zoo" data-description="our cute koala!" onclick="openModal(this)">
     </div>
     <div>
-        <img src="sea.png" alt="sea" onclick="openModal(this)">
+        <img src="sea.png" alt="sea" data-likes="213" data-username="saritush" data-description="Sea in Spain!!" onclick="openModal(this)">
     </div>
     <div>
-        <img src="dog.png" alt="dog" onclick="openModal(this)">
+        <img src="dog.png" alt="dog" data-likes="89" data-username="let_animals_live" data-description="our dog loee on a trip!!!" onclick="openModal(this)">
     </div>
     <div>
-        <img src="cat.png" alt="cat" onclick="openModal(this)">
+        <img src="cat.png" alt="cat" data-likes="67" data-username="NASA" data-description="A cat from Florida is taking a pic with the moon" onclick="openModal(this)">
     </div>
 </div>
 
@@ -59,19 +59,22 @@
         
         <div class="modal-right-side">
             <div class="modal-info">
-                <h2 id="modalTitle">view.png</h2>
-                <p id="modalDesc">nature</p>
+                <p id="modalDesc"></p>
             </div>
 
             <div class="like-container">
-                <span id="like-count">38</span> 
+                <span id="like-count"></span> 
                 <button id="likeBtn" onclick="doLike()">
                     <img id="heartIcon" src="emptyHeart.png" alt="Like"> 
                 </button>
             </div>
             
-            <div class="creator-username">username</div>
-        </div> </div> </div> <script src="feed.js"></script>
+            <div id="modalUsername" class="creator-username">username</div>
+        </div> 
+    </div> 
+</div>
+
+<script src="feed.js"></script>
 
 </body>
 
