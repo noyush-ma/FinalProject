@@ -127,18 +127,6 @@ body > div img {
     justify-content: center; 
     align-items: center;
     z-index: 9999;
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: -20px;
-    bottom: -50px;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(5px);
-    display: none;
-    justify-content: right; 
-    align-items: right;
 }
 
 .modal-content {
@@ -187,16 +175,12 @@ body > div img {
     flex-direction: column;
 }
 
-.modal-info h2 {
-    margin-top: 0;
-    font-size: 24px;
-    color: #111;
-}
-
 .modal-info p {
-    color: #555;
-    font-size: 15px;
-    line-height: 1.5;
+    color: #111111;
+    font-size: 22px;
+    line-height: 1.4;
+    margin-top: 5px;
+    margin-bottom: 0;
 }
 
 .like-container {
@@ -204,6 +188,14 @@ body > div img {
     align-items: center;
     margin-top: auto;
     margin-bottom: 5px;
+}
+
+#likeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-right: 8px;
 }
 
 #likeBtn img {
@@ -220,82 +212,7 @@ body > div img {
 
 .creator-username {
     font-size: 14px;
-    color: #767676;
+    color: #555555;
     font-weight: bold;
-}
-    padding: 30px;
-    border-radius: 18px;
-    max-width: 450px;
-    width: 90%;
-    text-align: center;
-}
-
-#modalImg {
-    width: 100%;
-    max-height: 65vh;
-    border-radius: 12px;
-    object-fit: cover;
-}
-
-.close-btn {
-    
-    top: -40px;
-    left: 0;
-    font-size: 30px;
-    color: white;
-    cursor: pointer;
-    font-family: Arial, sans-serif;
-}
-
-.modal-actions {
-    margin-top: 15px;
-    display: flex;
-    justify-content: space-around;
-}
-
-.action-btn {
-    padding: 10px 25px;
-    border: none;
-    border-radius: 24px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#saveBtn {
-    background-color: #e60023;
-    color: white;
-}
-
-#likeBtn {
-    background-color: #efefef;
-    color: #111111;
-}
-
-.images {
-    cursor: pointer;
-}
-
-#likeBtn:hover {
-    background-color: #d4d4d4;
-}
-
-#saveBtn:hover {
-    background-color: #c5001f;
-}
-
-#commentBtn{
-    background-color: #e0dede;
-    color: #111111;
-    border: none;
-    border-radius: 30px;
-}
-
-#commentBtn:hover {
-    background-color: #d4d4d4;
-    cursor: pointer;
-}
-
-#shareBtn{
-
+    margin-top: 2px;
 }

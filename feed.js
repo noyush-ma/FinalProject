@@ -5,9 +5,16 @@ function openModal(element) {
     var modalImg = document.getElementById("modalImg");
     modalImg.src = element.src;
 
-    var modalTitle=document.getElementById("modalTitle");
-    var fileName = element.src.substring(element.src.lastIndexOf('/') + 1);
-    modalTitle.innerText = fileName;
+    var targetLikes = element.getAttribute("data-likes");
+    document.getElementById("like-count").innerText = targetLikes;
+
+    var targetUsername = element.getAttribute("data-username");
+    document.getElementById("modalUsername").innerText = targetUsername;
+
+    var targetDesc = element.getAttribute("data-description");
+    document.getElementById("modalDesc").innerText = targetDesc;
+
+    document.getElementById("heartIcon").src = "emptyHeart.png";
 }
 
 function closeModal() {
