@@ -15,6 +15,10 @@ function openModal(element) {
     document.getElementById("modalDesc").innerText = targetDesc;
 
     document.getElementById("heartIcon").src = "emptyHeart.png";
+
+    var saveBtn = document.getElementById("saveBtn");
+    saveBtn.innerText = "שמירה";
+    saveBtn.style.backgroundColor = "#e60023";
 }
 
 function closeModal() {
@@ -33,5 +37,17 @@ function doLike() {
     } else {
         heartIcon.src = "emptyHeart.png";
         likeCount.innerText = currentLikes - 1;
+    }
+
+}
+
+function doSave() {
+    var saveBtn = document.getElementById("saveBtn");
+    if (saveBtn.innerText === "שמירה") {
+        saveBtn.innerText = "נשמר";
+        saveBtn.style.backgroundColor = "#333333";
+    } else{
+        saveBtn.innerText = "שמירה";
+        saveBtn.style.backgroundColor = "#e60023";
     }
 }
