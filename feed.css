@@ -184,3 +184,27 @@ body > div img {
 .images {
     cursor: pointer;
 }
+
+#likeBtn:hover {
+    background-color: #d4d4d4;
+}
+
+#saveBtn:hover {
+    background-color: #c5001f;
+}
+
+#commentBtn{
+    background-color: #e0dede;
+    color: #111111;
+    border: none;
+    border-radius: 30px;
+}
+
+#commentBtn:hover {
+    background-color: #d4d4d4;
+    cursor: pointer;
+}
+
+#shareBtn{
+
+}
