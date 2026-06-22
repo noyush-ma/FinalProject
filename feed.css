@@ -439,7 +439,7 @@ nav a:last-child {
     font-size: 20px;
     font-weight: bold;
     color: #e60023;
-    letter-spacing: 0px;
+    letter-spacing: 1px;
     animation: bounceDots 0.6s infinite alternate;
 }
 
