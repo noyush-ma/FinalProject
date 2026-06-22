@@ -214,9 +214,7 @@ body > div img {
     font-size: 14px;
     color: #555555;
     font-weight: bold;
-<<<<<<< Updated upstream
     margin-top: 2px;
-=======
     font-size: 14px;
     cursor: pointer;
     white-space: nowrap;
@@ -387,5 +385,4 @@ body > div img {
 
 .send-user-btn:hover {
     background-color: #d5d5d5;
->>>>>>> Stashed changes
 }

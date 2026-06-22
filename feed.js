@@ -34,8 +34,6 @@ function doLike() {
         heartIcon.src = "emptyHeart.png";
         likeCount.innerText = currentLikes - 1;
     }
-<<<<<<< Updated upstream
-=======
 }
 
 function doSave() {
@@ -121,5 +119,4 @@ function openShareModal() {
 function closeShareModal() {
     var shareModal = document.getElementById("shareModal");
     shareModal.style.display = "none";
->>>>>>> Stashed changes
 }
