@@ -1,11 +1,8 @@
 <!-- /*mahlev-noya-219037850-benshoshan-shir-334830486*/ -->
-<html>
-
-    <html dir="rtl"></html>
-
-    <head>
-
-        <title>Pinterest</title>
+ 
+<html dir="rtl">
+<head>
+    <title>Pinterest</title>
     <link rel="stylesheet" href="feed.css">
 </head>
 <body>
@@ -76,7 +73,7 @@
     </div>
 </div>
 
-</div> <div id="noResultsMessage" class="no-results">
+<div id="noResultsMessage" class="no-results">
     לא נמצאו תוצאות תואמות לחיפוש שלך 
 </div>
 
@@ -99,7 +96,7 @@
                         </button>
                     </div>
 
-                    <button class="action-icon-btn">
+                    <button class="action-icon-btn" onclick="focusCommentInput()">
                         <img src="commentLogo.png" alt="Comment" class="modal-svg-icon">
                     </button>
 
@@ -123,6 +120,17 @@
                 <p id="modalDesc"></p>
                 <div id="modalUsername" class="creator-username">username</div>
             </div>
+
+            <div class="comments-section">
+                <div id="commentsList" class="comments-list">
+                    </div>
+
+                <div class="comment-input-area">
+                    <input type="text" id="newCommentInput" placeholder="הוסיפו הערה כדי להתחיל שיחה">
+                    <button id="sendCommentBtn" onclick="addComment()">שלח</button>
+                </div>
+            </div>
+
         </div> 
     </div> 
 </div>
@@ -130,5 +138,4 @@
 <script src="feed.js"></script>
 
 </body>
-
 </html>

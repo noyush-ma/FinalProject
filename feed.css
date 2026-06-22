@@ -100,7 +100,7 @@ nav a:last-child {
     margin-right: 95px; 
     margin-left: 20px;
     margin-top: 90px;
-    column-count: 5;     
+    column-count: 5;    
     column-gap: 16px;
 }
 
@@ -136,6 +136,7 @@ nav a:last-child {
     border-radius: 32px;
     width: 750px;
     max-width: 90%;
+    height: 550px; 
     display: flex;
     position: relative;
     overflow: hidden;
@@ -160,11 +161,12 @@ nav a:last-child {
     align-items: center;
     justify-content: center;
     padding: 10px;
+    height: 100%;
 }
 
 #modalImg {
     width: 100%;
-    height: auto;
+    height: 100%;
     border-radius: 16px;
     object-fit: cover;
 }
@@ -174,7 +176,10 @@ nav a:last-child {
     padding: 40px 20px 20px 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between; 
     text-align: right;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .modal-top-actions {
@@ -275,6 +280,7 @@ nav a:last-child {
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
+    flex: 1; 
 }
 
 .modal-info p {
@@ -298,6 +304,7 @@ nav a:last-child {
     direction: ltr;
     text-align: left;
     width: 100%;
+    margin-bottom: 15px;
 }
 
 .no-results {
@@ -307,4 +314,70 @@ nav a:last-child {
     font-size: 20px;
     color: #555;
     width: 100%;
+}
+
+.comments-section {
+    width: 100%;
+    margin-top: auto; 
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #efefef;
+    padding-top: 15px;
+}
+
+.comments-list {
+    max-height: 140px; 
+    overflow-y: auto;
+    margin-bottom: 12px;
+    padding: 5px 0;
+    text-align: right;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.comment-item {
+    font-size: 14px;
+    padding: 6px 0;
+    color: #111;
+    font-weight: normal;
+    line-height: 1.4;
+}
+
+.comment-input-area {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    align-items: center;
+}
+
+#newCommentInput {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #cdcdcd;
+    border-radius: 24px;
+    outline: none;
+    font-size: 15px;
+    text-align: right;
+    background-color: #fff;
+}
+
+#newCommentInput:focus {
+    border-color: #a7a7a7;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+}
+
+#sendCommentBtn {
+    background-color: #e60023;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#sendCommentBtn:hover {
+    background-color: #ad001d;
 }

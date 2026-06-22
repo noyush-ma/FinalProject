@@ -19,6 +19,9 @@ function openModal(element) {
     var saveBtn = document.getElementById("saveBtn");
     saveBtn.innerText = "שמירה";
     saveBtn.style.backgroundColor = "#e60023";
+
+    document.getElementById("commentsList").innerHTML = "";
+    document.getElementById("newCommentInput").value = "";
 }
 
 function closeModal() {
@@ -38,7 +41,6 @@ function doLike() {
         heartIcon.src = "emptyHeart.png";
         likeCount.innerText = currentLikes - 1;
     }
-
 }
 
 function doSave() {
@@ -46,7 +48,7 @@ function doSave() {
     if (saveBtn.innerText === "שמירה") {
         saveBtn.innerText = "נשמר";
         saveBtn.style.backgroundColor = "#333333";
-    } else{
+    } else {
         saveBtn.innerText = "שמירה";
         saveBtn.style.backgroundColor = "#e60023";
     }
@@ -55,7 +57,6 @@ function doSave() {
 function postsText() {
     var searchValue = document.getElementById("searchInput").value.toLowerCase();
     var postCards = document.querySelectorAll(".post-card");
-
     var hasResults = false;
 
     postCards.forEach(function(card) {
@@ -68,7 +69,7 @@ function postsText() {
         } else {
             card.style.display = "none";
         }
-    })
+    });
 
     var noResultsDiv = document.getElementById("noResultsMessage");
     if (hasResults) {
@@ -78,3 +79,28 @@ function postsText() {
     }
 }
 document.getElementById("searchInput").addEventListener("input", postsText);
+
+function focusCommentInput() {
+    var inputComment = document.getElementById("newCommentInput");
+    inputComment.focus();
+}
+
+function addComment() {
+    var inputComment = document.getElementById("newCommentInput");
+    var commentText = inputComment.value.trim();
+    var commentsList = document.getElementById("commentsList");
+
+    if (commentText === "") {
+        return;
+    }
+
+    var newComment = document.createElement("div");
+    newComment.className = "comment-item";
+    newComment.innerText = commentText;
+
+    commentsList.appendChild(newComment);
+
+    inputComment.value = "";
+
+    commentsList.scrollTop = commentsList.scrollHeight;
+}
