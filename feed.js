@@ -85,6 +85,17 @@ function focusCommentInput() {
     inputComment.focus();
 }
 
+function showTyping() {
+    var inputComment = document.getElementById("newCommentInput");
+    var indicator = document.getElementById("typingIndicator");
+    
+    if (inputComment.value.length > 0) {
+        indicator.style.display = "block";
+    } else {
+        indicator.style.display = "none";
+    }
+}
+
 function addComment() {
     var inputComment = document.getElementById("newCommentInput");
     var commentText = inputComment.value.trim();
@@ -101,6 +112,8 @@ function addComment() {
     commentsList.appendChild(newComment);
 
     inputComment.value = "";
+
+    document.getElementById("typingIndicator").style.display = "none";
 
     commentsList.scrollTop = commentsList.scrollHeight;
 }
