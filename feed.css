@@ -96,24 +96,25 @@ nav a:last-child {
     margin-bottom: 0;
 }
 
-body > div {
-    margin-right: 95px;
+.images {
+    margin-right: 95px; 
     margin-left: 20px;
     margin-top: 90px;
-    column-count: 3;
+    column-count: 5;     
     column-gap: 16px;
 }
 
-body > div div {
+.post-card {
     margin-bottom: 16px;
     break-inside: avoid;
 }
 
-body > div img {
+.post-card img {
     width: 100%;
     height: auto;
     border-radius: 16px;
     display: block;
+    cursor: pointer;
 }
 
 .modal {
@@ -141,7 +142,6 @@ body > div img {
     padding: 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
-
 
 .close {
     position: absolute;
@@ -279,7 +279,6 @@ body > div img {
 
 .modal-info p {
     color: #111111;
-    color: #111111;
     font-size: 24px;
     font-weight: bold;
     line-height: 1.3;
@@ -298,5 +297,14 @@ body > div img {
     padding-top: 0;
     direction: ltr;
     text-align: left;
+    width: 100%;
+}
+
+.no-results {
+    display: none; 
+    text-align: center;
+    margin-top: 50px;
+    font-size: 20px;
+    color: #555;
     width: 100%;
 }

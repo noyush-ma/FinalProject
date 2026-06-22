@@ -51,3 +51,30 @@ function doSave() {
         saveBtn.style.backgroundColor = "#e60023";
     }
 }
+
+function postsText() {
+    var searchValue = document.getElementById("searchInput").value.toLowerCase();
+    var postCards = document.querySelectorAll(".post-card");
+
+    var hasResults = false;
+
+    postCards.forEach(function(card) {
+        var img = card.querySelector("img");
+        var description = img.getAttribute("data-description").toLowerCase();
+
+        if (description.includes(searchValue)) {
+            card.style.display = "block";
+            hasResults = true;
+        } else {
+            card.style.display = "none";
+        }
+    })
+
+    var noResultsDiv = document.getElementById("noResultsMessage");
+    if (hasResults) {
+        noResultsDiv.style.display = "none";
+    } else {
+        noResultsDiv.style.display = "block";
+    }
+}
+document.getElementById("searchInput").addEventListener("input", postsText);
