@@ -112,11 +112,14 @@ function focusCommentInput() {
 function showTyping() {
     var inputComment = document.getElementById("newCommentInput");
     var indicator = document.getElementById("typingIndicator");
+    var sendBtn = document.getElementById("sendCommentBtn");
     
-    if (inputComment.value.length > 0) {
+    if (inputComment.value.trim().length > 0) {
         indicator.style.display = "block";
+        sendBtn.style.display = "inline-flex";
     } else {
         indicator.style.display = "none";
+        sendBtn.style.display = "none";
     }
 }
 
@@ -124,6 +127,7 @@ function addComment() {
     var inputComment = document.getElementById("newCommentInput");
     var commentText = inputComment.value.trim();
     var commentsList = document.getElementById("commentsList");
+    var sendBtn = document.getElementById("sendCommentBtn");
 
     if (commentText === "") {
         return;
@@ -148,6 +152,7 @@ function addComment() {
     }
 
     inputComment.value = "";
+    sendBtn.style.display = "none";
     document.getElementById("typingIndicator").style.display = "none";
     commentsList.scrollTop = commentsList.scrollHeight;
 }
