@@ -1,8 +1,10 @@
-body{
+body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
     background-color: white;
+    color: #111;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 header {
@@ -16,6 +18,7 @@ header {
     align-items: center;
     padding: 0 20px;
     z-index: 1001;
+    transition: background-color 0.3s;
 }
 
 header > div:last-of-type {
@@ -26,6 +29,7 @@ header > div:last-of-type {
     border-radius: 20px;
     padding: 0 20px;
     order: 1;
+    transition: background-color 0.3s;
 }
 
 header input {
@@ -36,6 +40,7 @@ header input {
     outline: none;
     font-size: 16px;
     text-align: right;
+    color: inherit;
 }
 
 header > img:first-of-type {
@@ -55,7 +60,18 @@ header > img:last-of-type {
     order: 3;
 }
 
-nav{
+#darkModeBtn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    order: 4;
+    margin-right: 15px;
+    outline: none;
+    padding: 5px;
+}
+
+nav {
     position: fixed;
     top: 0;
     right: 0;
@@ -68,9 +84,10 @@ nav{
     padding: 30px 0;
     box-shadow: -1px 0 5px rgba(0,0,0,0.05);
     z-index: 1000;
+    transition: background-color 0.3s;
 }
 
-nav a{
+nav a {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -142,6 +159,7 @@ nav a:last-child {
     overflow: hidden;
     padding: 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
 }
 
 .close {
@@ -200,7 +218,7 @@ nav a:last-child {
 }
 
 .action-icon-btn {
-   background: none;
+    background: none;
     border: none;
     font-size: 20px;
     font-weight: bold;
@@ -360,11 +378,11 @@ nav a:last-child {
 }
 
 .input-row {
-    display: flex;
-    flex-direction: row; 
-    align-items: center;
-    gap: 8px;
-    width: 100%;
+    display: flex !important;
+    flex-direction: row !important; 
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
 }
 
 .input-container-with-icons {
@@ -385,6 +403,7 @@ nav a:last-child {
     text-align: right;
     background-color: #efefef;
     box-sizing: border-box;
+    transition: background-color 0.3s;
 }
 
 #newCommentInput:focus {    
@@ -405,7 +424,6 @@ nav a:last-child {
     cursor: pointer;
     object-fit: contain;
     background: transparent;
-    mix-blend-mode: multiply;
 }
 
 #sendCommentBtn {
@@ -423,10 +441,6 @@ nav a:last-child {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-}
-
-#sendCommentBtn:hover {
-    background-color: #ad001d;
 }
 
 #sendCommentBtn:hover {
@@ -452,13 +466,6 @@ nav a:last-child {
         transform: translateY(-4px);
         opacity: 1;
     }
-}
-
-.input-row {
-    display: flex !important;
-    gap: 12px;
-    width: 100%;
-    align-items: center;
 }
 
 .share-pop {
@@ -487,6 +494,7 @@ nav a:last-child {
     max-height: 80vh;
     overflow-y: auto;
     overflow-x: hidden;
+    transition: background-color 0.3s;
 }
 
 .share-title {
@@ -530,6 +538,7 @@ nav a:last-child {
     text-align: right;
     margin-top: 100px;   
     box-sizing: border-box;
+    transition: background-color 0.3s;
 }
 
 .share-users-list {
@@ -590,7 +599,7 @@ nav a:last-child {
 }
 
 .send-user-btn:hover {
-    background-color: #d5d5d5;
+    background-color: #3a3a3a;
     color: #e60023;
 }
 
@@ -625,4 +634,82 @@ nav a:last-child {
 .delete-dropdown button:hover {
     background-color: #f5f5f5;
     border-radius: 2px;
+}
+
+
+body.dark-mode {
+    background-color: #111111;
+    color: #ffffff;
+}
+
+body.dark-mode header {
+    background-color: #111111;
+}
+
+body.dark-mode header > div:last-of-type {
+    background-color: #262626;
+}
+
+body.dark-mode nav {
+    background-color: #111111;
+    box-shadow: -1px 0 5px rgba(255,255,255,0.05);
+}
+
+body.dark-mode nav a:first-child img {
+    background-color: #111111 !important;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+body.dark-mode nav a:not(:first-child) img,
+body.dark-mode header > img:last-of-type,
+body.dark-mode .modal-svg-icon,
+body.dark-mode #likeBtn img[src="emptyHeart.png"],
+body.dark-mode .embed-icon,
+body.dark-mode .close,
+body.dark-mode .share-close {
+    filter: invert(1);
+}
+
+body.dark-mode #likeBtn img[src="fullHeart.png"] {
+    filter: none !important;
+}
+
+body.dark-mode .modal-content,
+body.dark-mode .share-pop-content,
+body.dark-mode .delete-dropdown {
+    background-color: #232323;
+    color: #ffffff;
+}
+
+body.dark-mode .modal-info p,
+body.dark-mode #like-count,
+body.dark-mode .comments-toggle,
+body.dark-mode .comment-item,
+body.dark-mode .share-title,
+body.dark-mode .user-display-name {
+    color: #ffffff;
+}
+
+body.dark-mode .creator-username,
+body.dark-mode .user-handle,
+body.dark-mode .no-results {
+    color: #b2b2b2;
+}
+
+body.dark-mode #newCommentInput,
+body.dark-mode #searchEmail {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    color: #ffffff;
+}
+
+body.dark-mode .send-user-btn {
+    background-color: #3a3a3a;
+    color: #ffffff;
+}
+
+body.dark-mode .send-user-btn:hover {
+    background-color: #555555;
+    color: #e60023;
 }

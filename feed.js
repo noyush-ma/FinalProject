@@ -166,7 +166,6 @@ function openShareModal() {
     shareModal.style.display = "flex";
 }
 
-// 
 function closeShareModal() {
     var shareModal = document.getElementById("shareModal");
     shareModal.style.display = "none";
@@ -196,3 +195,13 @@ window.addEventListener('click', function() {
         dropdown.style.display = "none";
     }
 });
+
+function toggleDarkMode() {
+    document.body.classList.toggle("dark-mode");
+    const btn = document.getElementById("darkModeBtn");
+    if (document.body.classList.contains("dark-mode")) {
+        btn.innerText = "☀️";
+    } else {
+        btn.innerText = "🌙";
+    }
+}
