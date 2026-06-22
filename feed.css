@@ -325,6 +325,27 @@ nav a:last-child {
     padding-top: 15px;
 }
 
+.comments-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 10px;
+    user-select: none;
+}
+
+.accordion-arrow {
+    font-size: 11px;
+    transition: transform 0.2s ease;
+}
+
+.accordion-arrow.open {
+    transform: rotate(180deg);
+}
+
 .comments-list {
     max-height: 140px; 
     overflow-y: auto;

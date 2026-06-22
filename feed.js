@@ -21,7 +21,11 @@ function openModal(element) {
     saveBtn.style.backgroundColor = "#e60023";
 
     document.getElementById("commentsList").innerHTML = "";
+    document.getElementById("commentsList").style.display = "none";
+    document.getElementById("accordionArrow").classList.remove("open");
+    document.getElementById("comments-title-text").innerText = "הערות (0)";
     document.getElementById("newCommentInput").value = "";
+    document.getElementById("typingIndicator").style.display = "none";
 }
 
 function closeModal() {
@@ -80,7 +84,27 @@ function postsText() {
 }
 document.getElementById("searchInput").addEventListener("input", postsText);
 
+function toggleComments() {
+    var commentsList = document.getElementById("commentsList");
+    var arrow = document.getElementById("accordionArrow");
+
+    if (commentsList.style.display === "none") {
+        commentsList.style.display = "block";
+        arrow.classList.add("open");
+    } else {
+        commentsList.style.display = "none";
+        arrow.classList.remove("open");
+    }
+}
+
 function focusCommentInput() {
+    var commentsList = document.getElementById("commentsList");
+    var arrow = document.getElementById("accordionArrow");
+
+    if (commentsList.style.display === "none") {
+        commentsList.style.display = "block";
+        arrow.classList.add("open");
+    }
     var inputComment = document.getElementById("newCommentInput");
     inputComment.focus();
 }
@@ -105,15 +129,25 @@ function addComment() {
         return;
     }
 
+    if (commentsList.style.display === "none") {
+        commentsList.style.display = "block";
+        document.getElementById("accordionArrow").classList.add("open");
+    }
+
     var newComment = document.createElement("div");
     newComment.className = "comment-item";
     newComment.innerText = commentText;
-
     commentsList.appendChild(newComment);
 
+    var currentCount = commentsList.getElementsByClassName("comment-item").length;
+    var titleText = document.getElementById("comments-title-text");
+    if (currentCount === 1) {
+        titleText.innerText = "הערה 1";
+    } else {
+        titleText.innerText = "הערות (" + currentCount + ")";
+    }
+
     inputComment.value = "";
-
     document.getElementById("typingIndicator").style.display = "none";
-
     commentsList.scrollTop = commentsList.scrollHeight;
 }
