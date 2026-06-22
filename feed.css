@@ -1,8 +1,10 @@
-body{
+body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
     background-color: white;
+    color: #111;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 header {
@@ -16,6 +18,7 @@ header {
     align-items: center;
     padding: 0 20px;
     z-index: 1001;
+    transition: background-color 0.3s;
 }
 
 header > div:last-of-type {
@@ -26,6 +29,7 @@ header > div:last-of-type {
     border-radius: 20px;
     padding: 0 20px;
     order: 1;
+    transition: background-color 0.3s;
 }
 
 header input {
@@ -35,6 +39,8 @@ header input {
     padding: 12px 0;
     outline: none;
     font-size: 16px;
+    text-align: right;
+    color: inherit;
 }
 
 header > img:first-of-type {
@@ -54,7 +60,18 @@ header > img:last-of-type {
     order: 3;
 }
 
-nav{
+#darkModeBtn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    order: 4;
+    margin-right: 15px;
+    outline: none;
+    padding: 5px;
+}
+
+nav {
     position: fixed;
     top: 0;
     right: 0;
@@ -67,9 +84,10 @@ nav{
     padding: 30px 0;
     box-shadow: -1px 0 5px rgba(0,0,0,0.05);
     z-index: 1000;
+    transition: background-color 0.3s;
 }
 
-nav a{
+nav a {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -95,24 +113,25 @@ nav a:last-child {
     margin-bottom: 0;
 }
 
-body > div {
-    margin-right: 95px;
+.images {
+    margin-right: 95px; 
     margin-left: 20px;
     margin-top: 90px;
-    column-count: 3;
+    column-count: 5;    
     column-gap: 16px;
 }
 
-body > div div {
+.post-card {
     margin-bottom: 16px;
     break-inside: avoid;
 }
 
-body > div img {
+.post-card img {
     width: 100%;
     height: auto;
     border-radius: 16px;
     display: block;
+    cursor: pointer;
 }
 
 .modal {
@@ -134,13 +153,14 @@ body > div img {
     border-radius: 32px;
     width: 750px;
     max-width: 90%;
+    height: 550px; 
     display: flex;
     position: relative;
     overflow: hidden;
     padding: 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: background-color 0.3s;
 }
-
 
 .close {
     position: absolute;
@@ -159,35 +179,75 @@ body > div img {
     align-items: center;
     justify-content: center;
     padding: 10px;
+    height: 100%;
 }
 
 #modalImg {
     width: 100%;
-    height: auto;
+    height: 100%;
     border-radius: 16px;
     object-fit: cover;
 }
 
 .modal-right-side {
     flex: 1;
-    padding: 30px 20px 10px 20px;
+    padding: 40px 20px 20px 20px;
     display: flex;
     flex-direction: column;
+    justify-content: space-between; 
+    text-align: right;
+    height: 100%;
+    box-sizing: border-box;
 }
 
-.modal-info p {
-    color: #111111;
-    font-size: 22px;
-    line-height: 1.4;
-    margin-top: 5px;
-    margin-bottom: 0;
+.modal-top-actions {
+    display: flex;
+    flex-direction: row; 
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    width: 100%;
+}
+
+.modal-icons-group {
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    justify-content: flex-start;
+    gap: 24px;
+}
+
+.action-icon-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #111;
+    padding: 0;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.modal-svg-icon {
+    width: 22px; 
+    height: 22px;
+    display: block;
+    object-fit: contain;
 }
 
 .like-container {
     display: flex;
+    flex-direction: row-reverse;
     align-items: center;
-    margin-top: auto;
-    margin-bottom: 5px;
+    align-self: center;
+    gap: 6px;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
 }
 
 #likeBtn {
@@ -195,24 +255,461 @@ body > div img {
     border: none;
     cursor: pointer;
     padding: 0;
-    margin-right: 8px;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
 }
 
 #likeBtn img {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     vertical-align: middle;
 }
 
 #like-count {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     color: #111;
+}
+
+.save-button {
+    background-color: #e60023;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 24px;
+    cursor: pointer;
+}
+
+.modal-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    flex: 1; 
+}
+
+.modal-info p {
+    color: #111111;
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1.3;
+    margin-top: 0;
+    margin-bottom: 6px;
+    direction: ltr; 
+    text-align: left;
+    width: 100%;
 }
 
 .creator-username {
     font-size: 14px;
     color: #555555;
+    font-weight: normal;
+    margin-top: 0;
+    padding-top: 0;
+    direction: ltr;
+    text-align: left;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.no-results {
+    display: none; 
+    text-align: center;
+    margin-top: 50px;
+    font-size: 20px;
+    color: #555;
+    width: 100%;
+}
+
+.comments-section {
+    width: 100%;
+    margin-top: auto; 
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid #efefef;
+    padding-top: 15px;
+}
+
+.comments-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 16px;
     font-weight: bold;
-    margin-top: 2px;
+    color: #111;
+    margin-bottom: 10px;
+    user-select: none;
+}
+
+.accordion-arrow {
+    font-size: 11px;
+    transition: transform 0.2s ease;
+}
+
+.accordion-arrow.open {
+    transform: rotate(180deg);
+}
+
+.comments-list {
+    max-height: 140px; 
+    overflow-y: auto;
+    margin-bottom: 12px;
+    padding: 5px 0;
+    text-align: right;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.comment-item {
+    font-size: 14px;
+    padding: 6px 0;
+    color: #111;
+    font-weight: normal;
+    line-height: 1.4;
+}
+
+.comment-input-area {
+    width: 100%;
+    padding-top: 10px;  
+}
+
+.input-row {
+    display: flex !important;
+    flex-direction: row !important; 
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+}
+
+.input-container-with-icons {
+    position: relative;
+    flex: 1; 
+    display: flex;
+    align-items: center;
+}
+
+#newCommentInput {
+    width: 100%;
+    padding: 12px 16px;
+    padding-left: 110px; 
+    border: 1px solid #cdcdcd;
+    border-radius: 24px;
+    outline: none;
+    font-size: 15px;
+    text-align: right;
+    background-color: #efefef;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+}
+
+#newCommentInput:focus {    
+    border: 1px solid #858585;
+}
+
+.input-embed-icons {
+    position: absolute;
+    left: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.embed-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    object-fit: contain;
+    background: transparent;
+}
+
+#sendCommentBtn {
+    display: none; 
+    background-color: #e60023;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#sendCommentBtn:hover {
+    background-color: #ad001d;
+}
+
+#typingIndicator {
+    bottom: 0;
+    right: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #e60023;
+    letter-spacing: 1px;
+    animation: bounceDots 0.6s infinite alternate;
+}
+
+@keyframes bounceDots {
+    0% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+.share-pop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 10000;
+}
+
+.share-pop-content {
+    background-color: white;
+    border-radius: 24px;
+    padding: 20px;
+    position: relative;
+    max-width: 90%;
+    width: 450px; 
+    height: 350px;
+    margin-top: 120px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: background-color 0.3s;
+}
+
+.share-title {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #111111;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.share-close {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    z-index: 11;
+}
+
+.share-static-img {
+    position: absolute;
+    bottom: 60%;
+    right: 30px;
+    width: 520px;
+    height: auto;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+#searchEmail {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #cdcdcd;
+    border-radius: 24px;
+    outline: none;
+    font-size: 14px;
+    text-align: right;
+    margin-top: 100px;   
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+}
+
+.share-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.share-user-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+.user-info-text {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    flex: 1;
+}
+
+.user-display-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #111;
+}
+
+.user-handle {
+    font-size: 13px;
+    color: #555;
+}
+
+.send-user-btn {
+    background-color: #e1e1e1;
+    color: #111;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.send-user-btn:hover {
+    background-color: #3a3a3a;
+    color: #e60023;
+}
+
+.delete-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.delete-dropdown {
+    display: none; 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    background-color: white; 
+    border: 1px solid #ccc; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    padding: 8px; 
+    border-radius: 4px; 
+    z-index: 100;
+}
+
+.delete-dropdown button {
+    color: red; 
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    white-space: nowrap; 
+    font-weight: bold;
+    padding: 4px 8px;
+}
+
+.delete-dropdown button:hover {
+    background-color: #f5f5f5;
+    border-radius: 2px;
+}
+
+
+body.dark-mode {
+    background-color: #111111;
+    color: #ffffff;
+}
+
+body.dark-mode header {
+    background-color: #111111;
+}
+
+body.dark-mode header > div:last-of-type {
+    background-color: #262626;
+}
+
+body.dark-mode nav {
+    background-color: #111111;
+    box-shadow: -1px 0 5px rgba(255,255,255,0.05);
+}
+
+body.dark-mode nav a:first-child img {
+    background-color: #111111 !important;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+body.dark-mode nav a:not(:first-child) img,
+body.dark-mode header > img:last-of-type,
+body.dark-mode .modal-svg-icon,
+body.dark-mode #likeBtn img[src="emptyHeart.png"],
+body.dark-mode .embed-icon,
+body.dark-mode .close,
+body.dark-mode .share-close {
+    filter: invert(1);
+}
+
+body.dark-mode #likeBtn img[src="fullHeart.png"] {
+    filter: none !important;
+}
+
+body.dark-mode .modal-content,
+body.dark-mode .share-pop-content,
+body.dark-mode .delete-dropdown {
+    background-color: #232323;
+    color: #ffffff;
+}
+
+body.dark-mode .modal-info p,
+body.dark-mode #like-count,
+body.dark-mode .comments-toggle,
+body.dark-mode .comment-item,
+body.dark-mode .share-title,
+body.dark-mode .user-display-name {
+    color: #ffffff;
+}
+
+body.dark-mode .creator-username,
+body.dark-mode .user-handle,
+body.dark-mode .no-results {
+    color: #b2b2b2;
+}
+
+body.dark-mode #newCommentInput,
+body.dark-mode #searchEmail {
+    background-color: #3a3a3a;
+    border: 1px solid #555;
+    color: #ffffff;
+}
+
+body.dark-mode .send-user-btn {
+    background-color: #3a3a3a;
+    color: #ffffff;
+}
+
+body.dark-mode .send-user-btn:hover {
+    background-color: #555555;
+    color: #e60023;
 }
