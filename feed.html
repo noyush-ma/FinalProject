@@ -133,7 +133,14 @@
                 <div class="comment-input-area">
                     <div id="typingIndicator" style="display: none;">...</div>
                     <div class="input-row">
-                        <input type="text" id="newCommentInput" placeholder="הוסיפו הערה כדי להתחיל שיחה" oninput="showTyping()">
+                        <div class="input-container-with-icons">
+                            <input type="text" id="newCommentInput" placeholder="הוסיפו הערה כדי להתחיל שיחה" oninput="showTyping()">
+                            <div class="input-embed-icons">
+                                <img src="emoji.png" alt="emoji" class="embed-icon">
+                                <img src="sticker.png" alt="sticker" class="embed-icon">
+                                <img src="picture.png" alt="picture" class="embed-icon">
+                            </div>
+                        </div>
                         <button id="sendCommentBtn" onclick="addComment()">שלח</button>
                     </div>
                 </div>
