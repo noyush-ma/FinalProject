@@ -58,6 +58,39 @@
         </div>
         
         <div class="modal-right-side">
+<<<<<<< Updated upstream
+=======
+            
+            <div class="modal-top-actions">
+                <div class="modal-icons-group">
+                    <div class="like-container">
+                        <span id="like-count"></span> 
+                        <button id="likeBtn" onclick="doLike()">
+                            <img id="heartIcon" src="emptyHeart.png" alt="Like"> 
+                        </button>
+                    </div>
+
+                    <button class="action-icon-btn" onclick="focusCommentInput()">
+                        <img src="commentLogo.png" alt="Comment" class="modal-svg-icon">
+                    </button>
+
+                    <button class="action-icon-btn" onclick="openShareModal()">
+                        <img src="shareLogo.png" alt="Share" class="modal-svg-icon">
+                    </button>
+
+                    <button class="action-icon-btn">
+                        <img src="threedotsLogo.png" alt="dots" class="modal-svg-icon">
+                    </button>
+
+                    <button class="action-icon-btn">
+                        <img src="arrow.png" alt="Arrow" class="modal-svg-icon arrow-flip">
+                    </button>
+                </div>
+                
+                <button id="saveBtn" class="save-button" onclick="doSave()">שמירה</button>
+            </div>
+
+>>>>>>> Stashed changes
             <div class="modal-info">
                 <p id="modalDesc"></p>
             </div>
@@ -68,10 +101,68 @@
                     <img id="heartIcon" src="emptyHeart.png" alt="Like"> 
                 </button>
             </div>
+<<<<<<< Updated upstream
             
             <div id="modalUsername" class="creator-username">username</div>
+=======
+>>>>>>> Stashed changes
         </div> 
     </div> 
+</div>
+
+<div id="shareModal" class="share-pop" onclick="closeShareModal()">
+    <div class="share-pop-content" onclick="event.stopPropagation()">
+        <span class="share-close" onclick="closeShareModal()">&times;</span>
+        <h2 class="share-title">שיתוף</h2>
+        <img src="share.png" alt="Share Options" class="share-static-img">
+        <input type="text" id="searchEmail" placeholder="חיפוש לפי דואר אלקטרוני">
+        <div class="share-users-list">
+    <div class="share-user-item">
+        <button class="send-user-btn">שליחה</button>
+        <div class="user-info-text">
+            <span class="user-display-name">Maya</span>
+            <span class="user-handle">@mayastar_1</span>
+        </div>
+        <div class="user-avatar" style="background-color: #ffb6c1;">M</div>
+    </div>
+
+    <div class="share-user-item">
+        <button class="send-user-btn">שליחה</button>
+        <div class="user-info-text">
+            <span class="user-display-name">Tom_Design 🎨</span>
+            <span class="user-handle">@tom_creative</span>
+        </div>
+        <div class="user-avatar" style="background-color: #add8e6;">T</div>
+    </div>
+
+    <div class="share-user-item">
+        <button class="send-user-btn">שליחה</button>
+        <div class="user-info-text">
+            <span class="user-display-name">דניאל אברהם</span>
+            <span class="user-handle">@daniel_ab10</span>
+        </div>
+        <div class="user-avatar" style="background-color: #98fb98;">ד</div>
+    </div>
+
+    <div class="share-user-item">
+        <button class="send-user-btn">שליחה</button>
+        <div class="user-info-text">
+            <span class="user-display-name">Noa ✨🌊</span>
+            <span class="user-handle">@noas_vibes</span>
+        </div>
+        <div class="user-avatar" style="background-color: #e6e6fa;">N</div>
+    </div>
+
+    <div class="share-user-item">
+        <button class="send-user-btn">שליחה</button>
+        <div class="user-info-text">
+            <span class="user-display-name">Liam</span>
+            <span class="user-handle">@liam_shani</span>
+        </div>
+        <div class="user-avatar" style="background-color: #ffe4e1;">L</div>
+    </div>
+</div>
+    </div>
 </div>
 
 <script src="feed.js"></script>

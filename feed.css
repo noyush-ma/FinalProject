@@ -214,5 +214,178 @@ body > div img {
     font-size: 14px;
     color: #555555;
     font-weight: bold;
+<<<<<<< Updated upstream
     margin-top: 2px;
+=======
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#sendCommentBtn:hover {
+    background-color: #ad001d;
+}
+
+#typingIndicator {
+    position: absolute;
+    top: 0;
+    right: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #e60023;
+    letter-spacing: 2px;
+    animation: bounceDots 0.8s infinite alternate;
+    margin: 0;
+    padding: 0;
+}
+
+@keyframes bounceDots {
+    0% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+.input-row {
+    display: flex !important;
+    gap: 12px;
+    width: 100%;
+    align-items: center;
+}
+
+.share-pop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 10000;
+}
+
+.share-pop-content {
+    background-color: white;
+    border-radius: 24px;
+    padding: 20px;
+    position: relative;
+    max-width: 90%;
+    width: 450px; 
+    height: 350px;
+    margin-top: 120px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.share-title {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #111111;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.share-close {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    z-index: 11;
+}
+
+.share-static-img {
+    position: absolute;
+    bottom: 60%;
+    right: 30px;
+    width: 520px;
+    height: auto;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+#searchEmail {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #cdcdcd;
+    border-radius: 24px;
+    outline: none;
+    font-size: 14px;
+    text-align: right;
+    margin-top: 100px;   
+    box-sizing: border-box;
+}
+
+.share-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.share-user-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+.user-info-text {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    flex: 1;
+}
+
+.user-display-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #111;
+}
+
+.user-handle {
+    font-size: 13px;
+    color: #555;
+}
+
+.send-user-btn {
+    background-color: #e1e1e1;
+    color: #111;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.send-user-btn:hover {
+    background-color: #d5d5d5;
+>>>>>>> Stashed changes
 }
