@@ -125,9 +125,12 @@
                 <div id="commentsList" class="comments-list">
                     </div>
 
-                <div class="comment-input-area">
-                    <input type="text" id="newCommentInput" placeholder="הוסיפו הערה כדי להתחיל שיחה">
-                    <button id="sendCommentBtn" onclick="addComment()">שלח</button>
+               <div class="comment-input-area">
+                    <div id="typingIndicator" style="display: none;">...</div>
+                    <div class="input-row">
+                        <input type="text" id="newCommentInput" placeholder="הוסיפו הערה כדי להתחיל שיחה" oninput="showTyping()">
+                        <button id="sendCommentBtn" onclick="addComment()">שלח</button>
+                    </div>
                 </div>
             </div>
 
