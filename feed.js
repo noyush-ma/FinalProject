@@ -15,6 +15,17 @@ function openModal(element) {
     document.getElementById("modalDesc").innerText = targetDesc;
 
     document.getElementById("heartIcon").src = "emptyHeart.png";
+
+    var saveBtn = document.getElementById("saveBtn");
+    saveBtn.innerText = "שמירה";
+    saveBtn.style.backgroundColor = "#e60023";
+
+    document.getElementById("commentsList").innerHTML = "";
+    document.getElementById("commentsList").style.display = "none";
+    document.getElementById("accordionArrow").classList.remove("open");
+    document.getElementById("comments-title-text").innerText = "הערות (0)";
+    document.getElementById("newCommentInput").value = "";
+    document.getElementById("typingIndicator").style.display = "none";
 }
 
 function closeModal() {
@@ -74,6 +85,27 @@ function postsText() {
 document.getElementById("searchInput").addEventListener("input", postsText);
 
 function focusCommentInput() {
+function toggleComments() {
+    var commentsList = document.getElementById("commentsList");
+    var arrow = document.getElementById("accordionArrow");
+
+    if (commentsList.style.display === "none") {
+        commentsList.style.display = "block";
+        arrow.classList.add("open");
+    } else {
+        commentsList.style.display = "none";
+        arrow.classList.remove("open");
+    }
+}
+
+function focusCommentInput() {
+    var commentsList = document.getElementById("commentsList");
+    var arrow = document.getElementById("accordionArrow");
+
+    if (commentsList.style.display === "none") {
+        commentsList.style.display = "block";
+        arrow.classList.add("open");
+    }
     var inputComment = document.getElementById("newCommentInput");
     inputComment.focus();
 }
@@ -86,6 +118,14 @@ function showTyping() {
         indicator.style.display = "block";
     } else {
         indicator.style.display = "none";
+    var sendBtn = document.getElementById("sendCommentBtn");
+    
+    if (inputComment.value.trim().length > 0) {
+        indicator.style.display = "block";
+        sendBtn.style.display = "inline-flex";
+    } else {
+        indicator.style.display = "none";
+        sendBtn.style.display = "none";
     }
 }
 
@@ -93,6 +133,7 @@ function addComment() {
     var inputComment = document.getElementById("newCommentInput");
     var commentText = inputComment.value.trim();
     var commentsList = document.getElementById("commentsList");
+    var sendBtn = document.getElementById("sendCommentBtn");
 
     if (commentText === "") {
         return;
@@ -119,4 +160,26 @@ function openShareModal() {
 function closeShareModal() {
     var shareModal = document.getElementById("shareModal");
     shareModal.style.display = "none";
+    if (commentsList.style.display === "none") {
+        commentsList.style.display = "block";
+        document.getElementById("accordionArrow").classList.add("open");
+    }
+
+    var newComment = document.createElement("div");
+    newComment.className = "comment-item";
+    newComment.innerText = commentText;
+    commentsList.appendChild(newComment);
+
+    var currentCount = commentsList.getElementsByClassName("comment-item").length;
+    var titleText = document.getElementById("comments-title-text");
+    if (currentCount === 1) {
+        titleText.innerText = "הערה 1";
+    } else {
+        titleText.innerText = "הערות (" + currentCount + ")";
+    }
+
+    inputComment.value = "";
+    sendBtn.style.display = "none";
+    document.getElementById("typingIndicator").style.display = "none";
+    commentsList.scrollTop = commentsList.scrollHeight;
 }
