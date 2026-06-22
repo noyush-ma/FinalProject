@@ -84,6 +84,7 @@ function postsText() {
 }
 document.getElementById("searchInput").addEventListener("input", postsText);
 
+function focusCommentInput() {
 function toggleComments() {
     var commentsList = document.getElementById("commentsList");
     var arrow = document.getElementById("accordionArrow");
@@ -112,6 +113,11 @@ function focusCommentInput() {
 function showTyping() {
     var inputComment = document.getElementById("newCommentInput");
     var indicator = document.getElementById("typingIndicator");
+    
+    if (inputComment.value.length > 0) {
+        indicator.style.display = "block";
+    } else {
+        indicator.style.display = "none";
     var sendBtn = document.getElementById("sendCommentBtn");
     
     if (inputComment.value.trim().length > 0) {
@@ -133,6 +139,27 @@ function addComment() {
         return;
     }
 
+    var newComment = document.createElement("div");
+    newComment.className = "comment-item";
+    newComment.innerText = commentText;
+
+    commentsList.appendChild(newComment);
+
+    inputComment.value = "";
+
+    document.getElementById("typingIndicator").style.display = "none";
+
+    commentsList.scrollTop = commentsList.scrollHeight;
+}
+
+function openShareModal() {
+    var shareModal = document.getElementById("shareModal");
+    shareModal.style.display = "flex";
+}
+
+function closeShareModal() {
+    var shareModal = document.getElementById("shareModal");
+    shareModal.style.display = "none";
     if (commentsList.style.display === "none") {
         commentsList.style.display = "block";
         document.getElementById("accordionArrow").classList.add("open");
