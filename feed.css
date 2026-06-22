@@ -593,3 +593,36 @@ nav a:last-child {
     background-color: #d5d5d5;
     color: #e60023;
 }
+
+.delete-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.delete-dropdown {
+    display: none; 
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    background-color: white; 
+    border: 1px solid #ccc; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+    padding: 8px; 
+    border-radius: 4px; 
+    z-index: 100;
+}
+
+.delete-dropdown button {
+    color: red; 
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    white-space: nowrap; 
+    font-weight: bold;
+    padding: 4px 8px;
+}
+
+.delete-dropdown button:hover {
+    background-color: #f5f5f5;
+    border-radius: 2px;
+}

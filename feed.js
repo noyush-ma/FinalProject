@@ -1,4 +1,8 @@
+let currentOpenImg = null;
+
 function openModal(element) {
+    currentOpenImg = element;
+    
     var modal = document.getElementById("imageModal");
     modal.style.display = "flex";
     
@@ -8,7 +12,8 @@ function openModal(element) {
     var targetLikes = element.getAttribute("data-likes");
     document.getElementById("like-count").innerText = targetLikes;
 
-    var targetUsername = element.getElementById("modalUsername").innerText = element.getAttribute("data-username");
+    var targetUsername = element.getAttribute("data-username");
+    document.getElementById("modalUsername").innerText = targetUsername;
 
     var targetDesc = element.getAttribute("data-description");
     document.getElementById("modalDesc").innerText = targetDesc;
@@ -161,7 +166,33 @@ function openShareModal() {
     shareModal.style.display = "flex";
 }
 
+// 
 function closeShareModal() {
     var shareModal = document.getElementById("shareModal");
     shareModal.style.display = "none";
 }
+
+function toggleDeleteMenu(event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById("deleteDropdown");
+    const isHidden = window.getComputedStyle(dropdown).display === "none";
+    dropdown.style.display = isHidden ? "block" : "none";
+}
+
+function deleteCurrentPost() {
+    if (!currentOpenImg) return;
+    
+    const confirmDelete = confirm("האם את בטוחה שברצונך למחוק פוסט זה?");
+    if (confirmDelete) {
+        currentOpenImg.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        document.getElementById("modalImg").src = currentOpenImg.src;
+        document.getElementById("deleteDropdown").style.display = "none";
+    }
+}
+
+window.addEventListener('click', function() {
+    const dropdown = document.getElementById("deleteDropdown");
+    if (dropdown) {
+        dropdown.style.display = "none";
+    }
+});
