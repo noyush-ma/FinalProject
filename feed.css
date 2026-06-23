@@ -728,6 +728,10 @@ body.dark-mode #createPost img {
     filter: invert(1);
 }   
 
+body.dark-mode #messagesButton img {
+    filter: invert(1);
+}
+
 body.active-pink {
   background-color: pink;
   transition: background-color 0s; 
@@ -821,6 +825,6 @@ body.active-pink {
 }
 
 body.dark-mode .notification-toast {
-  background-color: #ffffff;
+  background-color: red;
   color: #111111;
 }
