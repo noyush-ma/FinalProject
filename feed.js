@@ -206,10 +206,9 @@ function toggleDarkMode() {
     }
 }
    
+const button = document.getElementById('createPost');
 const badge = document.getElementById('badge');
 let clickCount = 0;
-
-const button = document.getElementById('createPost');
 
 button.addEventListener('click', () => {
   document.body.classList.add('active-pink');
@@ -220,10 +219,20 @@ button.addEventListener('click', () => {
   button.classList.remove('animate-btn');
   void button.offsetWidth; 
   button.classList.add('animate-btn');
+  
   clickCount++;
   badge.textContent = clickCount;
   
   if (clickCount > 0) {
     badge.classList.add('show');
+    
+    const toast = document.createElement('div');
+    toast.className = 'notification-toast';
+    toast.innerText = '💬 קיבלת הודעה חדשה!';
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.remove();
+    }, 2000);
   }
 });

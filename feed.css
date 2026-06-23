@@ -769,4 +769,58 @@ body.active-pink {
     cursor: pointer;
     margin-bottom: 15px;
     position: relative;
+
+}
+
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 12px; 
+    background-color: #e60023;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    cursor: pointer;
+    display: none; 
+    z-index: 1002; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#scrollToTopBtn:hover {
+    background-color: #ad001d;
+    transform: scale(1.05);
+}
+
+.heart-pop {
+    animation: heartBeatEffect 0.5s ease-in-out;
+}
+
+@keyframes heartBeatEffect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); } 
+    100% { transform: scale(1); } 
+}
+
+.notification-toast {
+  position: fixed;
+  bottom: 275px;
+  right: 55px;
+  background-color: red;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+}
+
+body.dark-mode .notification-toast {
+  background-color: #ffffff;
+  color: #111111;
 }
