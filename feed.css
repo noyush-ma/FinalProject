@@ -787,6 +787,7 @@ body.active-pink {
     cursor: pointer;
     margin-bottom: 15px;
     position: relative;
+
 }
 
 #scrollToTopBtn {
@@ -820,4 +821,24 @@ body.active-pink {
     0% { transform: scale(1); }
     50% { transform: scale(1.4); } 
     100% { transform: scale(1); } 
+}
+
+.notification-toast {
+  position: fixed;
+  bottom: 275px;
+  right: 55px;
+  background-color: red;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 16px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+}
+
+body.dark-mode .notification-toast {
+  background-color: #ffffff;
+  color: #111111;
 }
