@@ -770,7 +770,7 @@ body.active-pink {
 
 .badge {
   position: absolute;
-  bottom: 300px;
+  bottom: 330px;
   right: 5px;
   background-color: red;
   color: white;
@@ -829,7 +829,7 @@ body.active-pink {
 
 .notification-toast {
     position: fixed;
-    bottom: 275px;
+    bottom: 310px;
     right: 55px;
     background-color: red;
     color: #ffffff;
