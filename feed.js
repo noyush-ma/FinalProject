@@ -206,6 +206,9 @@ function toggleDarkMode() {
     }
 }
    
+const badge = document.getElementById('badge');
+let clickCount = 0;
+
 const button = document.getElementById('createPost');
 
 button.addEventListener('click', () => {
@@ -217,4 +220,26 @@ button.addEventListener('click', () => {
   button.classList.remove('animate-btn');
   void button.offsetWidth; 
   button.classList.add('animate-btn');
+  clickCount++;
+  badge.textContent = clickCount;
+  
+  if (clickCount > 0) {
+    badge.classList.add('show');
+  }
 });
+
+window.onscroll = function() {
+    const topBtn = document.getElementById("scrollToTopBtn");
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        topBtn.style.display = "block";
+    } else {
+        topBtn.style.display = "none";
+    }
+};
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth" 
+    });
+}
