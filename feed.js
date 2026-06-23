@@ -205,3 +205,25 @@ function toggleDarkMode() {
         btn.innerText = "🌙";
     }
 }
+   
+const badge = document.getElementById('badge');
+let clickCount = 0;
+
+const button = document.getElementById('createPost');
+
+button.addEventListener('click', () => {
+  document.body.classList.add('active-pink');
+  setTimeout(() => {
+    document.body.classList.remove('active-pink');
+  }, 50);
+
+  button.classList.remove('animate-btn');
+  void button.offsetWidth; 
+  button.classList.add('animate-btn');
+  clickCount++;
+  badge.textContent = clickCount;
+  
+  if (clickCount > 0) {
+    badge.classList.add('show');
+  }
+});

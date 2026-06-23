@@ -5,6 +5,7 @@ body {
     background-color: white;
     color: #111;
     transition: background-color 0.3s, color 0.3s;
+    transition: background-color 2s ease-out;
 }
 
 header {
@@ -655,9 +656,27 @@ body.dark-mode nav {
     box-shadow: -1px 0 5px rgba(255,255,255,0.05);
 }
 
-body.dark-mode nav a:first-child img {
-    background-color: #111111 !important;
-    border-radius: 50%;
+.logo-light {
+    display: inline-block;
+}
+
+.logo-dark {
+    display: none;
+}
+
+body.dark-mode .logo-light {
+    display: none !important;
+}
+
+body.dark-mode .logo-dark {
+    display: inline-block !important;
+    background: transparent !important;
+}
+
+nav a:first-child .logo-light,
+nav a:first-child .logo-dark {
+    width: 40px;
+    height: 40px;
     object-fit: contain;
 }
 
@@ -712,4 +731,60 @@ body.dark-mode .send-user-btn {
 body.dark-mode .send-user-btn:hover {
     background-color: #555555;
     color: #e60023;
+}
+
+#createPost{
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 15px;
+    display: inline-block;
+    transition: transform 0.1s ease;
+}
+
+body.dark-mode #createPost img {
+    filter: invert(1);
+}   
+
+body.active-pink {
+  background-color: pink;
+  transition: background-color 0s; 
+}
+
+#createPost.animate-btn {
+  animation: shakeEffect 0.3s ease-in-out; 
+}
+
+@keyframes shakeEffect {
+  0% { transform: scale(1.15) translateX(0); }
+  20% { transform: scale(1.15) translateX(-4px); }
+  40% { transform: scale(1.15) translateX(4px); }
+  60% { transform: scale(1.15) translateX(-4px); }
+  80% { transform: scale(1.15) translateX(4px); }
+  100% { transform: scale(1) translateX(0); }
+}
+
+.badge {
+  position: absolute;
+  bottom: 300px;
+  right: 5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: bold;
+  display: none; 
+}
+
+.badge.show {
+  display: block;
+}
+
+#messagesButton{
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 15px;
+    position: relative;
 }
