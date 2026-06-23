@@ -245,7 +245,7 @@ button.addEventListener('click', () => {
     setTimeout(() => {
       toast.remove();
     }, 2000);
-  }
+  } 
 });
 
 window.onscroll = function() {
@@ -263,3 +263,40 @@ function scrollToTop() {
         behavior: "smooth" 
     });
 }
+
+function toggleThreeDotsMenu() {
+    const dropdown = document.getElementById('filterDropdown');
+    dropdown.classList.toggle('show');
+}
+
+function filterImages(category) {
+    const posts = document.querySelectorAll('.post-card');
+    const noResultsMessage = document.getElementById('noResultsMessage');
+    let hasVisibleItems = false;
+
+    posts.forEach(post => {
+        if (category === 'all' || post.getAttribute('data-category') === category) {
+            post.style.display = 'block';
+            hasVisibleItems = true;
+        } else {
+            post.style.display = 'none';
+        }
+    });
+
+    if (hasVisibleItems) {
+        noResultsMessage.style.display = 'none';
+    } else {
+        noResultsMessage.style.display = 'block';
+    }
+
+    document.getElementById('filterDropdown').classList.remove('show');
+}
+
+window.addEventListener('click', function(event) {
+    if (!event.target.matches('#threeDots')) {
+        const dropdown = document.getElementById('filterDropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+});
