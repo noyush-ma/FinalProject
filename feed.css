@@ -891,3 +891,12 @@ body.dark-mode .notification-toast {
     font-size: 25px;
     margin-top: 15px;
 }
+
+body.dark-mode #threeDots {
+    color: white;
+}
+
+body.dark-mode .filter-dropdown {
+    background-color: #232323;
+    color: #ffffff;
+}
