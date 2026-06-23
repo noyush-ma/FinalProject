@@ -38,16 +38,27 @@ function closeModal() {
 }
 
 function doLike() {
-    var heartIcon = document.getElementById("heartIcon");
-    var likeCount = document.getElementById("like-count");
-    var currentLikes = parseInt(likeCount.innerText);
+    const likeImg = document.querySelector("#likeBtn img");
+    const likeCountSpan = document.getElementById("like-count");
+    
+    if (!likeImg || !likeCountSpan) return;
 
-    if (heartIcon.src.indexOf("emptyHeart.png") !== -1){
-        heartIcon.src = "fullHeart.png";
-        likeCount.innerText = currentLikes + 1;
+    let currentSrc = likeImg.getAttribute("src");
+    let currentLikes = parseInt(likeCountSpan.textContent) || 0;
+
+    if (currentSrc === "emptyHeart.png") {
+        likeImg.setAttribute("src", "fullHeart.png");
+        likeCountSpan.textContent = currentLikes + 1;
+
+        likeImg.classList.add("heart-pop");
+    
+    setTimeout(() => {
+        likeImg.classList.remove("heart-pop");
+    }, 400);
+    
     } else {
-        heartIcon.src = "emptyHeart.png";
-        likeCount.innerText = currentLikes - 1;
+        likeImg.setAttribute("src", "emptyHeart.png");
+        likeCountSpan.textContent = Math.max(0, currentLikes - 1);
     }
 }
 
@@ -236,3 +247,19 @@ button.addEventListener('click', () => {
     }, 2000);
   }
 });
+
+window.onscroll = function() {
+    const topBtn = document.getElementById("scrollToTopBtn");
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        topBtn.style.display = "block";
+    } else {
+        topBtn.style.display = "none";
+    }
+};
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth" 
+    });
+}
