@@ -811,3 +811,13 @@ body.active-pink {
     background-color: #ad001d;
     transform: scale(1.05);
 }
+
+.heart-pop {
+    animation: heartBeatEffect 0.5s ease-in-out;
+}
+
+@keyframes heartBeatEffect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); } 
+    100% { transform: scale(1); } 
+}
