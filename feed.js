@@ -60,7 +60,6 @@ function doLike() {
         likeImg.setAttribute("src", "emptyHeart.png");
         likeCountSpan.textContent = Math.max(0, currentLikes - 1);
     }
-
 }
 
 function doSave() {
