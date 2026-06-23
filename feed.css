@@ -656,9 +656,27 @@ body.dark-mode nav {
     box-shadow: -1px 0 5px rgba(255,255,255,0.05);
 }
 
-body.dark-mode nav a:first-child img {
-    background-color: #111111 !important;
-    border-radius: 50%;
+.logo-light {
+    display: inline-block;
+}
+
+.logo-dark {
+    display: none;
+}
+
+body.dark-mode .logo-light {
+    display: none !important;
+}
+
+body.dark-mode .logo-dark {
+    display: inline-block !important;
+    background: transparent !important;
+}
+
+nav a:first-child .logo-light,
+nav a:first-child .logo-dark {
+    width: 40px;
+    height: 40px;
     object-fit: contain;
 }
 
@@ -721,7 +739,7 @@ body.dark-mode .send-user-btn:hover {
     cursor: pointer;
     margin-bottom: 15px;
     display: inline-block;
-  transition: transform 0.1s ease;
+    transition: transform 0.1s ease;
 }
 
 body.dark-mode #createPost img {
