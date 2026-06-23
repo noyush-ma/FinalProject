@@ -7,14 +7,22 @@
 </head>
 <body>
 
-    <header>
-        <img src="profileLogo.png" alt="Profile">
-        <img src="arrow.png" alt="arrow">
-        <div>
-           <input type="text" id="searchInput" placeholder="חיפוש">
-        </div>
-        <button id="darkModeBtn" onclick="toggleDarkMode()">🌙</button>
-    </header>
+<header>
+    <img src="profileLogo.png" alt="Profile">
+    <img src="arrow.png" alt="arrow">
+    <div>
+       <input type="text" id="searchInput" placeholder="חיפוש">
+    </div>
+    <button id="darkModeBtn" onclick="toggleDarkMode()">🌙</button>
+    <button id="threeDots" onclick="toggleThreeDotsMenu()">⋮</button>
+</header>
+
+<div id="filterDropdown" class="filter-dropdown">
+    <button onclick="filterImages('all')">הכל</button>
+    <button onclick="filterImages('nature')">טבע ונופים</button>
+    <button onclick="filterImages('animals')">בעלי חיים</button>
+    <button onclick="filterImages('urban')">עירוני ועיצוב</button>
+</div>
 
     <nav>
         <a href="#">
@@ -35,49 +43,49 @@
     </nav>
 
 <div class="images">
-    <div class="post-card">
+    <div class="post-card" data-category="nature">
         <img src="view.png" alt="view" data-likes="120" data-username="karin" data-description="Austrian nature" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="nature">
         <img src="flower.png" alt="flower" data-likes="45" data-username="floraa" data-description="pink drowing flower" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="animals">
         <img src="koala.png" alt="koala" data-likes="38" data-username="Israel_zoo" data-description="our cute koala!" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="nature">
         <img src="sea.png" alt="sea" data-likes="213" data-username="saritush" data-description="Sea in Spain!!" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="animals">
         <img src="dog.png" alt="dog" data-likes="89" data-username="let_animals_live" data-description="our dog loee on a trip!!!" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="animals">
         <img src="cat.png" alt="cat" data-likes="67" data-username="NASA" data-description="A cat from Florida is taking a pic with the moon" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="coffeeShop.png" alt="coffeeShop" data-likes="81" data-username="Eli_85" data-description="come to visit us at our new coffeeShop!" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="mall.png" alt="mall" data-likes="9" data-username="Sasha" data-description="at the mall!!" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="artsDrowings.png" alt="arts" data-likes="304" data-username="yarden_drows" data-description="Another drowing of mine" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="city.png" alt="city" data-likes="704" data-username="shoogi" data-description="USA" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="wallpaper.png" alt="wallpaper" data-likes="147" data-username="lauren" data-description="cute wallpaper!" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="minions.png" alt="minions" data-likes="999" data-username="Diseny" data-description="a happy birthday wish from the minions." onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="school.png" alt="school" data-likes="63" data-username="nehoray" data-description="i'm bored" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="urban">
         <img src="cooking.png" alt="cooking" data-likes="79" data-username="cook_with_sharon" data-description="making chicken with vegetabales" onclick="openModal(this)">
     </div>
-    <div class="post-card">
+    <div class="post-card" data-category="nature">
         <img src="rainbow.png" alt="rainbow" data-likes="516" data-username="Angel" data-description="a beautiful rainbow" onclick="openModal(this)">
     </div>
 </div>
