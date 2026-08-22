@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/noyush-ma/FinalProject#readme",
   "dependencies": {
-    "express": "^5.2.1"
-  },
-  "devDependencies": {}
+    "express": "^5.2.1",
+    "mongoose": "^9.9.3"
+  }
 }
