@@ -14,10 +14,10 @@ app.get('/', (req, res) => {
 });
 
 // 2. חיבור ל-MongoDB (מקומי או מרוחק)
-const MONGO_URI = 'mongodb://127.0.0.1:27017/pinterest_db'; // שם בסיס הנתונים
+const MONGO_URI = 'mongodb+srv://noya8657_db_user:<db_password>@cluster0.5i8zsqf.mongodb.net/?appName=Cluster0'; // שם בסיס הנתונים
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('Connected to MongoDB successfully!'))
+  .then(() => console.log('Connected to MongoDB Atlas successfully!'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
 app.listen(3000, () => {
