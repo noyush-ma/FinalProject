@@ -900,3 +900,85 @@ body.dark-mode .filter-dropdown {
     background-color: #232323;
     color: #ffffff;
 }
+
+/* העיצוב של המודל */
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1000; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  background-color: rgba(0, 0, 0, 0.6); 
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  max-width: 400px;
+  max-height: 450px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  position: absolute;
+  margin-top: 70px;
+  flex-direction: column;
+  align-items: flext;  
+  justify-content: center;
+  direction: ltr;
+  text-align: left;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #e60023;
+  text-align: center;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.modal-content input, 
+.modal-content textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.submit-btn {
+  width: 100%;
+  background: #e60023;
+  color: white;
+  border: none;
+  padding: 10px;
+  font-weight: bold;
+  border-radius: 20px;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background: #ad081b;
+}
