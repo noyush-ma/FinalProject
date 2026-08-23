@@ -920,7 +920,8 @@ body.dark-mode .filter-dropdown {
   padding: 25px;
   border-radius: 16px;
   max-width: 400px;
-  max-height: 450px;
+  max-height: 75vh;
+  overflow-y: auto;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   position: absolute;
   margin-top: 70px;
@@ -953,7 +954,7 @@ body.dark-mode .filter-dropdown {
 
 .modal-content label {
   display: block;
-  margin-top: 20px;
+  margin-top: 15px;
   font-weight: bold;
 }
 
@@ -961,7 +962,7 @@ body.dark-mode .filter-dropdown {
 .modal-content textarea {
   width: 100%;
   padding: 8px;
-  margin-top: 5px;
+  margin-top: 0;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-sizing: border-box;
@@ -981,4 +982,25 @@ body.dark-mode .filter-dropdown {
 
 .submit-btn:hover {
   background: #ad081b;
+}
+
+/* עיצוב אחיד לכל השדות בתוך המודל (כולל התפריטים הנפתחים) */
+.modal-content input, 
+.modal-content textarea,
+.modal-content select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: inherit;
+  background-color: #fff;
+}
+
+/* התאמה מיוחדת לתפריטים הנפתחים (select) */
+.modal-content select {
+  cursor: pointer;
+  height: 35px;
 }

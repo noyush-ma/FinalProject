@@ -301,25 +301,30 @@ window.addEventListener('click', function(event) {
     }
 });
 
+// 1. פונקציה שטוענת ומציגה את הפוסטים מהדאטהבייס
 async function loadPostsFromDB() {
   try {
+    // שליחת בקשה לשרת לקבלת כל הפוסטים
     const res = await fetch('/api/posts');
     const posts = await res.json();
 
-    const postsContainer = document.getElementById('YOUR_CONTAINER_ID'); // תחליפי ל-ID של הקונטיינר אצלך
-    postsContainer.innerHTML = ''; // מנקה אלמנטים קודמים/סטטיים
+    // תחיליפי את 'postsContainer' ל-ID האמיתי של ה-div ב-HTML שלך
+    const postsContainer = document.getElementById('postsContainer'); 
+    postsContainer.innerHTML = ''; // ניקוי ה-div לפני שמכניסים תוכן חדש
 
+    // לולאה שעוברת על כל פוסט ויוצרת עבורו אלמנט HTML
     posts.forEach(post => {
-      // יצירת האלמנט לפי ה-HTML והעיצוב הקיים באתר שלך
       const postElement = document.createElement('div');
-      postElement.className = 'post'; // הקלאס הקיים אצלך ב-CSS
+      postElement.className = 'post'; // קלאס מוגדר ב-CSS
 
+      // הכנסת התוכן לתוך ה-div של הפוסט
       postElement.innerHTML = `
         <img src="${post.imgUrl}" alt="${post.title}">
         <h3>${post.title}</h3>
         <p>${post.description || ''}</p>
       `;
 
+      // הוספת הפוסט לקונטיינר הראשי בעמוד
       postsContainer.appendChild(postElement);
     });
   } catch (err) {
@@ -327,15 +332,17 @@ async function loadPostsFromDB() {
   }
 }
 
-// הרצה ברגע שהעמוד נטען
+// הרצת הפונקציה מיד כשהעמוד מסיים להיטען
 document.addEventListener('DOMContentLoaded', loadPostsFromDB);
 
+
+// 2. ניהול חלון המודל (פתיחה וסגירה)
 const modal = document.getElementById('postModal');
 const createPostBtn = document.getElementById('createPost');
 const closeModalBtn = document.getElementById('closeModal');
 const postForm = document.getElementById('postForm');
 
-// פתיחת המודל בלחיצה על הכפתור הקיים
+// פתיחת המודל בלחיצה על כפתור יצירת פוסט
 createPostBtn.addEventListener('click', () => {
   modal.style.display = 'flex';
 });
@@ -345,40 +352,51 @@ closeModalBtn.addEventListener('click', () => {
   modal.style.display = 'none';
 });
 
-// סגירת המודל בלחיצה מחוץ לחלון
+// סגירת המודל בלחיצה על הרקע מחוץ לחלון
 window.addEventListener('click', (e) => {
   if (e.target === modal) {
     modal.style.display = 'none';
   }
 });
 
-// שליחת הטופס לשרת
+// 3. שליחת הטופס והוספת פוסט חדש לשרת
 postForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const title = document.getElementById('title').value;
-  const imgUrl = document.getElementById('imgUrl').value;
-  const description = document.getElementById('description').value;
+  // שליפת ה ערכים מהטופס
+  const titleVal = document.getElementById('title').value;
+  const imgUrlVal = document.getElementById('imgUrl').value;
+  const descriptionVal = document.getElementById('description').value;
+  const categoryVal = document.getElementById('category').value;
+  const postTypeVal = document.getElementById('postType').value;
+
+  // בניית האובייקט - נשלח authorId חוקי של מונגו בפורמט ObjectId (24 תווים)
+  const newPostData = {
+    title: titleVal,
+    imgUrl: imgUrlVal,
+    description: descriptionVal,
+    category: categoryVal,
+    postType: postTypeVal,
+    authorId: '650000000000000000000000' 
+  };
 
   try {
     const res = await fetch('/api/posts', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, imgUrl, description })
+      headers: { 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify(newPostData)
     });
 
     if (res.ok) {
       alert('הפוסט פורסם בהצלחה!');
       postForm.reset();
       modal.style.display = 'none';
-      
-      // אם יש לך פונקציה שטוענת מחדש את הפוסטים בעמוד, תפעילי אותה כאן:
-      if (typeof loadPostsFromDB === 'function') {
-        loadPostsFromDB();
-      }
+      if (typeof loadPostsFromDB === 'function') loadPostsFromDB();
     } else {
-      const data = await res.json();
-      alert('שגיאה: ' + data.message);
+      const errorData = await res.json();
+      alert('שגיאה מהשרת: ' + (errorData.message || 'לא ניתן לשמור את הפוסט'));
     }
   } catch (err) {
     console.error(err);
