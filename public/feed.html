@@ -1,5 +1,4 @@
-<!-- /*mahlev-noya-219037850-benshoshan-shir-334830486*/ -->
- 
+
 <html dir="rtl">
 <head>
     <title>Pinterest</title>
@@ -31,6 +30,7 @@
         </a>
         <a href="#"><img src="homeLogo1.png"></a>
         <a href="#"><img src="boardsLogo1.png"></a>
+
         <div class="create-post-container">
             <button id="createPost"><img src="createLogo1.png"></button>
         </div>
@@ -222,6 +222,22 @@
                 <div class="user-avatar" style="background-color: #ffe4e1;">L</div>
             </div>
         </div>
+    </div>
+</div>
+
+ <div id="postModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="closeModal">&times;</span>
+        <h2>create new post</h2>
+        <form id="postForm">
+            <label for="title">title:</label>
+            <input type="text" id="title" required placeholder="enter title for the post">
+            <label for="imgUrl">image URL:</label>
+            <input type="url" id="imgUrl" required placeholder="https://example.com/image.jpg">
+            <label for="description">description:</label>
+            <textarea id="description" rows="4" placeholder="describe the post..."></textarea>
+            <button type="submit" class="submit-btn">post</button>
+        </form>
     </div>
 </div>
 

@@ -300,3 +300,88 @@ window.addEventListener('click', function(event) {
         }
     }
 });
+
+async function loadPostsFromDB() {
+  try {
+    const res = await fetch('/api/posts');
+    const posts = await res.json();
+
+    const postsContainer = document.getElementById('YOUR_CONTAINER_ID'); // תחליפי ל-ID של הקונטיינר אצלך
+    postsContainer.innerHTML = ''; // מנקה אלמנטים קודמים/סטטיים
+
+    posts.forEach(post => {
+      // יצירת האלמנט לפי ה-HTML והעיצוב הקיים באתר שלך
+      const postElement = document.createElement('div');
+      postElement.className = 'post'; // הקלאס הקיים אצלך ב-CSS
+
+      postElement.innerHTML = `
+        <img src="${post.imgUrl}" alt="${post.title}">
+        <h3>${post.title}</h3>
+        <p>${post.description || ''}</p>
+      `;
+
+      postsContainer.appendChild(postElement);
+    });
+  } catch (err) {
+    console.error('שגיאה בטעינת הפוסטים:', err);
+  }
+}
+
+// הרצה ברגע שהעמוד נטען
+document.addEventListener('DOMContentLoaded', loadPostsFromDB);
+
+const modal = document.getElementById('postModal');
+const createPostBtn = document.getElementById('createPost');
+const closeModalBtn = document.getElementById('closeModal');
+const postForm = document.getElementById('postForm');
+
+// פתיחת המודל בלחיצה על הכפתור הקיים
+createPostBtn.addEventListener('click', () => {
+  modal.style.display = 'flex';
+});
+
+// סגירת המודל בלחיצה על ה-X
+closeModalBtn.addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+// סגירת המודל בלחיצה מחוץ לחלון
+window.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.style.display = 'none';
+  }
+});
+
+// שליחת הטופס לשרת
+postForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const title = document.getElementById('title').value;
+  const imgUrl = document.getElementById('imgUrl').value;
+  const description = document.getElementById('description').value;
+
+  try {
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, imgUrl, description })
+    });
+
+    if (res.ok) {
+      alert('הפוסט פורסם בהצלחה!');
+      postForm.reset();
+      modal.style.display = 'none';
+      
+      // אם יש לך פונקציה שטוענת מחדש את הפוסטים בעמוד, תפעילי אותה כאן:
+      if (typeof loadPostsFromDB === 'function') {
+        loadPostsFromDB();
+      }
+    } else {
+      const data = await res.json();
+      alert('שגיאה: ' + data.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('שגיאה בתקשורת עם השרת');
+  }
+});
