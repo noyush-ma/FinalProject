@@ -319,9 +319,9 @@ async function loadPostsFromDB() {
 
       // הכנסת התוכן לתוך ה-div של הפוסט
       postElement.innerHTML = `
-        <img src="${post.imageUrl}" alt="${post.title}">
+        <img src="${post.imgUrl}" alt="${post.title}">
         <h3>${post.title}</h3>
-        <p>${post.textContent || ''}</p>
+        <p>${post.description || ''}</p>
       `;
 
       // הוספת הפוסט לקונטיינר הראשי בעמוד
