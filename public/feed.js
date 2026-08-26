@@ -377,7 +377,6 @@ postForm.addEventListener('submit', async (e) => {
     description: descriptionVal,
     category: categoryVal,
     postType: postTypeVal,
-    authorId: '650000000000000000000000' 
   };
 
   try {
