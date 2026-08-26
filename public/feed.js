@@ -315,13 +315,17 @@ async function loadPostsFromDB() {
     posts.forEach(post => {
       const postElement = document.createElement('div');
       postElement.className = 'post-card'; // קלאס מוגדר ב-CSS
-
+      postElement.setAttribute('data-category', (post.category || 'General').toLowerCase()); // שמירת הקטגוריה כ-attribute
       // הכנסת התוכן לתוך ה-div של הפוסט
-      postElement.innerHTML = `
-        <img src="${post.imgeUrl}" alt="${post.title}">
-        <h3>${post.title}</h3>
-        <p>${post.textContent || ''}</p>
-      `;
+      const img = document.createElement('img');
+    img.src = post.imageUrl;
+    img.alt = post.title;
+    img.setAttribute('data-likes', 0);
+    img.setAttribute('data-username', 'you'); // ניתן לשנות בהתאם למידע שיש לך
+    img.setAttribute('data-description', post.textContent || '');
+    img.setAttribute('onclick', 'openModal(this)');
+    postElement.appendChild(img);
+    postsContainer.appendChild(postElement);
 
       // הוספת הפוסט לקונטיינר הראשי בעמוד
       postsContainer.appendChild(postElement);
