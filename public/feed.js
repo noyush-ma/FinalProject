@@ -310,7 +310,6 @@ async function loadPostsFromDB() {
 
     // תחיליפי את 'postsContainer' ל-ID האמיתי של ה-div ב-HTML שלך
     const postsContainer = document.getElementById('postsContainer'); 
-    postsContainer.innerHTML = ''; // ניקוי ה-div לפני שמכניסים תוכן חדש
 
     // לולאה שעוברת על כל פוסט ויוצרת עבורו אלמנט HTML
     posts.forEach(post => {
