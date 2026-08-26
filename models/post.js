@@ -3,18 +3,14 @@ const mongoose = require('mongoose');
 
 // הגדרת ה-Schema של הפוסט
 const postSchema = new mongoose.Schema({
-  authorId: {
-    type: Number,
-    required: true
-  },
   postType: {
     type: String,
-    required: true,
+    default: 'TEXT',
     enum: ['TEXT', 'IMAGE', 'COMBINED'] // תמיכה בסוגי פוסטים שונים
   },
   title: {
     type: String,
-    required: true
+    default: 'Untitled'
   },
   textContent: {
     type: String,
@@ -26,7 +22,7 @@ const postSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true
+    default: 'General'
   },
   createdAt: {
     type: Date,
