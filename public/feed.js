@@ -315,7 +315,7 @@ async function loadPostsFromDB() {
     // לולאה שעוברת על כל פוסט ויוצרת עבורו אלמנט HTML
     posts.forEach(post => {
       const postElement = document.createElement('div');
-      postElement.className = 'post'; // קלאס מוגדר ב-CSS
+      postElement.className = 'post-card'; // קלאס מוגדר ב-CSS
 
       // הכנסת התוכן לתוך ה-div של הפוסט
       postElement.innerHTML = `
