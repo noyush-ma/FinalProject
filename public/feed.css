@@ -902,7 +902,7 @@ body.dark-mode .filter-dropdown {
 }
 
 /* העיצוב של המודל */
-.modal {
+.modalP {
   display: none; 
   position: fixed; 
   z-index: 1000; 
@@ -915,7 +915,7 @@ body.dark-mode .filter-dropdown {
   align-items: center;
 }
 
-.modal-content {
+.modalP-content {
   background-color: #fff;
   padding: 25px;
   border-radius: 16px;
@@ -946,20 +946,20 @@ body.dark-mode .filter-dropdown {
   color: #000;
 }
 
-.modal-content h2 {
+.modalP-content h2 {
   margin-top: 0;
   color: #e60023;
   text-align: center;
 }
 
-.modal-content label {
+.modalP-content label {
   display: block;
   margin-top: 15px;
   font-weight: bold;
 }
 
-.modal-content input, 
-.modal-content textarea {
+.modalP-content input, 
+.modalP-content textarea {
   width: 100%;
   padding: 8px;
   margin-top: 0;
@@ -985,9 +985,9 @@ body.dark-mode .filter-dropdown {
 }
 
 /* עיצוב אחיד לכל השדות בתוך המודל (כולל התפריטים הנפתחים) */
-.modal-content input, 
-.modal-content textarea,
-.modal-content select {
+.modalP-content input, 
+.modalP-content textarea,
+.modalP-content select {
   width: 100%;
   padding: 8px;
   margin-top: 4px;
@@ -1000,7 +1000,7 @@ body.dark-mode .filter-dropdown {
 }
 
 /* התאמה מיוחדת לתפריטים הנפתחים (select) */
-.modal-content select {
+.modalP-content select {
   cursor: pointer;
   height: 35px;
 }

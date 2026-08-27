@@ -7,8 +7,10 @@ router.post('/', async (req, res) => {
   try {
     const newPost = new Post({
       title: req.body.title,
-      imgUrl: req.body.imgUrl,
-      description: req.body.description
+      imageUrl: req.body.imgUrl,
+      textContent: req.body.description,
+      category: req.body.category,
+      postType: req.body.postType
     });
 
     const savedPost = await newPost.save();

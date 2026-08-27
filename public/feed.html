@@ -42,7 +42,7 @@
         <a href="#"><img src="settingsLogo1.png"></a>
     </nav>
 
-<div class="images">
+<div class="images" id="postsContainer">
     <div class="post-card" data-category="nature">
         <img src="view.png" alt="view" data-likes="120" data-username="karin" data-description="Austrian nature" onclick="openModal(this)">
     </div>
@@ -225,15 +225,16 @@
     </div>
 </div>
 
- <div id="postModal" class="modal">
-    <div class="modal-content post-modal-content">
+ <div id="postModal" class="modalP">
+    <div class="modalP-content post-modal-content">
         <span class="close-btn" id="closeModal">&times;</span>
         <h2>create new post</h2>
         <form id="postForm">
             <label for="title">title:</label> 
             <input type="text" id="title" required placeholder="enter title for the post">
             <label for="imgUrl">image URL:</label>
-            <input type="url" id="imgUrl" required placeholder="https://example.com/image.jpg">
+            <input type="file" id="imageUrl" accept="image/*" required>
+            <img id="imgPreview" src="" alt="" style="display: none; max-width: 100%;-top: 10px;">
             <label for="description">description:</label>
             <textarea id="description" rows="4" placeholder="describe the post..."></textarea>
             <label for="category">Category:</label>
