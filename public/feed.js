@@ -329,50 +329,29 @@ window.addEventListener('click', function(event) {
 });
 
 // 1. פונקציה שטוענת ומציגה את הפוסטים מהדאטהבייס
-async function loadPostsFromDB() {
+ async function loadPostsFromDB() {
   try {
-    // שליחת בקשה לשרת לקבלת כל הפוסטים
     const res = await fetch('/api/posts');
     const posts = await res.json();
 
-<<<<<<< Updated upstream
-    // תחיליפי את 'postsContainer' ל-ID האמיתי של ה-div ב-HTML שלך
-    const postsContainer = document.getElementById('postsContainer'); 
-    postsContainer.innerHTML = ''; // ניקוי ה-div לפני שמכניסים תוכן חדש
+    const postsContainer = document.getElementById('postsContainer');
 
-    // לולאה שעוברת על כל פוסט ויוצרת עבורו אלמנט HTML
     posts.forEach(post => {
       const postElement = document.createElement('div');
-      postElement.className = 'post'; // קלאס מוגדר ב-CSS
+      postElement.className = 'post-card';
+      postElement.setAttribute('data-category', (post.category || 'General').toLowerCase());
+      postElement.setAttribute('data-id', post._id);
 
-      // הכנסת התוכן לתוך ה-div של הפוסט
-      postElement.innerHTML = `
-       <img src="${post.imgUrl}" alt="${post.title}">
-        <p>${post.description || ''}</p>
-        <h3>${post.title}</h3>
-        <img src="${post.imageUrl}" alt="${post.title}">
-        <p>${post.textContent || ''}</p>
-      `;
-=======
-    const postsContainer = document.getElementById('postsContainer');
-    posts.forEach(post => {   
-          const postElement = document.createElement('div');
-      postElement.className = 'post-card'; // קלאס מוגדר ב-CSS
-      postElement.setAttribute('data-category', (post.category || 'General').toLowerCase()); // שמירת הקטגוריה כ-attribute
-      postElement.setAttribute('data-id', post._id); // מזהה הפוסט במונגו - נדרש למחיקה
-      // הכנסת התוכן לתוך ה-div של הפוסט
       const img = document.createElement('img');
-    img.src = post.imageUrl;
-    img.alt = post.title;
-    img.setAttribute('data-id', post._id); // אותו מזהה גם על התמונה, כדי שיהיה זמין מתוך המודל
-    img.setAttribute('data-likes', 0);
-    img.setAttribute('data-username', 'you'); // ניתן לשנות בהתאם למידע שיש לך
-    img.setAttribute('data-description', post.textContent || '');
-    img.setAttribute('onclick', 'openModal(this)');
-    postElement.appendChild(img);
->>>>>>> Stashed changes
+      img.src = post.imageUrl;
+      img.alt = post.title;
+      img.setAttribute('data-id', post._id);
+      img.setAttribute('data-likes', 0);
+      img.setAttribute('data-username', 'you');
+      img.setAttribute('data-description', post.textContent || '');
+      img.setAttribute('onclick', 'openModal(this)');
 
-      // הוספת הפוסט לקונטיינר הראשי בעמוד
+      postElement.appendChild(img);
       postsContainer.appendChild(postElement);
     });
   } catch (err) {
