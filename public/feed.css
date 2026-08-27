@@ -849,7 +849,7 @@ body.dark-mode .notification-toast {
 
 .filter-dropdown {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 60px; 
     right: 20px; 
     background-color: white;
