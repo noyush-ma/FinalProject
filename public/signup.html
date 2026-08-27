@@ -19,7 +19,13 @@
     
     <div>
         <p>username</p>
-        <input type="email" id="name">
+        <input type="text" id="username">
+        <p id="usernameError" class="error"></p>
+    </div>
+
+    <div>
+        <p>email</p>
+        <input type="email" id="email">
         <p id="emailError" class="error"></p>
     </div>
 
@@ -28,6 +34,8 @@
         <input type="password" id="password">
         <p id="passwordError" class="error"></p>
     </div>
+
+    <p id="serverError" class="error"></p>
 
     <div class = "text">
         <p id ="info">DISCOVER NEW IDEAS ON <br>PINTEREST <br><br><br>
@@ -41,8 +49,8 @@
 
     <br><br>
     
-    <button onclick="checkForm()">Enter</button>
-    <script src="login.js"></script>
+    <button onclick="handleSignup()">Enter</button>
+    <script src="signup.js"></script>
 
     
 </body>
