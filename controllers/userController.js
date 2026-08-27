@@ -1,6 +1,6 @@
 const User = require('../models/user');
 
-//  יצירת משתמש חדש
+// 1. יצירת משתמש חדש (Create)
 exports.createUser = async (req, res) => {
   try {
     const newUser = new User({
@@ -80,6 +80,30 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ message: 'משתמש לא נמצא' });
     }
     res.json({ message: 'המשתמש נמחק בהצלחה', deletedUser });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// 6. התחברות משתמש קיים (Login)
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'יש להזין אימייל וסיסמה' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user || user.password !== password) {
+      // הודעה גנרית בכוונה - לא לחשוף אם הבעיה היא באימייל או בסיסמה
+      return res.status(401).json({ message: 'אימייל או סיסמה שגויים' });
+    }
+
+    // לא מחזירים את הסיסמה חזרה ללקוח
+    const { password: _pw, ...userWithoutPassword } = user.toObject();
+    res.status(200).json(userWithoutPassword);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
