@@ -915,6 +915,19 @@ body.dark-mode .filter-dropdown {
   align-items: center;
 }
 
+body.dark-mode .modalP {
+  display: none; 
+  position: fixed; 
+  z-index: 1000; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  background-color: rgba(0, 0, 0, 0.6); 
+  justify-content: center;
+  align-items: center;
+}
+
 .modalP-content {
   background-color: #fff;
   padding: 25px;
@@ -932,6 +945,11 @@ body.dark-mode .filter-dropdown {
   text-align: left;
 }
 
+body.dark-mode .modalP-content {
+  background-color: #232323;
+  color: #ffffff;
+}
+
 .close-btn {
   position: absolute;
   top: 10px;
@@ -942,8 +960,16 @@ body.dark-mode .filter-dropdown {
   cursor: pointer;
 }
 
+body.dark-mode .close-btn {
+  color: #ccc;
+}
+
 .close-btn:hover {
   color: #000;
+}
+
+body.dark-mode .close-btn:hover {
+  color: #353434;
 }
 
 .modalP-content h2 {
@@ -956,16 +982,6 @@ body.dark-mode .filter-dropdown {
   display: block;
   margin-top: 15px;
   font-weight: bold;
-}
-
-.modalP-content input, 
-.modalP-content textarea {
-  width: 100%;
-  padding: 8px;
-  margin-top: 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
 }
 
 .submit-btn {
@@ -997,6 +1013,21 @@ body.dark-mode .filter-dropdown {
   text-align: center;
   font-family: inherit;
   background-color: #fff;
+}
+
+body.dark-mode .modalP-content input, 
+body.dark-mode .modalP-content textarea,
+body.dark-mode .modalP-content select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: inherit;
+  background-color: #333333;
+  color: #ffffff;
 }
 
 /* התאמה מיוחדת לתפריטים הנפתחים (select) */
