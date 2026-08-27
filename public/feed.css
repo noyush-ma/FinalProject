@@ -856,7 +856,7 @@ body.dark-mode .notification-toast {
     min-width: 160px;
     box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
     border-radius:  15px;
-    z-index: 1000;
+    z-index: 9999;
     padding: 6px 0;
     margin-right: 60px;
 }
@@ -905,7 +905,7 @@ body.dark-mode .filter-dropdown {
 .modalP {
   display: none; 
   position: fixed; 
-  z-index: 1000; 
+  z-index: 9999; 
   left: 0;
   top: 0;
   width: 100%; 
@@ -918,7 +918,7 @@ body.dark-mode .filter-dropdown {
 body.dark-mode .modalP {
   display: none; 
   position: fixed; 
-  z-index: 1000; 
+  z-index: 9999; 
   left: 0;
   top: 0;
   width: 100%; 
@@ -937,7 +937,7 @@ body.dark-mode .modalP {
   overflow-y: auto;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   position: absolute;
-  margin-top: 70px;
+  margin-top: 20px;
   flex-direction: column;
   align-items: flext;  
   justify-content: center;
