@@ -18,7 +18,7 @@ function openModal(element) {
     var targetDesc = element.getAttribute("data-description");
     document.getElementById("modalDesc").innerText = targetDesc;
 
-    document.getElementById("heartIcon").src = "emptyHeart.png";
+    document.getElementById("heartIcon").src = "icons/emptyHeart.png";
 
     var saveBtn = document.getElementById("saveBtn");
     saveBtn.innerText = "שמירה";
@@ -46,8 +46,8 @@ function doLike() {
     let currentSrc = likeImg.getAttribute("src");
     let currentLikes = parseInt(likeCountSpan.textContent) || 0;
 
-    if (currentSrc === "emptyHeart.png") {
-        likeImg.setAttribute("src", "fullHeart.png");
+    if (currentSrc === "icons/emptyHeart.png") {
+        likeImg.setAttribute("src", "icons/fullHeart.png");
         likeCountSpan.textContent = currentLikes + 1;
 
         likeImg.classList.add("heart-pop");
@@ -57,7 +57,7 @@ function doLike() {
     }, 400);
     
     } else {
-        likeImg.setAttribute("src", "emptyHeart.png");
+        likeImg.setAttribute("src", "icons/emptyHeart.png");
         likeCountSpan.textContent = Math.max(0, currentLikes - 1);
     }
 }
