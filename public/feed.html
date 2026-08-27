@@ -277,16 +277,19 @@
             <label for="title">title:</label> 
             <input type="text" id="title" required placeholder="enter title for the post">
             <label for="imgUrl">image URL:</label>
-            <input type="file" id="imageUrl" accept="image/*" required>
+            <input type="url" id="imgUrl" accept="image/*" required>
             <img id="imgPreview" src="" alt="" style="display: none; max-width: 100%;-top: 10px;">
             <label for="description">description:</label>
             <textarea id="description" rows="4" placeholder="describe the post..."></textarea>
             <label for="category">Category:</label>
             <select id="category" required>
                 <option value="" disabled selected>Select category</option>
-                <option value="Arts">Arts</option>
-                <option value="Drawings">Drawings</option>
-                <option value="General">General</option>
+                <option value="animals">Animals</option>
+                <option value="places">Places</option>
+                <option value="movies">Movies</option>
+                <option value="food&drinks">Food & Drinks</option>
+                <option value="arts">Arts</option>
+                <option value="general">General</option>
             </select>
             <label for="postType">Post Type:</label>
             <select id="postType" required>
