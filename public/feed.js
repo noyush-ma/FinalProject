@@ -260,19 +260,6 @@ button.addEventListener('click', () => {
   
   clickCount++;
   badge.textContent = clickCount;
-  
-  if (clickCount > 0) {
-    badge.classList.add('show');
-    
-    const toast = document.createElement('div');
-    toast.className = 'notification-toast';
-    toast.innerText = '💬 קיבלת הודעה חדשה!';
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.remove();
-    }, 2000);
-  } 
 });
 
 window.onscroll = function() {
