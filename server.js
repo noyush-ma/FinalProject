@@ -5,7 +5,7 @@ const app = express();
 const postsRouter = require('./routes/posts');
 
 app.use(express.static('public'));
-app.use(express.json());
+app.use(express.json({limit: '10mb'})); // הגבלת גודל הבקשה ל-10MB
 
 app.use('/api/posts', postsRouter);
 

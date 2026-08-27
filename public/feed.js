@@ -189,14 +189,41 @@ function toggleDeleteMenu(event) {
     dropdown.style.display = isHidden ? "block" : "none";
 }
 
-function deleteCurrentPost() {
+async function deleteCurrentPost() {
     if (!currentOpenImg) return;
-    
+
     const confirmDelete = confirm("האם את בטוחה שברצונך למחוק פוסט זה?");
-    if (confirmDelete) {
-        currentOpenImg.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-        document.getElementById("modalImg").src = currentOpenImg.src;
-        document.getElementById("deleteDropdown").style.display = "none";
+    if (!confirmDelete) return;
+
+    document.getElementById("deleteDropdown").style.display = "none";
+
+    const postId = currentOpenImg.getAttribute("data-id");
+
+    // אם אין מזהה מונגו (למשל פוסט ישן/דמו שלא הגיע מהדאטהבייס) - רק מסתירים בעמוד
+    if (!postId) {
+        const postCard = currentOpenImg.closest('.post-card');
+        if (postCard) postCard.remove();
+        closeModal();
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/posts/' + postId, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            // מחיקה מהדום רק אחרי שהמחיקה במונגו הצליחה
+            const postCard = currentOpenImg.closest('.post-card');
+            if (postCard) postCard.remove();
+            closeModal();
+        } else {
+            const errorData = await res.json();
+            alert('שגיאה במחיקת הפוסט: ' + (errorData.message || 'לא ניתן למחוק את הפוסט'));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('שגיאה בתקשורת עם השרת בזמן מחיקת הפוסט');
     }
 }
 
@@ -308,6 +335,7 @@ async function loadPostsFromDB() {
     const res = await fetch('/api/posts');
     const posts = await res.json();
 
+<<<<<<< Updated upstream
     // תחיליפי את 'postsContainer' ל-ID האמיתי של ה-div ב-HTML שלך
     const postsContainer = document.getElementById('postsContainer'); 
     postsContainer.innerHTML = ''; // ניקוי ה-div לפני שמכניסים תוכן חדש
@@ -325,6 +353,24 @@ async function loadPostsFromDB() {
         <img src="${post.imageUrl}" alt="${post.title}">
         <p>${post.textContent || ''}</p>
       `;
+=======
+    const postsContainer = document.getElementById('postsContainer');
+    posts.forEach(post => {   
+          const postElement = document.createElement('div');
+      postElement.className = 'post-card'; // קלאס מוגדר ב-CSS
+      postElement.setAttribute('data-category', (post.category || 'General').toLowerCase()); // שמירת הקטגוריה כ-attribute
+      postElement.setAttribute('data-id', post._id); // מזהה הפוסט במונגו - נדרש למחיקה
+      // הכנסת התוכן לתוך ה-div של הפוסט
+      const img = document.createElement('img');
+    img.src = post.imageUrl;
+    img.alt = post.title;
+    img.setAttribute('data-id', post._id); // אותו מזהה גם על התמונה, כדי שיהיה זמין מתוך המודל
+    img.setAttribute('data-likes', 0);
+    img.setAttribute('data-username', 'you'); // ניתן לשנות בהתאם למידע שיש לך
+    img.setAttribute('data-description', post.textContent || '');
+    img.setAttribute('onclick', 'openModal(this)');
+    postElement.appendChild(img);
+>>>>>>> Stashed changes
 
       // הוספת הפוסט לקונטיינר הראשי בעמוד
       postsContainer.appendChild(postElement);
