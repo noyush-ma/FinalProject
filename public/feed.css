@@ -79,7 +79,7 @@ header input {
     position: absolute;
     top: 55px;
     right: 0;
-    transform: translateX(40px);
+    transform: translateX(80px);
     background-color: white;
     min-width: 220px;
     box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
