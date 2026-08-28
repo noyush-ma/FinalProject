@@ -76,7 +76,7 @@ header input {
 
 .profile-dropdown {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 55px;
     right: 75px;
     background-color: white;
