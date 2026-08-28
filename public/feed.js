@@ -1,5 +1,137 @@
 let currentOpenImg = null;
 
+// --- ניהול משתמש מחובר ---
+// שולף את פרטי המשתמש המחובר שנשמרו ב-sessionStorage בזמן ה-login/signup
+const loggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+
+// הגנה על עמוד ה-feed: אם אין משתמש מחובר, מחזירים אותו אוטומטית לדף ההתחברות
+if (!loggedInUser) {
+    window.location.href = 'login.html';
+}
+
+// הצגת שם המשתמש בתפריט הנפתח שנפתח דרך אייקון הפרופיל
+document.addEventListener('DOMContentLoaded', () => {
+    const usernameEl = document.getElementById('profileUsername');
+    if (usernameEl && loggedInUser) {
+        usernameEl.textContent = loggedInUser.username;
+    }
+
+    // הצגת תמונת הפרופיל הנוכחית (גם באייקון בהדר וגם בתוך התפריט הנפתח)
+    const headerImg = document.getElementById('profileImg');
+    const dropdownImg = document.getElementById('profileDropdownImg');
+    const currentImage = (loggedInUser && loggedInUser.profileImage) ? loggedInUser.profileImage : 'icons/profileLogo.png';
+    if (headerImg) headerImg.src = currentImage;
+    if (dropdownImg) dropdownImg.src = currentImage;
+
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+    if (profileBtn && profileDropdown) {
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        });
+        // סגירת התפריט בלחיצה מחוץ לו
+        window.addEventListener('click', () => {
+            profileDropdown.classList.remove('show');
+        });
+        // מונע סגירה כשלוחצים בתוך התפריט עצמו (למשל על תמונת הפרופיל)
+        profileDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    // העלאת תמונת פרופיל חדשה מהמחשב
+    const profileImageInput = document.getElementById('profileImageInput');
+    if (profileImageInput) {
+        profileImageInput.addEventListener('change', handleProfileImageChange);
+    }
+});
+
+// מכווץ תמונה גדולה לגודל סביר לפני שמירה (כדי לא לשלוח קבצים כבדים לשרת)
+function resizeImageToDataURL(file, maxSize) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > height && width > maxSize) {
+                    height = Math.round(height * (maxSize / width));
+                    width = maxSize;
+                } else if (height > maxSize) {
+                    width = Math.round(width * (maxSize / height));
+                    height = maxSize;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.85));
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// מטפל בבחירת קובץ תמונה חדש מהמחשב, שולח לשרת ומעדכן את התצוגה
+async function handleProfileImageChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+        alert('יש לבחור קובץ תמונה בלבד');
+        event.target.value = '';
+        return;
+    }
+
+    try {
+        const dataUrl = await resizeImageToDataURL(file, 300);
+
+        const res = await fetch('/api/users/' + loggedInUser._id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: loggedInUser.username,
+                email: loggedInUser.email,
+                profileImage: dataUrl
+            })
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            alert('שגיאה בעדכון תמונת הפרופיל: ' + (errorData.message || 'אירעה שגיאה'));
+            return;
+        }
+
+        const updatedUser = await res.json();
+
+        // עדכון התמונה בהדר ובתפריט הנפתח
+        const headerImg = document.getElementById('profileImg');
+        const dropdownImg = document.getElementById('profileDropdownImg');
+        if (headerImg) headerImg.src = dataUrl;
+        if (dropdownImg) dropdownImg.src = dataUrl;
+
+        // עדכון המשתמש המחובר בזיכרון הדפדפן כדי שהתמונה תישאר גם אחרי רענון
+        loggedInUser.profileImage = updatedUser.profileImage || dataUrl;
+        sessionStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+    } catch (err) {
+        console.error(err);
+        alert('שגיאה בהעלאת התמונה');
+    } finally {
+        event.target.value = '';
+    }
+}
+
+// התנתקות: מנקה את פרטי המשתמש מהזיכרון ומחזיר לדף ההתחברות
+function handleLogout() {
+    sessionStorage.removeItem('currentUser');
+    window.location.href = 'login.html';
+}
+
 function openModal(element) {
     currentOpenImg = element;
     

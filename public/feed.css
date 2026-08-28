@@ -44,21 +44,134 @@ header input {
     color: inherit;
 }
 
-header > img:first-of-type {
+.profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    order: 2;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    cursor: pointer;
+}
+
+.profile-btn #profileImg {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
     margin-right: 10px;
-    order: 2;
 }
 
-header > img:last-of-type {
+.profile-btn .profile-arrow {
     width: 14px;
     height: 14px;
     margin-right: 15px;
+}
+
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    top: 55px;
+    right: 0;
+    background-color: white;
+    min-width: 220px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+    border-radius: 15px;
+    z-index: 9999;
+    padding: 16px;
+    text-align: center;
+}
+
+.profile-dropdown.show {
+    display: block;
+}
+
+.profile-dropdown-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.profile-image-wrapper {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: block;
     cursor: pointer;
-    order: 3;
+}
+
+.profile-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-image-edit-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    color: white;
+    font-size: 10px;
+    padding: 4px 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.profile-image-wrapper:hover .profile-image-edit-overlay {
+    opacity: 1;
+}
+
+.profile-dropdown-username {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333333;
+}
+
+.profile-dropdown-divider {
+    border: none;
+    border-top: 1px solid #e5e5e5;
+    margin: 8px 0 12px;
+}
+
+.profile-logout-btn {
+    width: 100%;
+    background-color: #e60023;
+    color: white;
+    border: none;
+    padding: 10px 0;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-logout-btn:hover {
+    background-color: #ad081b;
+}
+
+body.dark-mode .profile-dropdown {
+    background-color: #232323;
+    color: #ffffff;
+}
+
+body.dark-mode .profile-dropdown-username {
+    color: #ffffff;
+}
+
+body.dark-mode .profile-dropdown-divider {
+    border-top-color: #3a3a3a;
 }
 
 #darkModeBtn {
@@ -681,7 +794,7 @@ nav a:first-child .logo-dark {
 }
 
 body.dark-mode nav a:not(:first-child) img,
-body.dark-mode header > img:last-of-type,
+body.dark-mode .profile-arrow,
 body.dark-mode .modal-svg-icon,
 body.dark-mode #likeBtn img[src="emptyHeart.png"],
 body.dark-mode .embed-icon,
