@@ -1,0 +1,63 @@
+
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>הלוחות שלי - Pinterest</title>
+    <link rel="stylesheet" href="feed.css">
+    <link rel="stylesheet" href="boards.css">
+</head>
+<body>
+
+<header>
+    <div class="profile-menu">
+        <button id="profileBtn" type="button" class="profile-btn">
+            <img id="profileImg" src="icons/profileLogo.png" alt="Profile">
+            <img src="icons/arrow.png" alt="arrow" class="profile-arrow">
+        </button>
+
+        <div id="profileDropdown" class="profile-dropdown">
+            <div class="profile-dropdown-header">
+                <img id="profileDropdownImg" src="icons/profileLogo.png" alt="Profile">
+                <span id="profileUsername" class="profile-dropdown-username"></span>
+            </div>
+            <hr class="profile-dropdown-divider">
+            <button id="logoutBtn" type="button" class="profile-logout-btn" onclick="handleLogout()">התנתקות</button>
+        </div>
+    </div>
+
+    <h1 class="boards-page-title">הלוחות שלי</h1>
+
+    <button id="darkModeBtn" onclick="toggleDarkMode()">🌙</button>
+</header>
+
+<nav>
+    <a href="feed.html">
+        <img src="icons/pinterest_logo.png" class="logo-light" alt="Pinterest Light">
+        <img src="icons/pinterest_logo-1empty.png" class="logo-dark" alt="Pinterest Dark">
+    </a>
+    <a href="feed.html"><img src="icons/homeLogo1.png"></a>
+    <a href="boards.html"><img src="icons/boardsLogo1.png"></a>
+</nav>
+
+<div class="boards-page-container" id="boardsPageContainer">
+    <div class="new-board-inline">
+        <input type="text" id="newBoardInput" placeholder="שם ללוח חדש">
+        <button type="button" onclick="createNewBoard()">לוח חדש +</button>
+    </div>
+
+    <div id="boardsGrid" class="boards-grid"></div>
+
+    <p id="noBoardsMessage" class="no-boards-text" style="display:none;">
+        עדיין לא יצרת לוחות. שמרי פינים מהפיד או צרי לוח חדש כדי להתחיל 📌
+    </p>
+</div>
+
+<div id="boardPinsSection" class="board-pins-section" style="display:none;">
+    <button class="back-to-boards-btn" type="button" onclick="closeBoardView()">⟵ חזרה ללוחות</button>
+    <h2 id="boardPinsTitle"></h2>
+    <div id="boardPinsGrid" class="images"></div>
+</div>
+
+<script src="boards.js"></script>
+</body>
+</html>

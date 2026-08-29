@@ -596,6 +596,90 @@ nav a:last-child {
     z-index: 10000;
 }
 
+.save-board-content {
+    height: auto;
+    max-height: 70vh;
+}
+
+.boards-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 40vh;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.board-select-item {
+    width: 100%;
+    text-align: right;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: #111111;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.board-select-item:hover {
+    background-color: #e2e2e2;
+}
+
+.no-boards-text {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #666666;
+    text-align: center;
+}
+
+.new-board-row {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #e2e2e2;
+    padding-top: 14px;
+}
+
+.new-board-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.new-board-row button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e60023;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.new-board-row button:hover {
+    background-color: #ad081b;
+}
+
+body.dark-mode .board-select-item {
+    background-color: #333333;
+    color: #f1f1f1;
+}
+
+body.dark-mode .board-select-item:hover {
+    background-color: #444444;
+}
+
+body.dark-mode .no-boards-text {
+    color: #bbbbbb;
+}
+
 .share-pop-content {
     background-color: white;
     border-radius: 24px;
