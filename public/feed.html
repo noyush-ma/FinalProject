@@ -54,7 +54,7 @@
             <img src="icons/pinterest_logo-1empty.png" class="logo-dark" alt="Pinterest Dark">
         </a>
         <a href="#"><img src="icons/homeLogo1.png"></a>
-        <a href="boards.html"><img src="icons/boardsLogo1.png"></a>
+        <a href="#"><img src="icons/boardsLogo1.png"></a>
 
         <div class="create-post-container">
             <button id="createPost"><img src="icons/createLogo1.png"></button>
@@ -240,6 +240,11 @@
 </div>
 
 <div id="shareModal" class="share-pop" onclick="closeShareModal()">
+    <div class="share-pop-content" onclick="event.stopPropagation()">
+        <span class="share-close" onclick="closeShareModal()">&times;</span>
+        <h2 class="share-title">שיתוף</h2>
+        <img src="icons/share.png" alt="Share Options" class="share-static-img">
+        <input type="text" id="searchEmail" placeholder="חיפוש לפי דואר אלקטרוני">
         <div class="share-users-list">
             <div class="share-user-item">
                 <button class="send-user-btn">שליחה</button>
@@ -278,27 +283,13 @@
             </div>
 
             <div class="share-user-item">
-
+                <button class="send-user-btn">שליחה</button>
+                <div class="user-info-text">
+                    <span class="user-display-name">Liam</span>
                     <span class="user-handle">@liam_shani</span>
                 </div>
                 <div class="user-avatar" style="background-color: #ffe4e1;">L</div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div id="saveBoardModal" class="share-pop" onclick="closeSaveBoardModal()">
-    <div class="share-pop-content save-board-content" onclick="event.stopPropagation()">
-        <span class="share-close" onclick="closeSaveBoardModal()">&times;</span>
-        <h2 class="share-title">שמירה ללוח</h2>
-
-        <div id="userBoardsList" class="boards-select-list">
-            <!-- הלוחות של המשתמש המחובר ייטענו כאן דינמית -->
-        </div>
-
-        <div class="new-board-row">
-            <input type="text" id="newBoardNameInput" placeholder="שם ללוח חדש">
-            <button id="createBoardBtn" type="button" onclick="createBoardAndSave()">יצירה ושמירה</button>
         </div>
     </div>
 </div>
@@ -321,7 +312,11 @@
                 <option value="nature">Nature</option>
                 <option value="animals">Animals</option>
                 <option value="places">Places</option>
-
+                <option value="movies">Movies</option>
+                <option value="food&drinks">Food & Drinks</option>
+                <option value="arts">Arts</option>
+                <option value="urban">Urban</option>
+                <option value="celebrity">Celebrity</option>
                 <option value="beauty">Beauty</option>
                 <option value="general">General</option>
             </select>
