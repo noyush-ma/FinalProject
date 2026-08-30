@@ -251,12 +251,19 @@ async function openSaveBoardModal() {
         return;
     }
 
-    document.getElementById('saveBoardModal').style.display = 'flex';
+    const saveBoardModalEl = document.getElementById('saveBoardModal');
+    if (!saveBoardModalEl) {
+        // TODO: פיצ'ר שמירה ללוחות עדיין לא הושלם ב-HTML (חסר מודאל #saveBoardModal)
+        alert('פיצ\'ר שמירה ללוחות עדיין לא זמין');
+        return;
+    }
+    saveBoardModalEl.style.display = 'flex';
     await loadUserBoardsForSaveModal();
 }
 
 function closeSaveBoardModal() {
-    document.getElementById('saveBoardModal').style.display = 'none';
+    const saveBoardModalEl = document.getElementById('saveBoardModal');
+    if (saveBoardModalEl) saveBoardModalEl.style.display = 'none';
 }
 
 // טוען את הלוחות של המשתמש המחובר בלבד (כל משתמש רואה רק את הלוחות שלו) לחלון השמירה
@@ -348,6 +355,7 @@ async function createBoardAndSave() {
 
 function postsText() {
     var searchValue = document.getElementById("searchInput").value.toLowerCase();
+    var postCards = document.querySelectorAll(".post-card");
     var hasResults = false;
 
     postCards.forEach(function(card) {
@@ -430,6 +438,7 @@ function addComment() {
     newComment.innerText = commentText;
     commentsList.appendChild(newComment);
 
+    var titleText = document.getElementById("comments-title-text");
     var currentCount = commentsList.getElementsByClassName("comment-item").length;
     if (currentCount === 1) {
         titleText.innerText = "הערה 1";
@@ -586,7 +595,6 @@ window.addEventListener('click', function(event) {
   try {
     const res = await fetch('/api/posts');
     const posts = await res.json();
-    img.dataset.post = JSON.stringify(post);
     const postsContainer = document.getElementById('postsContainer');
 
     posts.forEach(post => {
@@ -603,6 +611,7 @@ window.addEventListener('click', function(event) {
       img.setAttribute('data-username', 'you');
       img.setAttribute('data-description', post.textContent || '');
       img.setAttribute('onclick', 'openModal(this)');
+      img.dataset.post = JSON.stringify(post);
 
       postElement.appendChild(img);
       postsContainer.appendChild(postElement);

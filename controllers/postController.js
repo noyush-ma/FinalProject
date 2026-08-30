@@ -9,22 +9,14 @@ exports.createPost = async (req, res) => {
       imageUrl: req.body.imgUrl,
       textContent: req.body.description,
       category: req.body.category,
-      postType: req.body.postType
+      postType: req.body.postType,
+      author: req.body.authorId
     });
-
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-  const newPost = new Post({
-  title: req.body.title,
-  imageUrl: req.body.imgUrl,
-  textContent: req.body.description,
-  category: req.body.category,
-  postType: req.body.postType,
-  author: req.body.authorId   // חדש
-});
 };
 
 // שליפת כל הפוסטים
