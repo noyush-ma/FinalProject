@@ -39,9 +39,6 @@ header input {
     border: none;
     padding: 12px 0;
     outline: none;
-    font-size: 16px;
-    text-align: right;
-    color: inherit;
 }
 
 .profile-menu {
@@ -63,9 +60,7 @@ header input {
 .profile-btn #profileImg {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
+
 }
 
 .profile-btn .profile-arrow {
@@ -97,8 +92,7 @@ header input {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
+
 }
 
 .profile-image-wrapper {
@@ -120,9 +114,7 @@ header input {
 
 .profile-image-edit-overlay {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+
     background-color: rgba(0, 0, 0, 0.55);
     color: white;
     font-size: 10px;
@@ -143,8 +135,7 @@ header input {
 
 .profile-dropdown-divider {
     border: none;
-    border-top: 1px solid #e5e5e5;
-    margin: 8px 0 12px;
+
 }
 
 .profile-logout-btn {
@@ -230,8 +221,7 @@ nav a:last-child {
 
 .images {
     margin-right: 95px; 
-    margin-left: 20px;
-    margin-top: 90px;
+
     column-count: 5;    
     column-gap: 16px;
 }
@@ -257,7 +247,6 @@ nav a:last-child {
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(5px);
-    display: none;
     justify-content: center; 
     align-items: center;
     z-index: 9999;
@@ -290,8 +279,6 @@ nav a:last-child {
 
 .modal-left-side {
     flex: 1;
-    display: flex;
-    align-items: center;
     justify-content: center;
     padding: 10px;
     height: 100%;
@@ -357,8 +344,6 @@ nav a:last-child {
 .like-container {
     display: flex;
     flex-direction: row-reverse;
-    align-items: center;
-    align-self: center;
     gap: 6px;
     line-height: 1;
     margin: 0;
@@ -480,8 +465,6 @@ nav a:last-child {
 }
 
 .comment-item {
-    font-size: 14px;
-    padding: 6px 0;
     color: #111;
     font-weight: normal;
     line-height: 1.4;
@@ -549,10 +532,6 @@ nav a:last-child {
     padding: 10px 18px;
     border-radius: 24px;
     font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    white-space: nowrap;
-    box-sizing: border-box;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
@@ -594,6 +573,88 @@ nav a:last-child {
     justify-content: center;
     align-items: flex-start;
     z-index: 10000;
+}
+
+.save-board-content {
+    height: auto;
+    max-height: 70vh;
+}
+
+.boards-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 40vh;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.board-select-item {
+    width: 100%;
+    text-align: right;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: #111111;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.board-select-item:hover {
+    background-color: #e2e2e2;
+}
+
+.no-boards-text {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #666666;
+    text-align: center;
+}
+
+.new-board-row {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #e2e2e2;
+    padding-top: 14px;
+}
+
+.new-board-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.new-board-row button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e60023;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.new-board-row button:hover {
+    background-color: #ad081b;
+}
+
+body.dark-mode .board-select-item {
+    background-color: #333333;
+    color: #f1f1f1;
+}
+
+body.dark-mode .board-select-item:hover {
+    background-color: #444444;
+}
+
+body.dark-mode .no-boards-text {
+    color: #bbbbbb;
 }
 
 .share-pop-content {
@@ -687,8 +748,6 @@ nav a:last-child {
 .user-info-text {
     display: flex;
     flex-direction: column;
-    text-align: right;
-    flex: 1;
 }
 
 .user-display-name {
@@ -1149,3 +1208,4 @@ body.dark-mode .modalP-content select {
   cursor: pointer;
   height: 35px;
 }
+
