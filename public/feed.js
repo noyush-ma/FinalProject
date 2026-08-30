@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const headerImg = document.getElementById('profileImg');
     const dropdownImg = document.getElementById('profileDropdownImg');
     const currentImage = (loggedInUser && loggedInUser.profileImage) ? loggedInUser.profileImage : 'icons/profileLogo.png';
-    if (headerImg) headerImg.src = currentImage;
     if (dropdownImg) dropdownImg.src = currentImage;
 
     const profileBtn = document.getElementById('profileBtn');
@@ -155,11 +154,9 @@ function openModal(element) {
     var saveBtn = document.getElementById("saveBtn");
     saveBtn.innerText = "שמירה";
     saveBtn.style.backgroundColor = "#e60023";
+    refreshSaveButtonState(element.getAttribute("data-id"));
 
     document.getElementById("commentsList").innerHTML = "";
-    document.getElementById("commentsList").style.display = "none";
-    document.getElementById("accordionArrow").classList.remove("open");
-    document.getElementById("comments-title-text").innerText = "הערות (0)";
     document.getElementById("newCommentInput").value = "";
     document.getElementById("typingIndicator").style.display = "none";
 }
@@ -194,20 +191,161 @@ function doLike() {
     }
 }
 
+// בודק מול השרת אם הפוסט הפתוח כרגע כבר שמור על ידי המשתמש המחובר, ומעדכן את כפתור השמירה בהתאם
+async function refreshSaveButtonState(postId) {
+    var saveBtn = document.getElementById("saveBtn");
+    if (!postId || !loggedInUser) return;
+
+    try {
+        const res = await fetch('/api/boards/save-status/' + postId + '/' + loggedInUser._id);
+        const data = await res.json();
+        if (data.saved) {
+            saveBtn.innerText = "נשמר";
+            saveBtn.style.backgroundColor = "#333333";
+        }
+    } catch (err) {
+        console.error('שגיאה בבדיקת מצב שמירה:', err);
+    }
+}
+
+// לחיצה על כפתור השמירה בתוך המודל: אם כבר שמור - מסירים, אחרת פותחים בחירת לוח
 function doSave() {
     var saveBtn = document.getElementById("saveBtn");
-    if (saveBtn.innerText === "שמירה") {
-        saveBtn.innerText = "נשמר";
-        saveBtn.style.backgroundColor = "#333333";
+    if (saveBtn.innerText === "נשמר") {
+        unsaveCurrentPost();
     } else {
-        saveBtn.innerText = "שמירה";
-        saveBtn.style.backgroundColor = "#e60023";
+        openSaveBoardModal();
+    }
+}
+
+// הסרת השמירה של הפוסט הפתוח כרגע (רק עבור המשתמש המחובר)
+async function unsaveCurrentPost() {
+    if (!currentOpenImg || !loggedInUser) return;
+    const postId = currentOpenImg.getAttribute("data-id");
+    if (!postId) return;
+
+    try {
+        const res = await fetch('/api/boards/unsave', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: postId, userId: loggedInUser._id })
+        });
+
+        if (res.ok) {
+            var saveBtn = document.getElementById("saveBtn");
+            saveBtn.innerText = "שמירה";
+            saveBtn.style.backgroundColor = "#e60023";
+        }
+    } catch (err) {
+        console.error('שגיאה בהסרת השמירה:', err);
+    }
+}
+
+// פותח את חלון בחירת הלוח לשמירת הפוסט הפתוח כרגע
+async function openSaveBoardModal() {
+    if (!currentOpenImg) return;
+    const postId = currentOpenImg.getAttribute("data-id");
+    if (!postId) {
+        alert('לא ניתן לשמור פוסט זה כרגע');
+        return;
+    }
+
+    document.getElementById('saveBoardModal').style.display = 'flex';
+    await loadUserBoardsForSaveModal();
+}
+
+function closeSaveBoardModal() {
+    document.getElementById('saveBoardModal').style.display = 'none';
+}
+
+// טוען את הלוחות של המשתמש המחובר בלבד (כל משתמש רואה רק את הלוחות שלו) לחלון השמירה
+async function loadUserBoardsForSaveModal() {
+    const listEl = document.getElementById('userBoardsList');
+    if (!loggedInUser) return;
+    listEl.innerHTML = '<p class="no-boards-text">טוען לוחות...</p>';
+
+    try {
+        const res = await fetch('/api/boards/user/' + loggedInUser._id);
+        const boards = await res.json();
+
+        listEl.innerHTML = '';
+        if (!boards || boards.length === 0) {
+            listEl.innerHTML = '<p class="no-boards-text">עדיין אין לך לוחות. צרי לוח חדש למטה 👇</p>';
+            return;
+        }
+
+        boards.forEach(function (board) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'board-select-item';
+            item.innerText = board.name;
+            item.onclick = function () { saveCurrentPostToBoard(board._id); };
+            listEl.appendChild(item);
+        });
+    } catch (err) {
+        console.error('שגיאה בטעינת הלוחות:', err);
+        listEl.innerHTML = '<p class="no-boards-text">שגיאה בטעינת הלוחות</p>';
+    }
+}
+
+    const postId = currentOpenImg.getAttribute("data-id");
+    if (!postId) return;
+
+    try {
+        const res = await fetch('/api/boards/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: postId, boardId: boardId, userId: loggedInUser._id })
+        });
+
+        if (res.ok) {
+            var saveBtn = document.getElementById("saveBtn");
+            saveBtn.innerText = "נשמר";
+            saveBtn.style.backgroundColor = "#333333";
+            closeSaveBoardModal();
+        } else {
+            const errorData = await res.json();
+            alert('שגיאה בשמירה: ' + (errorData.message || 'לא ניתן לשמור את הפוסט'));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('שגיאה בתקשורת עם השרת בזמן השמירה');
+    }
+}
+
+// יוצר לוח חדש ומיד שומר אליו את הפוסט הפתוח כרגע
+async function createBoardAndSave() {
+    const name = input.value.trim();
+
+    if (!name) {
+        alert('יש להזין שם ללוח');
+        return;
+    }
+    if (!loggedInUser) return;
+
+    try {
+        const res = await fetch('/api/boards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, ownerId: loggedInUser._id })
+        });
+
+        if (res.ok) {
+            const newBoard = await res.json();
+            input.value = '';
+            await saveCurrentPostToBoard(newBoard._id);
+        } else {
+            const errorData = await res.json();
+            alert('שגיאה ביצירת הלוח: ' + (errorData.message || 'לא ניתן ליצור את הלוח'));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('שגיאה בתקשורת עם השרת בזמן יצירת הלוח');
     }
 }
 
 function postsText() {
     var searchValue = document.getElementById("searchInput").value.toLowerCase();
-    var postCards = document.querySelectorAll(".post-card");
     var hasResults = false;
 
     postCards.forEach(function(card) {
@@ -291,8 +429,6 @@ function addComment() {
     commentsList.appendChild(newComment);
 
     var currentCount = commentsList.getElementsByClassName("comment-item").length;
-    var titleText = document.getElementById("comments-title-text");
-    if (currentCount === 1) {
         titleText.innerText = "הערה 1";
     } else {
         titleText.innerText = "הערות (" + currentCount + ")";
@@ -381,9 +517,6 @@ const badge = document.getElementById('badge');
 let clickCount = 0;
 
 button.addEventListener('click', () => {
-  document.body.classList.add('active-pink');
-  setTimeout(() => {
-    document.body.classList.remove('active-pink');
   }, 50);
 
   button.classList.remove('animate-btn');
@@ -535,10 +668,6 @@ postForm.addEventListener('submit', async (e) => {
     });
 
     if (res.ok) {
-      alert('הפוסט פורסם בהצלחה!');
-      postForm.reset();
-      modal.style.display = 'none';
-      if (typeof loadPostsFromDB === 'function') loadPostsFromDB();
     } else {
       const errorData = await res.json();
       alert('שגיאה מהשרת: ' + (errorData.message || 'לא ניתן לשמור את הפוסט'));
@@ -548,3 +677,12 @@ postForm.addEventListener('submit', async (e) => {
     alert('שגיאה בתקשורת עם השרת');
   }
 });
+
+
+
+
+
+
+
+
+

@@ -39,26 +39,131 @@ header input {
     border: none;
     padding: 12px 0;
     outline: none;
-    font-size: 16px;
-    text-align: right;
-    color: inherit;
 }
 
-header > img:first-of-type {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
+.profile-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
     order: 2;
 }
 
-header > img:last-of-type {
+.profile-btn {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    cursor: pointer;
+}
+
+.profile-btn #profileImg {
+    width: 40px;
+    height: 40px;
+
+}
+
+.profile-btn .profile-arrow {
     width: 14px;
     height: 14px;
     margin-right: 15px;
+}
+
+.profile-dropdown {
+    display: none;
+    position: absolute;
+    top: 55px;
+    right: 0;
+    transform: translateX(80px);
+    background-color: white;
+    min-width: 220px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+    border-radius: 15px;
+    z-index: 9999;
+    padding: 16px;
+    text-align: center;
+}
+
+.profile-dropdown.show {
+    display: block;
+}
+
+.profile-dropdown-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.profile-image-wrapper {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: block;
     cursor: pointer;
-    order: 3;
+}
+
+.profile-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-image-edit-overlay {
+    position: absolute;
+
+    background-color: rgba(0, 0, 0, 0.55);
+    color: white;
+    font-size: 10px;
+    padding: 4px 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.profile-image-wrapper:hover .profile-image-edit-overlay {
+    opacity: 1;
+}
+
+.profile-dropdown-username {
+    font-weight: bold;
+    font-size: 15px;
+    color: #333333;
+}
+
+.profile-dropdown-divider {
+    border: none;
+
+}
+
+.profile-logout-btn {
+    width: 100%;
+    background-color: #e60023;
+    color: white;
+    border: none;
+    padding: 10px 0;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.profile-logout-btn:hover {
+    background-color: #ad081b;
+}
+
+body.dark-mode .profile-dropdown {
+    background-color: #232323;
+    color: #ffffff;
+}
+
+body.dark-mode .profile-dropdown-username {
+    color: #ffffff;
+}
+
+body.dark-mode .profile-dropdown-divider {
+    border-top-color: #3a3a3a;
 }
 
 #darkModeBtn {
@@ -116,8 +221,7 @@ nav a:last-child {
 
 .images {
     margin-right: 95px; 
-    margin-left: 20px;
-    margin-top: 90px;
+
     column-count: 5;    
     column-gap: 16px;
 }
@@ -143,7 +247,6 @@ nav a:last-child {
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(5px);
-    display: none;
     justify-content: center; 
     align-items: center;
     z-index: 9999;
@@ -176,8 +279,6 @@ nav a:last-child {
 
 .modal-left-side {
     flex: 1;
-    display: flex;
-    align-items: center;
     justify-content: center;
     padding: 10px;
     height: 100%;
@@ -243,8 +344,6 @@ nav a:last-child {
 .like-container {
     display: flex;
     flex-direction: row-reverse;
-    align-items: center;
-    align-self: center;
     gap: 6px;
     line-height: 1;
     margin: 0;
@@ -366,8 +465,6 @@ nav a:last-child {
 }
 
 .comment-item {
-    font-size: 14px;
-    padding: 6px 0;
     color: #111;
     font-weight: normal;
     line-height: 1.4;
@@ -435,10 +532,6 @@ nav a:last-child {
     padding: 10px 18px;
     border-radius: 24px;
     font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    white-space: nowrap;
-    box-sizing: border-box;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
@@ -480,6 +573,88 @@ nav a:last-child {
     justify-content: center;
     align-items: flex-start;
     z-index: 10000;
+}
+
+.save-board-content {
+    height: auto;
+    max-height: 70vh;
+}
+
+.boards-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 40vh;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.board-select-item {
+    width: 100%;
+    text-align: right;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: #111111;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.board-select-item:hover {
+    background-color: #e2e2e2;
+}
+
+.no-boards-text {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #666666;
+    text-align: center;
+}
+
+.new-board-row {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #e2e2e2;
+    padding-top: 14px;
+}
+
+.new-board-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.new-board-row button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e60023;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.new-board-row button:hover {
+    background-color: #ad081b;
+}
+
+body.dark-mode .board-select-item {
+    background-color: #333333;
+    color: #f1f1f1;
+}
+
+body.dark-mode .board-select-item:hover {
+    background-color: #444444;
+}
+
+body.dark-mode .no-boards-text {
+    color: #bbbbbb;
 }
 
 .share-pop-content {
@@ -573,8 +748,6 @@ nav a:last-child {
 .user-info-text {
     display: flex;
     flex-direction: column;
-    text-align: right;
-    flex: 1;
 }
 
 .user-display-name {
@@ -681,7 +854,7 @@ nav a:first-child .logo-dark {
 }
 
 body.dark-mode nav a:not(:first-child) img,
-body.dark-mode header > img:last-of-type,
+body.dark-mode .profile-arrow,
 body.dark-mode .modal-svg-icon,
 body.dark-mode #likeBtn img[src="emptyHeart.png"],
 body.dark-mode .embed-icon,
@@ -849,14 +1022,14 @@ body.dark-mode .notification-toast {
 
 .filter-dropdown {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 60px; 
     right: 20px; 
     background-color: white;
     min-width: 160px;
     box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
     border-radius:  15px;
-    z-index: 1000;
+    z-index: 9999;
     padding: 6px 0;
     margin-right: 60px;
 }
@@ -905,7 +1078,20 @@ body.dark-mode .filter-dropdown {
 .modalP {
   display: none; 
   position: fixed; 
-  z-index: 1000; 
+  z-index: 9999; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  background-color: rgba(0, 0, 0, 0.6); 
+  justify-content: center;
+  align-items: center;
+}
+
+body.dark-mode .modalP {
+  display: none; 
+  position: fixed; 
+  z-index: 9999; 
   left: 0;
   top: 0;
   width: 100%; 
@@ -924,12 +1110,17 @@ body.dark-mode .filter-dropdown {
   overflow-y: auto;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   position: absolute;
-  margin-top: 70px;
+  margin-top: 20px;
   flex-direction: column;
   align-items: flext;  
   justify-content: center;
   direction: ltr;
   text-align: left;
+}
+
+body.dark-mode .modalP-content {
+  background-color: #232323;
+  color: #ffffff;
 }
 
 .close-btn {
@@ -942,8 +1133,16 @@ body.dark-mode .filter-dropdown {
   cursor: pointer;
 }
 
+body.dark-mode .close-btn {
+  color: #ccc;
+}
+
 .close-btn:hover {
   color: #000;
+}
+
+body.dark-mode .close-btn:hover {
+  color: #353434;
 }
 
 .modalP-content h2 {
@@ -956,16 +1155,6 @@ body.dark-mode .filter-dropdown {
   display: block;
   margin-top: 15px;
   font-weight: bold;
-}
-
-.modalP-content input, 
-.modalP-content textarea {
-  width: 100%;
-  padding: 8px;
-  margin-top: 0;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
 }
 
 .submit-btn {
@@ -999,8 +1188,24 @@ body.dark-mode .filter-dropdown {
   background-color: #fff;
 }
 
+body.dark-mode .modalP-content input, 
+body.dark-mode .modalP-content textarea,
+body.dark-mode .modalP-content select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  text-align: center;
+  font-family: inherit;
+  background-color: #333333;
+  color: #ffffff;
+}
+
 /* התאמה מיוחדת לתפריטים הנפתחים (select) */
 .modalP-content select {
   cursor: pointer;
   height: 35px;
 }
+

@@ -1,6 +1,7 @@
 <html>
     
 <head>
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="signUp.css">
     <title>Sign Up Page</title>
 </head>
@@ -9,7 +10,7 @@
     <h1>Sign Up</h1>
 
     <div>
-        <img src="pinterest_logo.png" alt="logo">
+        <img src="icons/pinterest_logo.png" alt="logo">
     </div>
     
     <div>
@@ -19,7 +20,13 @@
     
     <div>
         <p>username</p>
-        <input type="email" id="name">
+        <input type="text" id="username">
+        <p id="usernameError" class="error"></p>
+    </div>
+
+    <div>
+        <p>email</p>
+        <input type="email" id="email">
         <p id="emailError" class="error"></p>
     </div>
 
@@ -29,20 +36,22 @@
         <p id="passwordError" class="error"></p>
     </div>
 
+    <p id="serverError" class="error"></p>
+
     <div class = "text">
         <p id ="info">DISCOVER NEW IDEAS ON <br>PINTEREST <br><br><br>
             FIND NEW AESTHETIC <br><br><br>SHARE YOUR LIFE STYLE</p>
     </div>
     <div class="images">
-        <img src="picture3.jpg" alt="pic3" id="pic3">
-        <img src="picture2.jpg" alt="pic2" id="pic2">
-        <img src="picture1.jpg" alt="pic1" id="pic1">
+        <img src="icons/picture3.jpg" alt="pic3" id="pic3">
+        <img src="icons/picture2.jpg" alt="pic2" id="pic2">
+        <img src="icons/picture1.jpg" alt="pic1" id="pic1">
     </div>
 
     <br><br>
     
-    <button onclick="checkForm()">Enter</button>
-    <script src="login.js"></script>
+    <button onclick="handleSignup()">Enter</button>
+    <script src="signup.js"></script>
 
     
 </body>

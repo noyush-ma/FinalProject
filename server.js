@@ -3,11 +3,15 @@ const mongoose = require('mongoose'); // 1. ייבוא mongoose
 const app = express();
 
 const postsRouter = require('./routes/posts');
+const usersRouter = require('./routes/users');
+const boardsRouter = require('./routes/boards');
 
 app.use(express.static('public'));
 app.use(express.json({limit: '10mb'})); // הגבלת גודל הבקשה ל-10MB
 
 app.use('/api/posts', postsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/boards', boardsRouter);
 
 app.get('/', (req, res) => {
   res.send('success!');

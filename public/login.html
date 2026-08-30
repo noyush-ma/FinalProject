@@ -1,18 +1,18 @@
-
-    <html>
+<html>
     
     <head>
+        <meta charset="UTF-8">
         <link rel="stylesheet" href="login.css">
         <title>Login Page</title>
     </head>
         
     <body>
-        <img src="image.png" alt="logo">
+        <img src="icons/image.png" alt="logo">
         <h1>Welcome To Pinterest</h1>
 
         <div>
-            <p>username</p>
-            <input type="email" id="name">
+            <p>email</p>
+            <input type="email" id="email">
             <p id="emailError" class="error"></p>
         </div>
 
@@ -21,6 +21,8 @@
             <input type="password" id="password">
         <p id="passwordError" class="error"></p>
         </div>
+
+        <p id="serverError" class="error"></p>
 
         </div>
         <p>Dont have an account?</p>
@@ -32,13 +34,13 @@
         </div>
 
         <div class="images">
-            <img src="picture3.jpg" alt="pic3" id="pic3">
-            <img src="picture2.jpg" alt="pic2" id="pic2">
-            <img src="picture1.jpg" alt="pic1" id="pic1">
+            <img src="icons/picture3.jpg" alt="pic3" id="pic3">
+            <img src="icons/picture2.jpg" alt="pic2" id="pic2">
+            <img src="icons/picture1.jpg" alt="pic1" id="pic1">
         </div>
         <br><br>
 
-        <button onclick="checkForm()">Enter</button>
+        <button onclick="handleLogin()">Enter</button>
         <script src="login.js"></script>
         
     </body>
