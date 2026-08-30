@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Post = require('../models/post');
 
+<<<<<<< Updated upstream
 // 1. יצירת פוסט חדש (POST /api/posts)
 router.post('/', async (req, res) => {
   try {
@@ -55,5 +56,12 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+=======
+router.post('/', postController.createPost);
+router.get('/', postController.getAllPosts);
+router.get('/:id', postController.getPostById);
+router.delete('/:id', postController.deletePost);
+router.put('/:id', postController.updatePost);
+>>>>>>> Stashed changes
 
 module.exports = router;

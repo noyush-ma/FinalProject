@@ -129,6 +129,7 @@
                             <img src="arrow.png" alt="Arrow" class="modal-svg-icon arrow-flip">
                         </button>
                         <div id="deleteDropdown" class="delete-dropdown">
+                            <button onclick="editCurrentPost()">ערוך פוסט</button>
                             <button onclick="deleteCurrentPost()">מחק פוסט</button>
                         </div>
                     </div>
@@ -228,7 +229,8 @@
  <div id="postModal" class="modalP">
     <div class="modalP-content post-modal-content">
         <span class="close-btn" id="closeModal">&times;</span>
-        <h2>create new post</h2>
+        <input type="hidden" id="editPostId" value="">
+        <h2 id="postModalTitle">create new post</h2>
         <form id="postForm">
             <label for="title">title:</label> 
             <input type="text" id="title" required placeholder="enter title for the post">
@@ -250,7 +252,7 @@
                 <option value="Image">Image</option>
                 <option value="Text">Text</option>
             </select>
-            <button type="submit" class="submit-btn">post</button>
+            <button type="submit" id="postSubmitBtn" class="submit-btn">post</button>
         </form>
     </div>
 </div>
