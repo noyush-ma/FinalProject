@@ -1,4 +1,5 @@
 const Post = require('../models/post');
+const User = require('../models/user'); // נחוץ כדי לאמת סיסמה מול המשתמש בעריכה
 
 // יצירת פוסט חדש
 exports.createPost = async (req, res) => {
@@ -16,6 +17,14 @@ exports.createPost = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
+  const newPost = new Post({
+  title: req.body.title,
+  imageUrl: req.body.imgUrl,
+  textContent: req.body.description,
+  category: req.body.category,
+  postType: req.body.postType,
+  author: req.body.authorId   // חדש
+});
 };
 
 // שליפת כל הפוסטים
@@ -51,5 +60,38 @@ exports.deletePost = async (req, res) => {
     res.json({ message: 'הפוסט נמחק בהצלחה', deletedPost });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+exports.updatePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'פוסט לא נמצא' });
+    }
+
+    const { userId, password } = req.body;
+
+    // בדיקה 1: המשתמש שמנסה לערוך הוא אכן זה שהעלה את הפוסט
+    if (!userId || post.author.toString() !== userId) {
+      return res.status(403).json({ message: 'ניתן לערוך רק פוסטים שהעלית בעצמך' });
+    }
+
+    // בדיקה 2: הסיסמה שהוזנה תואמת לסיסמת המשתמש בפועל
+    const user = await User.findById(userId);
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: 'סיסמה שגויה' });
+    }
+
+    post.title = req.body.title;
+    post.imageUrl = req.body.imgUrl;
+    post.textContent = req.body.description;
+    post.category = req.body.category;
+    post.postType = req.body.postType;
+
+    const updatedPost = await post.save();
+    res.json(updatedPost);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };

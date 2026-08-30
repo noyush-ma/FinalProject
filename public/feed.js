@@ -1,4 +1,5 @@
 let currentOpenImg = null;
+let pendingEditPassword = null;
 
 // --- ניהול משתמש מחובר ---
 // שולף את פרטי המשתמש המחובר שנשמרו ב-sessionStorage בזמן ה-login/signup
@@ -288,6 +289,7 @@ async function loadUserBoardsForSaveModal() {
     }
 }
 
+async function saveCurrentPostToBoard(boardId) {
     const postId = currentOpenImg.getAttribute("data-id");
     if (!postId) return;
 
@@ -429,6 +431,7 @@ function addComment() {
     commentsList.appendChild(newComment);
 
     var currentCount = commentsList.getElementsByClassName("comment-item").length;
+    if (currentCount === 1) {
         titleText.innerText = "הערה 1";
     } else {
         titleText.innerText = "הערות (" + currentCount + ")";
@@ -517,8 +520,6 @@ const badge = document.getElementById('badge');
 let clickCount = 0;
 
 button.addEventListener('click', () => {
-  }, 50);
-
   button.classList.remove('animate-btn');
   void button.offsetWidth; 
   button.classList.add('animate-btn');
@@ -585,7 +586,7 @@ window.addEventListener('click', function(event) {
   try {
     const res = await fetch('/api/posts');
     const posts = await res.json();
-
+    img.dataset.post = JSON.stringify(post);
     const postsContainer = document.getElementById('postsContainer');
 
     posts.forEach(post => {
@@ -623,6 +624,10 @@ const postForm = document.getElementById('postForm');
 
 // פתיחת המודל בלחיצה על כפתור יצירת פוסט
 createPostBtn.addEventListener('click', () => {
+  document.getElementById('editPostId').value = '';
+  pendingEditPassword = null;
+  document.getElementById('postModalTitle').innerText = 'create new post';
+  document.getElementById('postSubmitBtn').innerText = 'post';
   modal.style.display = 'flex';
 });
 
@@ -642,32 +647,39 @@ window.addEventListener('click', (e) => {
 postForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  // שליפת ה ערכים מהטופס
-  const titleVal = document.getElementById('title').value;
-  const imgUrlVal = document.getElementById('imgUrl').value;
-  const descriptionVal = document.getElementById('description').value;
-  const categoryVal = document.getElementById('category').value;
-  const postTypeVal = document.getElementById('postType').value;
+  const editId = document.getElementById('editPostId').value;
 
-  // בניית האובייקט - נשלח authorId חוקי של מונגו בפורמט ObjectId (24 תווים)
   const newPostData = {
-    title: titleVal,
-    imgUrl: imgUrlVal,
-    description: descriptionVal,
-    category: categoryVal,
-    postType: postTypeVal,
+    title: document.getElementById('title').value,
+    imgUrl: document.getElementById('imgUrl').value,
+    description: document.getElementById('description').value,
+    category: document.getElementById('category').value,
+    postType: document.getElementById('postType').value
   };
 
+  if (editId) {
+    newPostData.userId = loggedInUser._id;
+    newPostData.password = pendingEditPassword;
+  } else {
+    newPostData.authorId = loggedInUser._id;
+  }
+
   try {
-    const res = await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json' 
-      },
+    const res = await fetch('/api/posts' + (editId ? '/' + editId : ''), {
+      method: editId ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPostData)
     });
 
     if (res.ok) {
+      alert(editId ? 'הפוסט עודכן בהצלחה!' : 'הפוסט פורסם בהצלחה!');
+      postForm.reset();
+      document.getElementById('editPostId').value = '';
+      pendingEditPassword = null;
+      document.getElementById('postModalTitle').innerText = 'create new post';
+      document.getElementById('postSubmitBtn').innerText = 'post';
+      modal.style.display = 'none';
+      if (typeof loadPostsFromDB === 'function') loadPostsFromDB();
     } else {
       const errorData = await res.json();
       alert('שגיאה מהשרת: ' + (errorData.message || 'לא ניתן לשמור את הפוסט'));
@@ -678,11 +690,32 @@ postForm.addEventListener('submit', async (e) => {
   }
 });
 
+function editCurrentPost() {
+    document.getElementById("deleteDropdown").style.display = "none";
+    if (!currentOpenImg) return;
 
+    const postId = currentOpenImg.getAttribute("data-id");
+    const postData = JSON.parse(currentOpenImg.dataset.post || '{}');
 
+    if (!postId || postData.author !== loggedInUser._id) {
+        alert("ניתן לערוך רק פוסטים שהעלית בעצמך");
+        return;
+    }
 
+    const password = prompt("הכניסי את הסיסמה שלך כדי לערוך את הפוסט:");
+    if (!password) return;
+    pendingEditPassword = password;
 
+    document.getElementById("editPostId").value = postId;
+    document.getElementById("title").value = postData.title || '';
+    document.getElementById("imgUrl").value = postData.imageUrl || '';
+    document.getElementById("description").value = postData.textContent || '';
+    document.getElementById("category").value = postData.category || '';
+    document.getElementById("postType").value = postData.postType || '';
 
+    document.getElementById("postModalTitle").innerText = "עריכת פוסט";
+    document.getElementById("postSubmitBtn").innerText = "עדכן פוסט";
 
-
-
+    closeModal();
+    modal.style.display = "flex";
+}
