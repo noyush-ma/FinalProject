@@ -1,4 +1,5 @@
 let currentOpenImg = null;
+let pendingEditPassword = null;
 
 function openModal(element) {
     currentOpenImg = element;
@@ -352,6 +353,7 @@ window.addEventListener('click', function(event) {
       img.setAttribute('data-username', 'you');
       img.setAttribute('data-description', post.textContent || '');
       img.setAttribute('onclick', 'openModal(this)');
+      img.dataset.post = JSON.stringify(post);
 
       postElement.appendChild(img);
       postElement.className = 'post-card'; // קלאס מוגדר ב-CSS
@@ -387,6 +389,10 @@ const postForm = document.getElementById('postForm');
 
 // פתיחת המודל בלחיצה על כפתור יצירת פוסט
 createPostBtn.addEventListener('click', () => {
+  document.getElementById('editPostId').value = '';
+  pendingEditPassword = null;
+  document.getElementById('postModalTitle').innerText = 'create new post';
+  document.getElementById('postSubmitBtn').innerText = 'post';
   modal.style.display = 'flex';
 });
 
@@ -406,34 +412,37 @@ window.addEventListener('click', (e) => {
 postForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  // שליפת ה ערכים מהטופס
-  const titleVal = document.getElementById('title').value;
-  const imgUrlVal = document.getElementById('imgUrl').value;
-  const descriptionVal = document.getElementById('description').value;
-  const categoryVal = document.getElementById('category').value;
-  const postTypeVal = document.getElementById('postType').value;
+  const editId = document.getElementById('editPostId').value;
 
-  // בניית האובייקט - נשלח authorId חוקי של מונגו בפורמט ObjectId (24 תווים)
   const newPostData = {
-    title: titleVal,
-    imgUrl: imgUrlVal,
-    description: descriptionVal,
-    category: categoryVal,
-    postType: postTypeVal,
+    title: document.getElementById('title').value,
+    imgUrl: document.getElementById('imgUrl').value,
+    description: document.getElementById('description').value,
+    category: document.getElementById('category').value,
+    postType: document.getElementById('postType').value
   };
 
+  if (editId) {
+    newPostData.userId = loggedInUser._id;
+    newPostData.password = pendingEditPassword;
+  } else {
+    newPostData.authorId = loggedInUser._id;
+  }
+
   try {
-    const res = await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json' 
-      },
+    const res = await fetch('/api/posts' + (editId ? '/' + editId : ''), {
+      method: editId ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPostData)
     });
 
     if (res.ok) {
-      alert('הפוסט פורסם בהצלחה!');
+      alert(editId ? 'הפוסט עודכן בהצלחה!' : 'הפוסט פורסם בהצלחה!');
       postForm.reset();
+      document.getElementById('editPostId').value = '';
+      pendingEditPassword = null;
+      document.getElementById('postModalTitle').innerText = 'create new post';
+      document.getElementById('postSubmitBtn').innerText = 'post';
       modal.style.display = 'none';
       if (typeof loadPostsFromDB === 'function') loadPostsFromDB();
     } else {
@@ -444,4 +453,39 @@ postForm.addEventListener('submit', async (e) => {
     console.error(err);
     alert('שגיאה בתקשורת עם השרת');
   }
+<<<<<<< Updated upstream
 });
+=======
+});
+
+
+function editCurrentPost() {
+    document.getElementById("deleteDropdown").style.display = "none";
+    if (!currentOpenImg) return;
+
+    const postId = currentOpenImg.getAttribute("data-id");
+    const postData = JSON.parse(currentOpenImg.dataset.post || '{}');
+
+    if (!postId || postData.author !== loggedInUser._id) {
+        alert("ניתן לערוך רק פוסטים שהעלית בעצמך");
+        return;
+    }
+
+    const password = prompt("הכניסי את הסיסמה שלך כדי לערוך את הפוסט:");
+    if (!password) return;
+    pendingEditPassword = password;
+
+    document.getElementById("editPostId").value = postId;
+    document.getElementById("title").value = postData.title || '';
+    document.getElementById("imgUrl").value = postData.imageUrl || '';
+    document.getElementById("description").value = postData.textContent || '';
+    document.getElementById("category").value = postData.category || '';
+    document.getElementById("postType").value = postData.postType || '';
+
+    document.getElementById("postModalTitle").innerText = "עריכת פוסט";
+    document.getElementById("postSubmitBtn").innerText = "עדכן פוסט";
+
+    closeModal();
+    modal.style.display = "flex";
+}
+>>>>>>> Stashed changes
