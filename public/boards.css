@@ -8,14 +8,17 @@
 
 .boards-page-container {
     max-width: 1100px;
-    margin: 24px auto;
-    padding: 0 24px;
+    margin: 40px auto;
+    padding: 0 100px;
 }
 
+/* --- התאמת הטאבים של סיכות/לוחות (סגנון פינטרסט) --- */
 .new-board-inline {
     display: flex;
-    gap: 10px;
+    justify-content: center;
+    gap: 24px;
     margin-bottom: 24px;
+    direction: rtl;
 }
 
 .new-board-inline input {
@@ -28,20 +31,41 @@
     font-size: 14px;
 }
 
-.new-board-inline button {
-    padding: 10px 18px;
+/* עיצוב הטאבים כטקסט בלבד */
+.new-board-inline button,
+.new-board-inline .tab-btn {
+    background: none;
     border: none;
-    border-radius: 20px;
-    background-color: #e60023;
-    color: white;
+    padding: 8px 4px;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
     font-weight: bold;
+    color: #111111;
     cursor: pointer;
+    position: relative;
+    transition: opacity 0.2s ease;
 }
 
-.new-board-inline button:hover {
-    background-color: #ad081b;
+.new-board-inline button:hover,
+.new-board-inline .tab-btn:hover {
+    opacity: 0.7;
+    background-color: transparent; /* מונע צבע אדום ב-hover */
 }
 
+/* הקו התחתון השחור בלשונית הפעילה */
+.new-board-inline button.active::after,
+.new-board-inline .tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #111111;
+    border-radius: 2px;
+}
+
+/* --- שאר הקוד המקורי --- */
 .boards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -131,6 +155,58 @@
     margin-bottom: 16px;
 }
 
+/* --- כרטיס "סיכה" בטאב הסיכות (תמונות שמורות) --- */
+.pin-card {
+    cursor: default;
+}
+
+.pin-card:hover {
+    transform: none;
+}
+
+/* כפתור ביטול שמירה / הסרה מלוח - מוצג בעדינות, בולט ב-hover */
+.pin-unsave-btn {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.board-card:hover .pin-unsave-btn,
+.board-pin-card:hover .pin-unsave-btn {
+    opacity: 1;
+}
+
+/* כרטיסי הפינים בתוך תצוגת לוח בודד (board-pins-section) - צריך מיקום יחסי לכפתור ההסרה */
+.board-pin-card {
+    position: relative;
+}
+
+/* --- אריח "לוח חדש +" בטאב הלוחות --- */
+.add-board-card {
+    display: flex;
+    flex-direction: column;
+    border: 2px dashed #cccccc;
+    background-color: transparent;
+}
+
+.add-board-cover {
+    font-size: 40px;
+    font-weight: bold;
+    color: #999999;
+    background-color: transparent;
+}
+
+.add-board-card:hover .add-board-cover {
+    color: #e60023;
+}
+
+.no-boards-text {
+    font-family: Arial, sans-serif;
+    color: #767676;
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* --- Dark Mode --- */
 body.dark-mode .boards-page-title,
 body.dark-mode .board-name,
 body.dark-mode #boardPinsTitle {
@@ -140,4 +216,98 @@ body.dark-mode #boardPinsTitle {
 body.dark-mode .board-card,
 body.dark-mode .board-cover {
     background-color: #2a2a2a;
+}
+
+body.dark-mode .new-board-inline button,
+body.dark-mode .new-board-inline .tab-btn {
+    color: #ffffff;
+}
+
+body.dark-mode .new-board-inline button.active::after,
+body.dark-mode .new-board-inline .tab-btn.active::after {
+    background-color: #ffffff;
+}
+
+body.dark-mode .add-board-card {
+    border-color: #555555;
+}
+
+/* --- מודאל "יצירת לוח חדש" (רכיב UI אמיתי, לא הודעת prompt של הדפדפן) --- */
+.save-board-modal-content {
+    width: 380px;
+    height: auto;
+    max-height: 80vh;
+    flex-direction: column;
+    overflow-y: auto;
+    text-align: right;
+}
+
+.save-board-modal-content h3 {
+    margin: 0 0 16px 0;
+    font-family: Arial, sans-serif;
+}
+
+.new-board-inline-save {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.new-board-inline-save input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.new-board-inline-save button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e60023;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.dark-mode .save-board-modal-content {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+}
+
+.board-pins-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.pin-select-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.pin-select-item img {
+    width: 100%;
+    height: 70px;
+    object-fit: cover;
+    display: block;
+}
+
+.pin-select-item input[type="checkbox"] {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    z-index: 2;
+    cursor: pointer;
 }
