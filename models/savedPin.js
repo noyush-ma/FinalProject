@@ -12,9 +12,12 @@ const savedPinSchema = new mongoose.Schema({
     required: true
   },
   board: {
+    // הלוח שאליו הפין משויך כרגע - אופציונלי: פין יכול להיות שמור ב"סיכות" בלבד,
+    // בלי להיות משויך לאף לוח (null). הסרה מלוח לא מוחקת את השמירה עצמה,
+    // היא רק מאפסת את השדה הזה חזרה ל-null.
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Board',
-    required: true
+    default: null
   },
   user: {
     // מי שביצע את השמירה - משמש גם לבדיקת הרשאה (רק הוא יכול לראות/להסיר את השמירה הזו)
