@@ -1,5 +1,7 @@
 let currentOpenImg = null;
 let pendingEditPassword = null;
+let pendingEditPostId = null;
+let pendingEditPostData = null;
 
 // --- ניהול משתמש מחובר ---
 // שולף את פרטי המשתמש המחובר שנשמרו ב-sessionStorage בזמן ה-login/signup
@@ -706,17 +708,30 @@ function editCurrentPost() {
     const postId = currentOpenImg.getAttribute("data-id");
     const postData = JSON.parse(currentOpenImg.dataset.post || '{}');
 
-    // דיבאג זמני - אפשר למחוק אחרי שהבעיה נפתרת
-    console.log('DEBUG editCurrentPost -> postData.author:', postData.author, '| loggedInUser._id:', loggedInUser ? loggedInUser._id : null, '| match:', postData.author === (loggedInUser && loggedInUser._id));
-
     if (!postId || !loggedInUser || postData.author !== loggedInUser._id) {
         alert("ניתן לערוך רק פוסטים שהעלית בעצמך");
         return;
     }
 
-    const password = prompt("הכניסי את הסיסמה שלך כדי לערוך את הפוסט:");
-    if (!password) return;
+    pendingEditPostId = postId;
+    pendingEditPostData = postData;
+
+    document.getElementById("editPasswordInput").value = "";
+    document.getElementById("passwordModal").style.display = "flex";
+}
+
+document.getElementById("confirmPasswordBtn").addEventListener("click", function() {
+    const password = document.getElementById("editPasswordInput").value;
+    if (!password) {
+        alert("יש להזין סיסמה");
+        return;
+    }
+
     pendingEditPassword = password;
+    const postId = pendingEditPostId;
+    const postData = pendingEditPostData;
+
+    document.getElementById("passwordModal").style.display = "none";
 
     document.getElementById("editPostId").value = postId;
     document.getElementById("title").value = postData.title || '';
@@ -730,4 +745,8 @@ function editCurrentPost() {
 
     closeModal();
     modal.style.display = "flex";
-}
+});
+
+document.getElementById("closePasswordModal").addEventListener("click", function() {
+    document.getElementById("passwordModal").style.display = "none";
+});
