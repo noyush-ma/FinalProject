@@ -171,7 +171,7 @@ exports.addPinToBoard = async (req, res) => {
     const savedPin = await SavedPin.findOneAndUpdate(
       { post: postId, user: userId },
       { $set: { post: postId, user: userId, board: boardId }, $setOnInsert: { savedAt: new Date() } },
-      { new: true, upsert: true, runValidators: true }
+      { returnDocument: 'after', upsert: true, runValidators: true }
     );
 
     res.status(200).json(savedPin);
@@ -192,7 +192,7 @@ exports.removeFromBoard = async (req, res) => {
     const updated = await SavedPin.findOneAndUpdate(
       { post: postId, user: userId },
       { board: null },
-      { new: true }
+      { returnDocument: 'after' }
     );
     if (!updated) {
       return res.status(404).json({ message: 'לא נמצאה שמירה להסרה מהלוח' });
