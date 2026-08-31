@@ -139,20 +139,39 @@
 }
 
 .back-to-boards-btn {
-    background: none;
+    display: inline-block;
+    background-color: #efefef;
+    color: #333;
     border: none;
-    font-size: 15px;
-    color: #e60023;
-    cursor: pointer;
-    margin-bottom: 12px;
-    font-family: Arial, sans-serif;
+    padding: 8px 16px;
+    border-radius: 20px;
     font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 25px; /* רווח מתחת לכפתור לפני גריד התמונות */
+    transition: background-color 0.2s ease;
+}
+
+.back-to-boards-btn:hover {
+    background-color: #e2e2e2;
+}
+
+/* תמיכה במצב לילה לכפתור */
+body.dark-mode .back-to-boards-btn {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .back-to-boards-btn:hover {
+    background-color: #444;
 }
 
 #boardPinsTitle {
-    font-family: Arial, sans-serif;
-    color: #111111;
-    margin-bottom: 16px;
+  font-family: Arial, sans-serif;
+  color: #111111;
+  margin-top: 90px;
+  margin-bottom: 16px;
+
 }
 
 /* --- כרטיס "סיכה" בטאב הסיכות (תמונות שמורות) --- */
@@ -310,4 +329,31 @@ body.dark-mode .save-board-modal-content {
     height: 18px;
     z-index: 2;
     cursor: pointer;
+}
+
+.board-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.add-pins-to-board-btn {
+    background-color: #efefef;
+    color: #333;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-weight: bold;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-pins-to-board-btn:hover {
+    background-color: #e2e2e2;
+}
+
+body.dark-mode .add-pins-to-board-btn {
+    background-color: #333;
+    color: #fff;
 }
