@@ -399,7 +399,7 @@ async function openCreateBoardModal() {
         const item = document.createElement('label');
         item.className = 'pin-select-item';
         item.innerHTML = `
-            <input type="checkbox" value="${pin.imageUrl}" class="pin-checkbox">
+            <input type="checkbox" value="${pin.imageUrl}" class="pin-checkbox" data-id="${pin.id}" data-islocal="${pin.isLocal}">
             <img src="${pin.imageUrl}" alt="${pin.title}">
         `;
         container.appendChild(item);
@@ -699,7 +699,7 @@ async function getAllSavedPinsForUser() {
     // 1. פינים מקומיים
     try {
         getLocalPins().forEach(p => {
-            pins.push({ id: p.localId, imageUrl: p.imageUrl, title: p.title || '' });
+            pins.push({ id: p.localId, imageUrl: p.imageUrl, title: p.title || '', isLocal: true });
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מקומיים:', err);
@@ -710,7 +710,7 @@ async function getAllSavedPinsForUser() {
         const res = await fetch('/api/boards/pins/' + loggedInUser._id);
         const mongoPins = await res.json();
         (mongoPins || []).forEach(p => {
-            pins.push({ id: p.postId, imageUrl: p.imageUrl, title: p.title || '' });
+            pins.push({ id: p.postId, imageUrl: p.imageUrl, title: p.title || '', isLocal: false });
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מהשרת:', err);
