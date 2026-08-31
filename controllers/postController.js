@@ -81,17 +81,11 @@ exports.updatePost = async (req, res) => {
       return res.status(404).json({ message: 'פוסט לא נמצא' });
     }
 
-    const { userId, password } = req.body;
+    const { userId } = req.body;
 
-    // בדיקה 1: המשתמש שמנסה לערוך הוא אכן זה שהעלה את הפוסט
+    // בדיקה: המשתמש שמנסה לערוך הוא אכן זה שהעלה את הפוסט
     if (!userId || post.author.toString() !== userId) {
       return res.status(403).json({ message: 'ניתן לערוך רק פוסטים שהעלית בעצמך' });
-    }
-
-    // בדיקה 2: הסיסמה שהוזנה תואמת לסיסמת המשתמש בפועל
-    const user = await User.findById(userId);
-    if (!user || user.password !== password) {
-      return res.status(401).json({ message: 'סיסמה שגויה' });
     }
 
     post.title = req.body.title;

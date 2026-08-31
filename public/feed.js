@@ -713,26 +713,6 @@ function editCurrentPost() {
         return;
     }
 
-    pendingEditPostId = postId;
-    pendingEditPostData = postData;
-
-    document.getElementById("editPasswordInput").value = "";
-    document.getElementById("passwordModal").style.display = "flex";
-}
-
-document.getElementById("confirmPasswordBtn").addEventListener("click", function() {
-    const password = document.getElementById("editPasswordInput").value;
-    if (!password) {
-        alert("יש להזין סיסמה");
-        return;
-    }
-
-    pendingEditPassword = password;
-    const postId = pendingEditPostId;
-    const postData = pendingEditPostData;
-
-    document.getElementById("passwordModal").style.display = "none";
-
     document.getElementById("editPostId").value = postId;
     document.getElementById("title").value = postData.title || '';
     document.getElementById("imgUrl").value = postData.imageUrl || '';
@@ -745,8 +725,4 @@ document.getElementById("confirmPasswordBtn").addEventListener("click", function
 
     closeModal();
     modal.style.display = "flex";
-});
-
-document.getElementById("closePasswordModal").addEventListener("click", function() {
-    document.getElementById("passwordModal").style.display = "none";
-});
+}
