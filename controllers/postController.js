@@ -4,13 +4,23 @@ const User = require('../models/user'); // נחוץ כדי לאמת סיסמה �
 // יצירת פוסט חדש
 exports.createPost = async (req, res) => {
   try {
+    if (!req.body.authorId) {
+      return res.status(400).json({ message: 'יש להתחבר כדי לפרסם פוסט (חסר authorId)' });
+    }
+
+    const authorUser = await User.findById(req.body.authorId);
+    if (!authorUser) {
+      return res.status(404).json({ message: 'המשתמש המחובר לא נמצא' });
+    }
+
     const newPost = new Post({
       title: req.body.title,
       imageUrl: req.body.imgUrl,
       textContent: req.body.description,
       category: req.body.category,
       postType: req.body.postType,
-      author: req.body.authorId
+      author: authorUser._id,
+      authorUsername: authorUser.username
     });
     const savedPost = await newPost.save();
     res.status(201).json(savedPost);

@@ -608,7 +608,7 @@ window.addEventListener('click', function(event) {
       img.alt = post.title;
       img.setAttribute('data-id', post._id);
       img.setAttribute('data-likes', 0);
-      img.setAttribute('data-username', 'you');
+      img.setAttribute('data-username', post.authorUsername || 'משתמש לא ידוע');
       img.setAttribute('data-description', post.textContent || '');
       img.setAttribute('onclick', 'openModal(this)');
       img.dataset.post = JSON.stringify(post);
@@ -706,7 +706,10 @@ function editCurrentPost() {
     const postId = currentOpenImg.getAttribute("data-id");
     const postData = JSON.parse(currentOpenImg.dataset.post || '{}');
 
-    if (!postId || postData.author !== loggedInUser._id) {
+    // דיבאג זמני - אפשר למחוק אחרי שהבעיה נפתרת
+    console.log('DEBUG editCurrentPost -> postData.author:', postData.author, '| loggedInUser._id:', loggedInUser ? loggedInUser._id : null, '| match:', postData.author === (loggedInUser && loggedInUser._id));
+
+    if (!postId || !loggedInUser || postData.author !== loggedInUser._id) {
         alert("ניתן לערוך רק פוסטים שהעלית בעצמך");
         return;
     }
