@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose'); // 1. ייבוא mongoose
 const app = express();
@@ -18,11 +19,11 @@ app.get('/', (req, res) => {
 });
 
 // 2. חיבור ל-MongoDB (מקומי או מרוחק)
-const MONGO_URI = 'mongodb+srv://noya8657_db_user:noya8657DB@cluster0.5i8zsqf.mongodb.net/pinterest_db?retryWrites=true&w=majority';
+const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI)
   .then(() => console.log('Connected to MongoDB Atlas successfully!'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log('Server is running on http://localhost:3000');
 });
