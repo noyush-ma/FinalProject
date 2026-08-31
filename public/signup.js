@@ -61,3 +61,11 @@ async function handleSignup() {
         if (submitBtn) submitBtn.disabled = false;
     }
 }
+
+["username", "email", "password"].forEach(function (id) {
+    document.getElementById(id).addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            handleSignup();
+        }
+    });
+});

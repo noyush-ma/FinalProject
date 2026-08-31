@@ -49,3 +49,15 @@ async function handleLogin() {
         console.error('Login error:', err);
     }
 }
+
+document.getElementById("email").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        handleLogin();
+    }
+});
+
+document.getElementById("password").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        handleLogin();
+    }
+});
