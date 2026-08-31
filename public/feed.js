@@ -474,6 +474,14 @@ function toggleDeleteMenu(event) {
 async function deleteCurrentPost() {
     if (!currentOpenImg) return;
 
+    const postData = JSON.parse(currentOpenImg.dataset.post || '{}');
+
+    if (!loggedInUser || postData.author !== loggedInUser._id) {
+        alert("ניתן למחוק רק פוסטים שהעלית בעצמך");
+        document.getElementById("deleteDropdown").style.display = "none";
+        return;
+    }
+
     const confirmDelete = confirm("האם את בטוחה שברצונך למחוק פוסט זה?");
     if (!confirmDelete) return;
 
@@ -491,18 +499,10 @@ async function deleteCurrentPost() {
 
     try {
         const res = await fetch('/api/posts/' + postId, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: loggedInUser._id })
         });
-
-        if (res.ok) {
-            // מחיקה מהדום רק אחרי שהמחיקה במונגו הצליחה
-            const postCard = currentOpenImg.closest('.post-card');
-            if (postCard) postCard.remove();
-            closeModal();
-        } else {
-            const errorData = await res.json();
-            alert('שגיאה במחיקת הפוסט: ' + (errorData.message || 'לא ניתן למחוק את הפוסט'));
-        }
     } catch (err) {
         console.error(err);
         alert('שגיאה בתקשורת עם השרת בזמן מחיקת הפוסט');

@@ -55,10 +55,19 @@ exports.getPostById = async (req, res) => {
 // מחיקת פוסט לפי מזהה
 exports.deletePost = async (req, res) => {
   try {
-    const deletedPost = await Post.findByIdAndDelete(req.params.id);
-    if (!deletedPost) {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
       return res.status(404).json({ message: 'פוסט לא נמצא' });
     }
+
+    const { userId } = req.body;
+
+    // בדיקה: המשתמש שמנסה למחוק הוא אכן זה שהעלה את הפוסט
+    if (!userId || post.author.toString() !== userId) {
+      return res.status(403).json({ message: 'ניתן למחוק רק פוסטים שהעלית בעצמך' });
+    }
+
+    const deletedPost = await Post.findByIdAndDelete(req.params.id);
     res.json({ message: 'הפוסט נמחק בהצלחה', deletedPost });
   } catch (err) {
     res.status(500).json({ message: err.message });
