@@ -525,17 +525,23 @@ async function deleteBoard(boardId) {
 
 // פתיחת תצוגת הפינים השמורים בלוח מסוים - השרת מוודא שהמשתמש המחובר הוא בעל הלוח.
 // אפשר לחזור מכאן לדף בחירת הלוח דרך כפתור "חזרה ללוחות" (closeBoardView).
+// פתיחת תצוגת הפינים השמורים בלוח מסוים - מוצג בדיוק כמו בטאב הסיכות
 async function openBoard(boardId, boardName) {
+    currentBoard = { id: boardId, name: boardName };
     document.getElementById('boardsPageContainer').style.display = 'none';
     const section = document.getElementById('boardPinsSection');
     section.style.display = 'block';
     document.getElementById('boardPinsTitle').innerText = boardName;
 
     const grid = document.getElementById('boardPinsGrid');
+    
+    // שינוי ה-class של הגריד כדי להבטיח עיצוב זהה ללוח הראשי
+    grid.className = 'boards-grid';
     grid.innerHTML = '<p class="no-boards-text">טוען...</p>';
 
     const items = [];
 
+    // 1. טעינת פינים מהשרת
     try {
         const res = await fetch('/api/boards/' + boardId + '/pins?userId=' + loggedInUser._id);
         const posts = await res.json();
@@ -546,7 +552,7 @@ async function openBoard(boardId, boardName) {
         console.error('שגיאה בטעינת תוכן הלוח:', err);
     }
 
-    // פינים מקומיים ששויכו ללוח הזה (תמונות ללא Post אמיתי במונגו)
+    // 2. טעינת פינים מקומיים שמשויכים ללוח הזה
     try {
         getLocalPins().forEach(function (p) {
             if (p.boardId === boardId) {
@@ -559,19 +565,24 @@ async function openBoard(boardId, boardName) {
 
     grid.innerHTML = '';
     if (items.length === 0) {
-        grid.innerHTML = '<p class="no-boards-text">עדיין אין פינים שמורים בלוח הזה</p>';
+        grid.innerHTML = '<p class="no-boards-text">עדיין אין פינים שמורים בלוח הזה 📌</p>';
         return;
     }
 
+    
+    // יצירת הכרטיסיות באותו המבנה בדיוק כמו בטאב הסיכות
     items.forEach(function (item) {
-        const postElement = document.createElement('div');
-        postElement.className = 'post-card board-pin-card';
+        const card = document.createElement('div');
+        card.className = 'board-card pin-card'; // זהה לטאב הסיכות
+
+        const cover = document.createElement('div');
+        cover.className = 'board-cover';
 
         const img = document.createElement('img');
         img.src = item.imageUrl;
         img.alt = item.title || '';
 
-        // הסרה מהלוח בלבד - לא מבטלת את השמירה של הסיכה עצמה
+        // לחצן הסרה מהלוח (נשאר בצורת ✕)
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'board-delete-btn pin-unsave-btn';
@@ -582,9 +593,10 @@ async function openBoard(boardId, boardName) {
             removePinFromBoard(item, boardId, boardName);
         };
 
-        postElement.appendChild(img);
-        postElement.appendChild(removeBtn);
-        grid.appendChild(postElement);
+        cover.appendChild(img);
+        card.appendChild(cover);
+        card.appendChild(removeBtn);
+        grid.appendChild(card);
     });
 }
 
@@ -620,8 +632,25 @@ async function removePinFromBoard(item, boardId, boardName) {
 }
 
 function closeBoardView() {
+    // 1. הסתרת תצוגת הסיכות בתוך הלוח והצגת המיכל הראשי
     document.getElementById('boardPinsSection').style.display = 'none';
     document.getElementById('boardsPageContainer').style.display = 'block';
+
+    // 2. עדכון ויזואלי של הטאבים - הפיכת טאב "לוחות" לפעיל
+    const tabButtons = document.querySelectorAll('.new-board-inline .tab-btn');
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+
+    // מציאת כפתור הטאב של "לוחות" והוספת מחלקת active
+    const boardsTabBtn = Array.from(tabButtons).find(btn => btn.textContent.includes('לוחות'));
+    if (boardsTabBtn) {
+        boardsTabBtn.classList.add('active');
+    }
+
+    // 3. טעינת הלוחות מחדש וניקוי שדה החיפוש
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) searchInput.value = '';
+    
+    loadBoards();
 }
 
 // חיפוש בתוך הטאב הפעיל (מסנן לפי שם לוח / כותרת סיכה)
@@ -717,4 +746,67 @@ async function getAllSavedPinsForUser() {
     }
 
     return pins;
+}
+
+
+
+async function openAddPinsModal() {
+    const modal = ensureCreateBoardModal();
+    modal.style.display = 'flex';
+    
+    // הסתרת שדה השם ומילוי ערך זמני למניעת השגיאה
+    const input = document.getElementById('createBoardNameInput');
+    if (input) { input.value = currentBoard.name || 'לוח'; input.parentElement.style.display = 'none'; }
+    
+    document.querySelector('#createBoardModal h3').innerText = `הוספת תמונות ללוח: ${currentBoard.name}`;
+    
+    const submitBtn = document.getElementById('submitCreateBoardBtn');
+    submitBtn.innerText = 'הוסף ללוח';
+    submitBtn.onclick = savePinsToCurrentBoard;
+
+    // סינון תמונות שכבר קיימות בלוח
+    const currentImgs = new Set([...document.querySelectorAll('#boardPinsGrid img')].map(img => img.src));
+    const allPins = await getAllSavedPinsForUser();
+    const availablePins = allPins.filter(pin => !currentImgs.has(pin.imageUrl));
+
+    const container = document.getElementById('boardPinsSelectorGrid');
+    container.innerHTML = availablePins.length === 0 ? '<p>כל התמונות כבר בלוח זה 📌</p>' : '';
+    
+    availablePins.forEach(pin => {
+        container.innerHTML += `
+            <label class="pin-select-item">
+                <input type="checkbox" value="${pin.imageUrl}" class="pin-checkbox" data-id="${pin.id}" data-islocal="${pin.isLocal}">
+                <img src="${pin.imageUrl}" alt="${pin.title || ''}">
+            </label>`;
+    });
+}
+
+async function savePinsToCurrentBoard() {
+    const selected = [...document.querySelectorAll('#boardPinsSelectorGrid .pin-checkbox:checked')].map(cb => ({
+        id: cb.getAttribute('data-id'),
+        isLocal: cb.getAttribute('data-islocal') === 'true'
+    }));
+
+    if (!selected.length) return alert('יש לבחור לפחות תמונה אחת');
+
+    for (const pin of selected) {
+        if (pin.isLocal) {
+            setLocalPins(getLocalPins().map(p => (p.localId === pin.id ? { ...p, boardId: currentBoard.id } : p)));
+        } else {
+            await fetch('/api/boards/add-to-board', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ postId: pin.id, boardId: currentBoard.id, userId: loggedInUser._id })
+            });
+        }
+    }
+
+    // איפוס המודאל בחזרה
+    const input = document.getElementById('createBoardNameInput');
+    if (input) { input.value = ''; input.parentElement.style.display = 'block'; }
+    document.querySelector('#createBoardModal h3').innerText = 'יצירת לוח חדש';
+    document.getElementById('submitCreateBoardBtn').onclick = submitCreateBoardModal;
+
+    closeCreateBoardModal();
+    openBoard(currentBoard.id, currentBoard.name);
 }
