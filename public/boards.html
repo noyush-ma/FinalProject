@@ -66,9 +66,14 @@
 </div>
 
 <div id="boardPinsSection" class="board-pins-section" style="display:none;">
-     <h2 id="boardPinsTitle"></h2>
-    <button class="back-to-boards-btn" type="button" onclick="closeBoardView()">⟵ חזרה ללוחות</button>
-    <div id="boardPinsGrid" class="images"></div>
+    <h2 id="boardPinsTitle"></h2>
+    
+    <div class="board-actions">
+        <button class="back-to-boards-btn" type="button" onclick="closeBoardView()">⟵ חזרה ללוחות</button>
+        <button class="add-pins-to-board-btn" type="button" onclick="openAddPinsModal()">+הוספת תמונות ללוח</button>
+    </div>
+
+    <div id="boardPinsGrid" class="boards-grid"></div>
 </div>
 
 
