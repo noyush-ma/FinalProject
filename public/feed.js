@@ -1,4 +1,5 @@
 let currentOpenImg = null;
+let pendingEditPassword = null;
 
 // --- ניהול משתמש מחובר ---
 // שולף את פרטי המשתמש המחובר שנשמרו ב-sessionStorage בזמן ה-login/signup
@@ -20,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const headerImg = document.getElementById('profileImg');
     const dropdownImg = document.getElementById('profileDropdownImg');
     const currentImage = (loggedInUser && loggedInUser.profileImage) ? loggedInUser.profileImage : 'icons/profileLogo.png';
-    if (headerImg) headerImg.src = currentImage;
     if (dropdownImg) dropdownImg.src = currentImage;
 
     const profileBtn = document.getElementById('profileBtn');
@@ -155,11 +155,9 @@ function openModal(element) {
     var saveBtn = document.getElementById("saveBtn");
     saveBtn.innerText = "שמירה";
     saveBtn.style.backgroundColor = "#e60023";
+    refreshSaveButtonState(element.getAttribute("data-id"));
 
     document.getElementById("commentsList").innerHTML = "";
-    document.getElementById("commentsList").style.display = "none";
-    document.getElementById("accordionArrow").classList.remove("open");
-    document.getElementById("comments-title-text").innerText = "הערות (0)";
     document.getElementById("newCommentInput").value = "";
     document.getElementById("typingIndicator").style.display = "none";
 }
@@ -194,14 +192,164 @@ function doLike() {
     }
 }
 
+// בודק מול השרת אם הפוסט הפתוח כרגע כבר שמור על ידי המשתמש המחובר, ומעדכן את כפתור השמירה בהתאם
+async function refreshSaveButtonState(postId) {
+    var saveBtn = document.getElementById("saveBtn");
+    if (!postId || !loggedInUser) return;
+
+    try {
+        const res = await fetch('/api/boards/save-status/' + postId + '/' + loggedInUser._id);
+        const data = await res.json();
+        if (data.saved) {
+            saveBtn.innerText = "נשמר";
+            saveBtn.style.backgroundColor = "#333333";
+        }
+    } catch (err) {
+        console.error('שגיאה בבדיקת מצב שמירה:', err);
+    }
+}
+
+// לחיצה על כפתור השמירה בתוך המודל: אם כבר שמור - מסירים, אחרת פותחים בחירת לוח
 function doSave() {
     var saveBtn = document.getElementById("saveBtn");
-    if (saveBtn.innerText === "שמירה") {
-        saveBtn.innerText = "נשמר";
-        saveBtn.style.backgroundColor = "#333333";
+    if (saveBtn.innerText === "נשמר") {
+        unsaveCurrentPost();
     } else {
-        saveBtn.innerText = "שמירה";
-        saveBtn.style.backgroundColor = "#e60023";
+        openSaveBoardModal();
+    }
+}
+
+// הסרת השמירה של הפוסט הפתוח כרגע (רק עבור המשתמש המחובר)
+async function unsaveCurrentPost() {
+    if (!currentOpenImg || !loggedInUser) return;
+    const postId = currentOpenImg.getAttribute("data-id");
+    if (!postId) return;
+
+    try {
+        const res = await fetch('/api/boards/unsave', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: postId, userId: loggedInUser._id })
+        });
+
+        if (res.ok) {
+            var saveBtn = document.getElementById("saveBtn");
+            saveBtn.innerText = "שמירה";
+            saveBtn.style.backgroundColor = "#e60023";
+        }
+    } catch (err) {
+        console.error('שגיאה בהסרת השמירה:', err);
+    }
+}
+
+// פותח את חלון בחירת הלוח לשמירת הפוסט הפתוח כרגע
+async function openSaveBoardModal() {
+    if (!currentOpenImg) return;
+    const postId = currentOpenImg.getAttribute("data-id");
+    if (!postId) {
+        alert('לא ניתן לשמור פוסט זה כרגע');
+        return;
+    }
+
+    const saveBoardModalEl = document.getElementById('saveBoardModal');
+    if (!saveBoardModalEl) {
+        // TODO: פיצ'ר שמירה ללוחות עדיין לא הושלם ב-HTML (חסר מודאל #saveBoardModal)
+        alert('פיצ\'ר שמירה ללוחות עדיין לא זמין');
+        return;
+    }
+    saveBoardModalEl.style.display = 'flex';
+    await loadUserBoardsForSaveModal();
+}
+
+function closeSaveBoardModal() {
+    const saveBoardModalEl = document.getElementById('saveBoardModal');
+    if (saveBoardModalEl) saveBoardModalEl.style.display = 'none';
+}
+
+// טוען את הלוחות של המשתמש המחובר בלבד (כל משתמש רואה רק את הלוחות שלו) לחלון השמירה
+async function loadUserBoardsForSaveModal() {
+    const listEl = document.getElementById('userBoardsList');
+    if (!loggedInUser) return;
+    listEl.innerHTML = '<p class="no-boards-text">טוען לוחות...</p>';
+
+    try {
+        const res = await fetch('/api/boards/user/' + loggedInUser._id);
+        const boards = await res.json();
+
+        listEl.innerHTML = '';
+        if (!boards || boards.length === 0) {
+            listEl.innerHTML = '<p class="no-boards-text">עדיין אין לך לוחות. צרי לוח חדש למטה 👇</p>';
+            return;
+        }
+
+        boards.forEach(function (board) {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'board-select-item';
+            item.innerText = board.name;
+            item.onclick = function () { saveCurrentPostToBoard(board._id); };
+            listEl.appendChild(item);
+        });
+    } catch (err) {
+        console.error('שגיאה בטעינת הלוחות:', err);
+        listEl.innerHTML = '<p class="no-boards-text">שגיאה בטעינת הלוחות</p>';
+    }
+}
+
+async function saveCurrentPostToBoard(boardId) {
+    const postId = currentOpenImg.getAttribute("data-id");
+    if (!postId) return;
+
+    try {
+        const res = await fetch('/api/boards/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: postId, boardId: boardId, userId: loggedInUser._id })
+        });
+
+        if (res.ok) {
+            var saveBtn = document.getElementById("saveBtn");
+            saveBtn.innerText = "נשמר";
+            saveBtn.style.backgroundColor = "#333333";
+            closeSaveBoardModal();
+        } else {
+            const errorData = await res.json();
+            alert('שגיאה בשמירה: ' + (errorData.message || 'לא ניתן לשמור את הפוסט'));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('שגיאה בתקשורת עם השרת בזמן השמירה');
+    }
+}
+
+// יוצר לוח חדש ומיד שומר אליו את הפוסט הפתוח כרגע
+async function createBoardAndSave() {
+    const name = input.value.trim();
+
+    if (!name) {
+        alert('יש להזין שם ללוח');
+        return;
+    }
+    if (!loggedInUser) return;
+
+    try {
+        const res = await fetch('/api/boards', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, ownerId: loggedInUser._id })
+        });
+
+        if (res.ok) {
+            const newBoard = await res.json();
+            input.value = '';
+            await saveCurrentPostToBoard(newBoard._id);
+        } else {
+            const errorData = await res.json();
+            alert('שגיאה ביצירת הלוח: ' + (errorData.message || 'לא ניתן ליצור את הלוח'));
+        }
+    } catch (err) {
+        console.error(err);
+        alert('שגיאה בתקשורת עם השרת בזמן יצירת הלוח');
     }
 }
 
@@ -290,8 +438,8 @@ function addComment() {
     newComment.innerText = commentText;
     commentsList.appendChild(newComment);
 
-    var currentCount = commentsList.getElementsByClassName("comment-item").length;
     var titleText = document.getElementById("comments-title-text");
+    var currentCount = commentsList.getElementsByClassName("comment-item").length;
     if (currentCount === 1) {
         titleText.innerText = "הערה 1";
     } else {
@@ -381,11 +529,6 @@ const badge = document.getElementById('badge');
 let clickCount = 0;
 
 button.addEventListener('click', () => {
-  document.body.classList.add('active-pink');
-  setTimeout(() => {
-    document.body.classList.remove('active-pink');
-  }, 50);
-
   button.classList.remove('animate-btn');
   void button.offsetWidth; 
   button.classList.add('animate-btn');
@@ -452,7 +595,6 @@ window.addEventListener('click', function(event) {
   try {
     const res = await fetch('/api/posts');
     const posts = await res.json();
-
     const postsContainer = document.getElementById('postsContainer');
 
     posts.forEach(post => {
@@ -469,6 +611,7 @@ window.addEventListener('click', function(event) {
       img.setAttribute('data-username', 'you');
       img.setAttribute('data-description', post.textContent || '');
       img.setAttribute('onclick', 'openModal(this)');
+      img.dataset.post = JSON.stringify(post);
 
       postElement.appendChild(img);
       postsContainer.appendChild(postElement);
@@ -490,6 +633,10 @@ const postForm = document.getElementById('postForm');
 
 // פתיחת המודל בלחיצה על כפתור יצירת פוסט
 createPostBtn.addEventListener('click', () => {
+  document.getElementById('editPostId').value = '';
+  pendingEditPassword = null;
+  document.getElementById('postModalTitle').innerText = 'create new post';
+  document.getElementById('postSubmitBtn').innerText = 'post';
   modal.style.display = 'flex';
 });
 
@@ -509,34 +656,37 @@ window.addEventListener('click', (e) => {
 postForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  // שליפת ה ערכים מהטופס
-  const titleVal = document.getElementById('title').value;
-  const imgUrlVal = document.getElementById('imgUrl').value;
-  const descriptionVal = document.getElementById('description').value;
-  const categoryVal = document.getElementById('category').value;
-  const postTypeVal = document.getElementById('postType').value;
+  const editId = document.getElementById('editPostId').value;
 
-  // בניית האובייקט - נשלח authorId חוקי של מונגו בפורמט ObjectId (24 תווים)
   const newPostData = {
-    title: titleVal,
-    imgUrl: imgUrlVal,
-    description: descriptionVal,
-    category: categoryVal,
-    postType: postTypeVal,
+    title: document.getElementById('title').value,
+    imgUrl: document.getElementById('imgUrl').value,
+    description: document.getElementById('description').value,
+    category: document.getElementById('category').value,
+    postType: document.getElementById('postType').value
   };
 
+  if (editId) {
+    newPostData.userId = loggedInUser._id;
+    newPostData.password = pendingEditPassword;
+  } else {
+    newPostData.authorId = loggedInUser._id;
+  }
+
   try {
-    const res = await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json' 
-      },
+    const res = await fetch('/api/posts' + (editId ? '/' + editId : ''), {
+      method: editId ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newPostData)
     });
 
     if (res.ok) {
-      alert('הפוסט פורסם בהצלחה!');
+      alert(editId ? 'הפוסט עודכן בהצלחה!' : 'הפוסט פורסם בהצלחה!');
       postForm.reset();
+      document.getElementById('editPostId').value = '';
+      pendingEditPassword = null;
+      document.getElementById('postModalTitle').innerText = 'create new post';
+      document.getElementById('postSubmitBtn').innerText = 'post';
       modal.style.display = 'none';
       if (typeof loadPostsFromDB === 'function') loadPostsFromDB();
     } else {
@@ -549,11 +699,32 @@ postForm.addEventListener('submit', async (e) => {
   }
 });
 
+function editCurrentPost() {
+    document.getElementById("deleteDropdown").style.display = "none";
+    if (!currentOpenImg) return;
 
+    const postId = currentOpenImg.getAttribute("data-id");
+    const postData = JSON.parse(currentOpenImg.dataset.post || '{}');
 
+    if (!postId || postData.author !== loggedInUser._id) {
+        alert("ניתן לערוך רק פוסטים שהעלית בעצמך");
+        return;
+    }
 
+    const password = prompt("הכניסי את הסיסמה שלך כדי לערוך את הפוסט:");
+    if (!password) return;
+    pendingEditPassword = password;
 
+    document.getElementById("editPostId").value = postId;
+    document.getElementById("title").value = postData.title || '';
+    document.getElementById("imgUrl").value = postData.imageUrl || '';
+    document.getElementById("description").value = postData.textContent || '';
+    document.getElementById("category").value = postData.category || '';
+    document.getElementById("postType").value = postData.postType || '';
 
+    document.getElementById("postModalTitle").innerText = "עריכת פוסט";
+    document.getElementById("postSubmitBtn").innerText = "עדכן פוסט";
 
-
-
+    closeModal();
+    modal.style.display = "flex";
+}
