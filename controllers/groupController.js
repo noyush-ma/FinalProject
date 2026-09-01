@@ -1,7 +1,7 @@
 // כל הלוגיקה העסקית של קבוצות הצ'אט: יצירה, הצטרפות לפי קוד,
 // הזמנת חברים קיימים, אישור/דחיית הזמנה, ושליחת/קריאת הודעות בתוך קבוצה.
 const Group = require('../models/group');
-const GroupMessage = require('../models/groupMessage');
+const GroupMessage = require('../models/message');
 const Notification = require('../models/notification');
 const User = require('../models/user');
 
