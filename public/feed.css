@@ -141,6 +141,44 @@ header input {
     color: #333333;
 }
 
+.profile-username-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.edit-username-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #767676;
+    padding: 2px 4px;
+    line-height: 1;
+}
+
+.edit-username-btn:hover {
+    color: #e60023;
+}
+
+.edit-username-input {
+    font-weight: bold;
+    font-size: 15px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    border: 1px solid #cdcdcd;
+    text-align: center;
+    width: 130px;
+}
+
+.username-error {
+    color: #e60023;
+    font-size: 12px;
+    margin: 2px 0 0;
+    text-align: center;
+    min-height: 14px;
+}
+
 .profile-dropdown-divider {
     border: none;
     border-top: 1px solid #e5e5e5;
@@ -169,6 +207,20 @@ body.dark-mode .profile-dropdown {
 
 body.dark-mode .profile-dropdown-username {
     color: #ffffff;
+}
+
+body.dark-mode .edit-username-btn {
+    color: #bdbdbd;
+}
+
+body.dark-mode .edit-username-btn:hover {
+    color: #ff4d6d;
+}
+
+body.dark-mode .edit-username-input {
+    background-color: #2f2f2f;
+    color: #ffffff;
+    border-color: #4a4a4a;
 }
 
 body.dark-mode .profile-dropdown-divider {

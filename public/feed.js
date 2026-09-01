@@ -19,6 +19,76 @@ document.addEventListener('DOMContentLoaded', () => {
         usernameEl.textContent = loggedInUser.username;
     }
 
+    // --- עריכת שם משתמש (מתעדכן גם ב-MongoDB) ---
+    const editBtn = document.getElementById('editUsernameBtn');
+    const editInput = document.getElementById('editUsernameInput');
+    const usernameError = document.getElementById('usernameError');
+
+    function enterEditMode() {
+        usernameError.textContent = '';
+        editInput.value = loggedInUser.username;
+        usernameEl.style.display = 'none';
+        editBtn.style.display = 'none';
+        editInput.hidden = false;
+        editInput.focus();
+        editInput.select();
+    }
+
+    function exitEditMode() {
+        editInput.hidden = true;
+        usernameEl.style.display = '';
+        editBtn.style.display = '';
+    }
+
+    async function saveNewUsername() {
+        const newUsername = editInput.value.trim();
+        usernameError.textContent = '';
+
+        if (!newUsername) {
+            usernameError.textContent = 'שם המשתמש לא יכול להיות ריק';
+            return;
+        }
+        if (newUsername === loggedInUser.username) {
+            exitEditMode();
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/users/' + loggedInUser._id, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: newUsername })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                usernameError.textContent = data.message || 'שגיאה בעדכון שם המשתמש';
+                return;
+            }
+
+            // עדכון הזיכרון המקומי (sessionStorage) והתצוגה, בהתאם למה שחזר בפועל מהשרת
+            loggedInUser.username = data.username;
+            sessionStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+            usernameEl.textContent = data.username;
+            exitEditMode();
+        } catch (err) {
+            usernameError.textContent = 'שגיאת תקשורת עם השרת';
+        }
+    }
+
+    if (editBtn && editInput) {
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            enterEditMode();
+        });
+        editInput.addEventListener('click', (e) => e.stopPropagation());
+        editInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveNewUsername();
+            if (e.key === 'Escape') exitEditMode();
+        });
+        editInput.addEventListener('blur', saveNewUsername);
+    }
+
     // הצגת תמונת הפרופיל הנוכחית (גם באייקון בהדר וגם בתוך התפריט הנפתח)
     const headerImg = document.getElementById('profileImg');
     const dropdownImg = document.getElementById('profileDropdownImg');

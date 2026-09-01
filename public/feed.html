@@ -21,7 +21,12 @@
                     <span class="profile-image-edit-overlay">שינוי תמונה</span>
                 </label>
                 <input type="file" id="profileImageInput" accept="image/*" hidden>
-                <span id="profileUsername" class="profile-dropdown-username"></span>
+                <div class="profile-username-row">
+                    <span id="profileUsername" class="profile-dropdown-username"></span>
+                    <button id="editUsernameBtn" type="button" class="edit-username-btn" title="עריכת שם משתמש">✎</button>
+                    <input type="text" id="editUsernameInput" class="edit-username-input" hidden>
+                </div>
+                <p id="usernameError" class="username-error"></p>
             </div>
             <hr class="profile-dropdown-divider">
             <button id="logoutBtn" type="button" class="profile-logout-btn" onclick="handleLogout()">התנתקות</button>
