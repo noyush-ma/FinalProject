@@ -357,3 +357,16 @@ body.dark-mode .add-pins-to-board-btn {
     background-color: #333;
     color: #fff;
 }
+
+.pin-save-count-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px; /* מיקום בצד ימין */
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+}
