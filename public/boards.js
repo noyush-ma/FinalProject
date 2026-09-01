@@ -1,6 +1,5 @@
 // --- ניהול משתמש מחובר ---
 const loggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-
 // הגנה על העמוד: אם אין משתמש מחובר, מחזירים לדף ההתחברות
 if (!loggedInUser) {
     window.location.href = 'login.html';
@@ -411,28 +410,7 @@ function closeCreateBoardModal() {
     if (modalEl) modalEl.style.display = 'none';
 }
 
-async function submitCreateBoardModal() {
-    const input = document.getElementById('createBoardNameInput');
-    const name = input ? input.value.trim() : '';
 
-    if (!name) {
-        alert('יש להזין שם ללוח');
-        return;
-    }
-
-    // איסוף התמונות שנבחרו
-    const checkedBoxes = document.querySelectorAll('#boardPinsSelectorGrid .pin-checkbox:checked');
-    const selectedImages = Array.from(checkedBoxes).map(cb => cb.value);
-
-    // יצירת קולאז' במידה ונבחרו תמונות
-    let collageCover = null;
-    if (selectedImages.length > 0) {
-        collageCover = await createCollageDataURL(selectedImages);
-    }
-
-    closeCreateBoardModal();
-    createBoardWithNameAndCover(name, collageCover);
-}
 async function submitCreateBoardModal() {
     const input = document.getElementById('createBoardNameInput');
     const name = input ? input.value.trim() : '';
@@ -608,6 +586,7 @@ async function removePinFromBoard(item, boardId, boardName) {
             return p;
         });
         setLocalPins(pins);
+        await updateBoardCoverAfterChange(boardId);
         openBoard(boardId, boardName);
         return;
     }
@@ -616,10 +595,11 @@ async function removePinFromBoard(item, boardId, boardName) {
         const res = await fetch('/api/boards/remove-from-board', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ postId: item.postId, userId: loggedInUser._id })
+            body: JSON.stringify({ postId: item.postId, boardId: boardId, userId: loggedInUser._id })
         });
 
         if (res.ok) {
+            await updateBoardCoverAfterChange(boardId);
             openBoard(boardId, boardName);
         } else {
             const errorData = await res.json();
@@ -664,47 +644,56 @@ function filterBoardsGridBySearch() {
     });
 }
 
-// יוצר תמונת קולאז' אחת מתוך מערך של URLs של תמונות
 function createCollageDataURL(imageUrls, width = 400, height = 400) {
     return new Promise((resolve) => {
         if (!imageUrls || imageUrls.length === 0) {
             return resolve(null);
         }
 
+        // הגבלה לעד 3 התמונות הראשונות בלבד (הכי עדכניות)
+        const recentUrls = imageUrls.slice(0, 3);
+
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
 
-        // מילוי רקע לבן
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, width, height);
 
         let loadedCount = 0;
-        const total = imageUrls.length;
-        
-        // חישוב חלוקת הרשת (1x1, 2x2, 3x3 וכו')
-        const cols = Math.ceil(Math.sqrt(total));
-        const rows = Math.ceil(total / cols);
-        const cellW = width / cols;
-        const cellH = height / rows;
+        const total = recentUrls.length;
 
-        imageUrls.forEach((url, index) => {
+        recentUrls.forEach((url, index) => {
             const img = new Image();
-            img.crossOrigin = 'Anonymous'; // לתמיכה בתמונות משרת חיצוני
+            img.crossOrigin = 'Anonymous';
             img.onload = () => {
-                const col = index % cols;
-                const row = Math.floor(index / cols);
-                const x = col * cellW;
-                const y = row * cellH;
+                let x = 0, y = 0, w = width, h = height;
 
-                // ציור התמונה בתוך המשבצת שלה
-                ctx.drawImage(img, x, y, cellW, cellH);
+                // חישוב מיקום לפי כמות התמונות (1, 2 או 3)
+                if (total === 2) {
+                    w = width / 2;
+                    x = index * w;
+                } else if (total === 3) {
+                    if (index === 0) {
+                        w = width / 2;
+                        h = height;
+                        x = 0;
+                        y = 0;
+                    } else {
+                        w = width / 2;
+                        h = height / 2;
+                        x = width / 2;
+                        y = (index - 1) * (height / 2);
+                    }
+                }
+
+                ctx.drawImage(img, x, y, w, h);
                 
-                // הוספת מסגרת עדינה בין התמונות
+                // קו הפרדה לבן בין התמונות
                 ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(x, y, cellW, cellH);
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, w, h);
 
                 loadedCount++;
                 if (loadedCount === total) {
@@ -721,7 +710,6 @@ function createCollageDataURL(imageUrls, width = 400, height = 400) {
         });
     });
 }
-
 async function getAllSavedPinsForUser() {
     const pins = [];
 
@@ -754,20 +742,31 @@ async function openAddPinsModal() {
     const modal = ensureCreateBoardModal();
     modal.style.display = 'flex';
     
-    // הסתרת שדה השם ומילוי ערך זמני למניעת השגיאה
+    // הסתרת שדה השם
     const input = document.getElementById('createBoardNameInput');
-    if (input) { input.value = currentBoard.name || 'לוח'; input.parentElement.style.display = 'none'; }
+    if (input) { 
+        input.value = currentBoard.name || 'לוח'; 
+        if (input.parentElement) input.parentElement.style.display = 'none'; 
+    }
     
     document.querySelector('#createBoardModal h3').innerText = `הוספת תמונות ללוח: ${currentBoard.name}`;
     
-    const submitBtn = document.getElementById('submitCreateBoardBtn');
-    submitBtn.innerText = 'הוסף ללוח';
-    submitBtn.onclick = savePinsToCurrentBoard;
+    // איפוס הכפתור מכל האירועים הישנים של יצירת לוח
+    const oldBtn = document.getElementById('submitCreateBoardBtn');
+    if (oldBtn) {
+        const newBtn = oldBtn.cloneNode(true); // ניקוי אירועים ישנים
+        newBtn.innerText = 'הוסף ללוח';
+        newBtn.onclick = function (e) {
+            e.preventDefault(); // מונע את שליחת הטופס והקפצת ה-alert
+            savePinsToCurrentBoard();
+        };
+        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+    }
 
     // סינון תמונות שכבר קיימות בלוח
     const currentImgs = new Set([...document.querySelectorAll('#boardPinsGrid img')].map(img => img.src));
     const allPins = await getAllSavedPinsForUser();
-    const availablePins = allPins.filter(pin => !currentImgs.has(pin.imageUrl));
+    const availablePins = (allPins || []).filter(pin => !currentImgs.has(pin.imageUrl));
 
     const container = document.getElementById('boardPinsSelectorGrid');
     container.innerHTML = availablePins.length === 0 ? '<p>כל התמונות כבר בלוח זה 📌</p>' : '';
@@ -801,12 +800,69 @@ async function savePinsToCurrentBoard() {
         }
     }
 
-    // איפוס המודאל בחזרה
+    // החזרת החלון והכפתור למצב המקורי של יצירת לוח חדש
     const input = document.getElementById('createBoardNameInput');
-    if (input) { input.value = ''; input.parentElement.style.display = 'block'; }
+    if (input) { 
+        input.value = ''; 
+        if (input.parentElement) input.parentElement.style.display = 'block'; 
+    }
+    
     document.querySelector('#createBoardModal h3').innerText = 'יצירת לוח חדש';
-    document.getElementById('submitCreateBoardBtn').onclick = submitCreateBoardModal;
+
+    const btn = document.getElementById('submitCreateBoardBtn');
+    if (btn) {
+        const newBtn = btn.cloneNode(true);
+        newBtn.innerText = 'יצירת לוח';
+        newBtn.onclick = function (e) {
+            if (typeof submitCreateBoardModal === 'function') {
+                submitCreateBoardModal(e);
+            }
+        };
+        btn.parentNode.replaceChild(newBtn, btn);
+    }
 
     closeCreateBoardModal();
     openBoard(currentBoard.id, currentBoard.name);
+}
+
+async function updateBoardCoverAfterChange(boardId) {
+    try {
+        const remainingImages = [];
+
+        // 1. איסוף פינים מהשרת שנשארו בלוח
+        const res = await fetch('/api/boards/' + boardId + '/pins?userId=' + loggedInUser._id);
+        if (res.ok) {
+            const posts = await res.json();
+            (posts || []).forEach(p => {
+                if (p && p.imageUrl) remainingImages.push(p.imageUrl);
+            });
+        }
+
+        // 2. איסוף פינים מקומיים שנשארו בלוח
+        getLocalPins().forEach(p => {
+            if (p.boardId === boardId && p.imageUrl) {
+                remainingImages.push(p.imageUrl);
+            }
+        });
+
+        // 3. יצירת קולאז' חדש מ-3 התמונות האחרונות שנשארו בלבד
+        let newCover = null;
+        if (remainingImages.length > 0) {
+            // לוקחים רק עד 3 תמונות אחרונות
+            const recentImages = remainingImages.slice(-3);
+            newCover = await createCollageDataURL(recentImages);
+        }
+
+        // 4. עדכון השער של הלוח בשרת
+        await fetch('/api/boards/' + boardId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: loggedInUser._id,
+                coverImage: newCover
+            })
+        });
+    } catch (err) {
+        console.error('שגיאה בעדכון תמונת השער של הלוח:', err);
+    }
 }
