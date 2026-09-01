@@ -1,0 +1,340 @@
+/* groups.css
+   עיצוב עבור מודל הקבוצות/צ'אטים (יצירה, הצטרפות, ניהול חברים, הודעות)
+   ועבור ההתראות הקופצות (toasts) שמופיעות כשמגיעה הזמנה/הודעה חדשה.
+   נשען על אותם צבעי מותג כמו feed.css (אדום פינטרסט #e60023). */
+
+/* --- מבנה כללי של המודל --- */
+/* .modal קיים כבר ב-feed.css (הרקע הכהה + מרכוז), כאן רק מתאימים את תוכן הכרטיס עצמו */
+.groups-modal-content {
+    flex-direction: column;
+    width: 480px;
+    height: 620px;
+    max-height: 85vh;
+    align-items: stretch;
+    overflow-y: auto;
+}
+
+/* כל "מסך" בתוך המודל (רשימה/יצירה/הצטרפות/צ'אט) מוסתר כברירת מחדל */
+.groups-view {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+.groups-view.active {
+    display: flex;
+}
+
+.groups-view h2 {
+    margin: 10px 0 15px 0;
+    text-align: center;
+}
+
+/* כפתור "חזרה" שמופיע במסכי המשנה */
+.groups-back-btn {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    margin-bottom: 5px;
+}
+.groups-back-btn:hover {
+    color: #e60023;
+}
+
+/* --- כפתורי פעולה (יצירת קבוצה / הצטרפות / שליחה וכו') --- */
+.group-action-btn {
+    background-color: #e60023;
+    color: white;
+    border: none;
+    border-radius: 24px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.group-action-btn:hover {
+    background-color: #ad081b;
+}
+
+.group-action-btn-secondary {
+    background-color: #efefef;
+    color: #333;
+}
+.group-action-btn-secondary:hover {
+    background-color: #e1e1e1;
+}
+
+.group-action-btn-small {
+    padding: 8px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.groups-actions-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.group-error-msg {
+    color: #e60023;
+    font-size: 13px;
+    margin-top: 8px;
+    min-height: 16px;
+}
+
+/* שדות טופס (יצירת קבוצה / קוד הצטרפות) */
+#createGroupView input,
+#joinGroupView input {
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* --- רשימת הקבוצות שלי --- */
+.my-groups-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+}
+
+.group-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f7f7f7;
+    border-radius: 16px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.group-card:hover {
+    background-color: #efefef;
+}
+
+.group-card-name {
+    font-weight: bold;
+}
+
+.group-card-members-count {
+    font-size: 12px;
+    color: #777;
+}
+
+.groups-empty-msg {
+    text-align: center;
+    color: #888;
+    margin-top: 30px;
+    font-size: 14px;
+}
+
+/* --- מסך הצ'אט של קבוצה --- */
+.groups-chat-view {
+    height: 100%;
+}
+
+.group-chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.group-join-code {
+    font-size: 12px;
+    color: #777;
+}
+
+/* פאנל הוספת חברים - מוסתר כברירת מחדל, נפתח בלחיצה */
+.invite-members-panel {
+    display: none;
+    background-color: #f7f7f7;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 10px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+.invite-members-panel.active {
+    display: block;
+}
+.invite-members-panel p {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.invite-user-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+}
+
+.invite-user-row button {
+    background-color: #e60023;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.invite-user-row button:disabled {
+    background-color: #ccc;
+    cursor: default;
+}
+
+/* אזור ההודעות עצמו - גלילה פנימית, בועות הודעה */
+.group-messages-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 4px;
+}
+
+.group-message-bubble {
+    max-width: 75%;
+    padding: 8px 14px;
+    border-radius: 16px;
+    background-color: #efefef;
+    font-size: 14px;
+    align-self: flex-start;
+}
+
+/* הודעות שהמשתמש הנוכחי שלח מוצגות בצד ימין (RTL) ובצבע המותג */
+.group-message-bubble.own-message {
+    align-self: flex-end;
+    background-color: #e60023;
+    color: white;
+}
+
+.group-message-sender {
+    font-size: 11px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 2px;
+    opacity: 0.75;
+}
+
+.group-message-input-row {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.group-message-input-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+/* --- כפתור אייקון הצ'אטים בתפריט העליון --- */
+.nav-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+.nav-icon-btn img {
+    display: block;
+}
+
+/* ==================== התראות קופצות (Toasts) ====================
+   מוצגות בפינה העליונה של המסך, אחת מעל השנייה, ונעלמות אוטומטית
+   או בלחיצה על "סגור"/"חזרה". */
+.toast-container {
+    position: fixed;
+    top: 90px;
+    left: 20px; /* בעברית (RTL) נעים לשים התראות בצד שמאל שלא יפריע לתפריט */
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 320px;
+}
+
+.toast {
+    background-color: white;
+    border-right: 5px solid #e60023;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    animation: toast-in 0.25s ease-out;
+}
+
+@keyframes toast-in {
+    from { transform: translateX(-30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.toast p {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: #333;
+}
+
+.toast-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.toast-actions button {
+    border: none;
+    border-radius: 16px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.toast-btn-primary {
+    background-color: #e60023;
+    color: white;
+}
+
+.toast-btn-secondary {
+    background-color: #efefef;
+    color: #333;
+}
+
+/* --- התאמות למצב לילה (Dark Mode) --- */
+body.dark-mode .groups-modal-content {
+    background-color: #232323;
+    color: #f1f1f1;
+}
+body.dark-mode .group-card,
+body.dark-mode .invite-members-panel {
+    background-color: #2f2f2f;
+}
+body.dark-mode .group-card:hover {
+    background-color: #3a3a3a;
+}
+body.dark-mode .group-message-bubble {
+    background-color: #3a3a3a;
+    color: #f1f1f1;
+}
+body.dark-mode .toast {
+    background-color: #2f2f2f;
+    color: #f1f1f1;
+}
+body.dark-mode .toast p {
+    color: #f1f1f1;
+}
