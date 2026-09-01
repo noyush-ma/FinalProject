@@ -1,9 +1,9 @@
-
 <html dir="rtl">
 <head>
     <meta charset="UTF-8">
     <title>Pinterest</title>
     <link rel="stylesheet" href="feed.css">
+    <link rel="stylesheet" href="groups.css">
 </head>
 <body>
 
@@ -68,7 +68,11 @@
             <button id="messagesButton"><img src="icons/notifLogo1.png"></button>
             <span id="badge" class="badge">0</span>
         </div>
-        <a href="#"><img src="icons/messageLogo1.png"></a>
+        <!-- כפתור הצ'אטים/קבוצות: לוחצים עליו ונפתח מודל שמאפשר ליצור קבוצה, -->
+        <!-- להצטרף לקבוצה קיימת (לפי קוד), ולראות את כל הקבוצות שאני חבר בהן -->
+        <button id="chatsBtn" class="nav-icon-btn" type="button">
+            <img src="icons/messageLogo1.png" alt="Chats">
+        </button>
         <a href="#"><img src="icons/settingsLogo1.png"></a>
     </nav>
 
@@ -365,7 +369,87 @@
 </div>
 
 <button id="scrollToTopBtn" onclick="scrollToTop()">▲</button>
+
+<!-- ==================== מודל הקבוצות/צ'אטים ====================
+     נפתח בלחיצה על כפתור הצ'אטים בתפריט העליון (chatsBtn).
+     יש בו 3 "מסכים" פנימיים שמתחלפים ביניהם באמצעות קלאס "active":
+     1. groupsListView   - רשימת הקבוצות שלי + כפתורים ליצירה/הצטרפות
+     2. createGroupView  - טופס יצירת קבוצה חדשה
+     3. joinGroupView    - טופס הצטרפות לקבוצה קיימת לפי קוד
+     4. groupChatView    - מסך הצ'אט עצמו של קבוצה נבחרת + ניהול חברים -->
+<div id="groupsModal" class="modal groups-modal">
+    <div class="modal-content groups-modal-content">
+        <span class="close" id="closeGroupsModal">&times;</span>
+
+        <!-- מסך 1: רשימת הקבוצות שלי -->
+        <div id="groupsListView" class="groups-view active">
+            <h2>הצ'אטים שלי</h2>
+            <div class="groups-actions-row">
+                <button id="openCreateGroupBtn" class="group-action-btn">+ קבוצה חדשה</button>
+                <button id="openJoinGroupBtn" class="group-action-btn group-action-btn-secondary">הצטרפות לפי קוד</button>
+            </div>
+            <div id="myGroupsList" class="my-groups-list">
+                <!-- כאן ייטענו דינמית כרטיסי הקבוצות שהמשתמש חבר בהן, ע"י groups.js -->
+                <p class="groups-empty-msg" id="groupsEmptyMsg">עדיין אין לך קבוצות. צור קבוצה חדשה או הצטרף לאחת קיימת!</p>
+            </div>
+        </div>
+
+        <!-- מסך 2: יצירת קבוצה חדשה -->
+        <div id="createGroupView" class="groups-view">
+            <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה</button>
+            <h2>יצירת קבוצה חדשה</h2>
+            <label for="newGroupNameInput">שם הקבוצה:</label>
+            <input type="text" id="newGroupNameInput" placeholder="לדוגמה: חברים מהעבודה">
+            <button id="submitCreateGroupBtn" class="group-action-btn">צור קבוצה</button>
+            <p id="createGroupError" class="group-error-msg"></p>
+        </div>
+
+        <!-- מסך 3: הצטרפות לקבוצה קיימת לפי קוד -->
+        <div id="joinGroupView" class="groups-view">
+            <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה</button>
+            <h2>הצטרפות לקבוצה קיימת</h2>
+            <label for="joinGroupCodeInput">הכנס/י את קוד ההצטרפות שקיבלת:</label>
+            <input type="text" id="joinGroupCodeInput" placeholder="לדוגמה: A1B2C3" style="text-transform: uppercase;">
+            <button id="submitJoinGroupBtn" class="group-action-btn">הצטרף לקבוצה</button>
+            <p id="joinGroupError" class="group-error-msg"></p>
+        </div>
+
+        <!-- מסך 4: הצ'אט של קבוצה ספציפית -->
+        <div id="groupChatView" class="groups-view groups-chat-view">
+            <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה לרשימה</button>
+
+            <div class="group-chat-header">
+                <div>
+                    <h2 id="activeGroupName"></h2>
+                    <span class="group-join-code">קוד הצטרפות לשיתוף: <b id="activeGroupCode"></b></span>
+                </div>
+                <button id="openInviteMembersBtn" class="group-action-btn group-action-btn-small">+ הוספת חברים</button>
+            </div>
+
+            <!-- אזור הוספת חברים לקבוצה - מוצג/מוסתר בלחיצה על הכפתור שלמעלה -->
+            <div id="inviteMembersPanel" class="invite-members-panel">
+                <p>בחר/י משתמש קיים כדי לשלוח לו הזמנה להצטרף לקבוצה:</p>
+                <div id="inviteUsersList" class="invite-users-list"></div>
+            </div>
+
+            <!-- אזור ההודעות עצמו -->
+            <div id="groupMessagesList" class="group-messages-list"></div>
+
+            <div class="group-message-input-row">
+                <input type="text" id="groupMessageInput" placeholder="כתוב הודעה...">
+                <button id="sendGroupMessageBtn" class="group-action-btn group-action-btn-small">שלח</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== מיכל ההתראות הקופצות ====================
+     כל התראה חדשה (הזמנה לקבוצה / הודעה חדשה) "קופצת" כאן כתיבת toast,
+     עם כפתור שמאפשר לחזור ישירות לקבוצה הרלוונטית. -->
+<div id="toastContainer" class="toast-container"></div>
+
 <script src="feed.js"></script>
 <script src="savedPins.js"></script>
+<script src="groups.js"></script>
 </body>
 </html>

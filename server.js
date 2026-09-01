@@ -6,6 +6,8 @@ const app = express();
 const postsRouter = require('./routes/posts');
 const usersRouter = require('./routes/users');
 const boardsRouter = require('./routes/boards');
+const groupsRouter = require('./routes/groups'); // נתיבי קבוצות צ'אט (יצירה/הצטרפות/הזמנות/הודעות)
+const notificationsRouter = require('./routes/notifications'); // נתיבי התראות קופצות
 
 app.use(express.static('public'));
 app.use(express.json({limit: '10mb'})); // הגבלת גודל הבקשה ל-10MB
@@ -13,6 +15,8 @@ app.use(express.json({limit: '10mb'})); // הגבלת גודל הבקשה ל-10M
 app.use('/api/posts', postsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/boards', boardsRouter);
+app.use('/api/groups', groupsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 app.get('/', (req, res) => {
   res.send('success!');
