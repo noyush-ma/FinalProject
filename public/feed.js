@@ -143,6 +143,15 @@ function openModal(element) {
     var modalImg = document.getElementById("modalImg");
     modalImg.src = element.src;
 
+    // זיהוי אוריינטציה: תמונה רוחבית (landscape) תוצג במלואה (contain),
+    // תמונה אנכית תמשיך להתנהג כמו היום (cover)
+    modalImg.classList.remove("landscape");
+    modalImg.onload = function () {
+        if (modalImg.naturalWidth > modalImg.naturalHeight) {
+            modalImg.classList.add("landscape");
+        }
+    };
+
     var targetLikes = element.getAttribute("data-likes");
     document.getElementById("like-count").innerText = targetLikes;
 
