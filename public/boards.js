@@ -174,12 +174,35 @@ function getLocalPins() {
 function setLocalPins(pins) {
     localStorage.setItem(getLocalPinsKey(), JSON.stringify(pins));
 }
+window.postSaveCounts = window.postSaveCounts || {};
 
+async function fetchPostSaveCounts(postIds) {
+    const uniqueIds = Array.from(new Set((postIds || []).filter(Boolean)));
+    if (uniqueIds.length === 0) return;
+    try {
+        const res = await fetch('/api/boards/save-counts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postIds: uniqueIds })
+        });
+        const data = await res.json();
+        Object.assign(window.postSaveCounts, data.counts || {});
+    } catch (err) {
+        console.error('שגיאה בשליפת כמות השמירות:', err);
+    }
+}
+
+window.getPostSaveCount = function (identifier) {
+    if (!identifier) return 0;
+    if (Object.prototype.hasOwnProperty.call(window.postSaveCounts, identifier)) {
+        return window.postSaveCounts[identifier];
+    }
+    return 1;
+};
 // --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
 // כל סיכה ניתנת לביטול שמירה ישירות מכאן, גם אם היא לא משויכת לאף לוח.
 // --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
 async function renderSavedPinsTab() {
-    const saveCount = typeof window.getPostSaveCount === 'function' ? window.getPostSaveCount(identifier) : 0;
     const grid = document.getElementById('boardsGrid');
     const noBoardsMsg = document.getElementById('noBoardsMessage');
     grid.innerHTML = '';
@@ -214,6 +237,9 @@ async function renderSavedPinsTab() {
     noBoardsMsg.style.display = 'none';
 
     pins.sort(function (a, b) { return new Date(b.savedAt) - new Date(a.savedAt); });
+
+    const mongoPostIds = pins.filter(function (p) { return !p.isLocal; }).map(function (p) { return p.identifier; });
+    await fetchPostSaveCounts(mongoPostIds);
 
     pins.forEach(function (pin) {
         const card = document.createElement('div');
@@ -552,11 +578,14 @@ async function openBoard(boardId, boardName) {
         console.error('שגיאה בטעינת פינים מקומיים של הלוח:', err);
     }
 
-    grid.innerHTML = '';
+grid.innerHTML = '';
     if (items.length === 0) {
         grid.innerHTML = '<p class="no-boards-text">עדיין אין פינים שמורים בלוח הזה 📌</p>';
         return;
     }
+
+    const mongoItemIds = items.filter(function (it) { return !it.isLocal; }).map(function (it) { return it.postId; });
+    await fetchPostSaveCounts(mongoItemIds);
 
     
     // יצירת הכרטיסיות באותו המבנה בדיוק כמו בטאב הסיכות
@@ -885,3 +914,4 @@ async function updateBoardCoverAfterChange(boardId) {
         console.error('שגיאה בעדכון תמונת השער של הלוח:', err);
     }
 }
+
