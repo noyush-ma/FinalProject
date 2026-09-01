@@ -177,28 +177,30 @@ function setLocalPins(pins) {
 
 // --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
 // כל סיכה ניתנת לביטול שמירה ישירות מכאן, גם אם היא לא משויכת לאף לוח.
+// --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
 async function renderSavedPinsTab() {
+    const saveCount = typeof window.getPostSaveCount === 'function' ? window.getPostSaveCount(identifier) : 0;
     const grid = document.getElementById('boardsGrid');
     const noBoardsMsg = document.getElementById('noBoardsMessage');
     grid.innerHTML = '';
 
     const pins = [];
 
-    // פינים מקומיים - תמונות סטטיות מעמוד הבית שאין להן פוסט אמיתי במונגו
+    // פינים מקומיים
     try {
         getLocalPins().forEach(function (p) {
-            pins.push({ isLocal: true, localId: p.localId, imageUrl: p.imageUrl, title: p.title || '', savedAt: p.savedAt });
+            pins.push({ isLocal: true, localId: p.localId, identifier: p.localId, imageUrl: p.imageUrl, title: p.title || '', savedAt: p.savedAt });
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מקומיים:', err);
     }
 
-    // פינים ששמורים בפועל במונגו - כולל כאלה שלא משויכים לאף לוח (boardId null)
+    // פינים ששמורים בפועל במונגו
     try {
         const res = await fetch('/api/boards/pins/' + loggedInUser._id);
         const mongoPins = await res.json();
         (mongoPins || []).forEach(function (p) {
-            pins.push({ isLocal: false, postId: p.postId, imageUrl: p.imageUrl, title: p.title || '', savedAt: p.savedAt });
+            pins.push({ isLocal: false, postId: p.postId, identifier: p.postId, imageUrl: p.imageUrl, title: p.title || '', savedAt: p.savedAt });
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מהשרת:', err);
@@ -225,6 +227,14 @@ async function renderSavedPinsTab() {
         img.src = pin.imageUrl;
         img.alt = pin.title || '';
 
+        // יצירת תגית מספר השמירות בצד ימין
+        const countBadge = document.createElement('div');
+        countBadge.className = 'pin-save-count-badge';
+        // שימוש בפונקציה הגלובלית לקבלת כמות השמירות
+        const saveCount = typeof window.getPostSaveCount === 'function' ? window.getPostSaveCount(pin.identifier) : 0;
+        countBadge.innerText = `📌 ${saveCount}`;
+
+        // כפתור מחיקה בצד שמאל
         const unsaveBtn = document.createElement('button');
         unsaveBtn.type = 'button';
         unsaveBtn.className = 'board-delete-btn pin-unsave-btn';
@@ -236,8 +246,9 @@ async function renderSavedPinsTab() {
         };
 
         cover.appendChild(img);
+        cover.appendChild(countBadge); // הוספת מספר השמירות לתוך תמונת העטיפה (צד ימין לפי עיצוב)
         card.appendChild(cover);
-        card.appendChild(unsaveBtn);
+        card.appendChild(unsaveBtn);  // כפתור המחיקה נשאר בצד שמאל
         grid.appendChild(card);
     });
 }
@@ -551,7 +562,7 @@ async function openBoard(boardId, boardName) {
     // יצירת הכרטיסיות באותו המבנה בדיוק כמו בטאב הסיכות
     items.forEach(function (item) {
         const card = document.createElement('div');
-        card.className = 'board-card pin-card'; // זהה לטאב הסיכות
+        card.className = 'board-card pin-card';
 
         const cover = document.createElement('div');
         cover.className = 'board-cover';
@@ -560,7 +571,14 @@ async function openBoard(boardId, boardName) {
         img.src = item.imageUrl;
         img.alt = item.title || '';
 
-        // לחצן הסרה מהלוח (נשאר בצורת ✕)
+        // זיהוי המזהה הנכון ( postId או localId ) לצורך שליפת כמות השמירות
+        const identifier = item.postId || item.localId || item.imageUrl;
+        const saveCount = typeof window.getPostSaveCount === 'function' ? window.getPostSaveCount(identifier) : 0;
+
+        const countBadge = document.createElement('div');
+        countBadge.className = 'pin-save-count-badge';
+        countBadge.innerText = `📌 ${saveCount}`;
+
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'board-delete-btn pin-unsave-btn';
@@ -572,8 +590,9 @@ async function openBoard(boardId, boardName) {
         };
 
         cover.appendChild(img);
+        cover.appendChild(countBadge); // הצגת מספר השמירות מימין
         card.appendChild(cover);
-        card.appendChild(removeBtn);
+        card.appendChild(removeBtn);   // כפתור הסרה משמאל
         grid.appendChild(card);
     });
 }
