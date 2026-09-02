@@ -204,6 +204,9 @@ function handleLogout() {
     window.location.href = 'login.html';
 }
 
+let currentModalAuthorId = null;
+let followingIds = new Set((loggedInUser && loggedInUser.following) ? loggedInUser.following.map(String) : []);
+
 function openModal(element) {
     currentOpenImg = element;
     
@@ -235,6 +238,28 @@ function openModal(element) {
     var likedByMe = element.getAttribute("data-liked-by-me") === "true";
     document.getElementById("heartIcon").src = likedByMe ? "icons/fullHeart.png" : "icons/emptyHeart.png";
 
+    // --- כפתור עקיבה אחרי מי שהעלה את הפוסט ---
+    var followBtn = document.getElementById("followBtn");
+    var postDataRaw = element.dataset.post;
+    currentModalAuthorId = null;
+    if (postDataRaw) {
+        try {
+            var postData = JSON.parse(postDataRaw);
+            if (postData.author && loggedInUser && postData.author !== loggedInUser._id) {
+                currentModalAuthorId = postData.author;
+                followBtn.hidden = false;
+                updateFollowBtnUI();
+            } else {
+                followBtn.hidden = true;
+            }
+        } catch (e) {
+            followBtn.hidden = true;
+        }
+    } else {
+        // פוסט לוקאלי קבוע (מה-HTML) - אין משתמש אמיתי לעקוב אחריו
+        followBtn.hidden = true;
+    }
+
     var saveBtn = document.getElementById("saveBtn");
     saveBtn.innerText = "שמירה";
     saveBtn.style.backgroundColor = "#e60023";
@@ -243,6 +268,46 @@ function openModal(element) {
     document.getElementById("commentsList").innerHTML = "";
     document.getElementById("newCommentInput").value = "";
     document.getElementById("typingIndicator").style.display = "none";
+}
+
+function updateFollowBtnUI() {
+    var followBtn = document.getElementById("followBtn");
+    if (!currentModalAuthorId) return;
+    var isFollowing = followingIds.has(currentModalAuthorId);
+    followBtn.textContent = isFollowing ? "עוקב/ת" : "עקוב";
+    followBtn.classList.toggle("following", isFollowing);
+}
+
+// טוגל עקיבה אחרי מי שהעלה את הפוסט הפתוח כרגע - מתעדכן ונשמר ב-MongoDB
+async function toggleFollowAuthor() {
+    if (!currentModalAuthorId || !loggedInUser) return;
+    var followBtn = document.getElementById("followBtn");
+    followBtn.disabled = true;
+
+    try {
+        const res = await fetch('/api/users/' + currentModalAuthorId + '/follow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followerId: loggedInUser._id })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            if (data.following) {
+                followingIds.add(currentModalAuthorId);
+            } else {
+                followingIds.delete(currentModalAuthorId);
+            }
+            // עדכון גם בזיכרון המקומי כדי שהמצב יישאר תקין גם אחרי רענון
+            loggedInUser.following = Array.from(followingIds);
+            sessionStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+            updateFollowBtnUI();
+        }
+    } catch (err) {
+        console.error('שגיאה בעדכון עקיבה:', err);
+    } finally {
+        followBtn.disabled = false;
+    }
 }
 
 function closeModal() {
@@ -636,16 +701,195 @@ function toggleDarkMode() {
    
 const button = document.getElementById('createPost');
 const badge = document.getElementById('badge');
-let clickCount = 0;
 
+// אנימציית "רעד" קטנה על כפתור יצירת הפוסט בלחיצה (ויזואלי בלבד, לא קשור להתראות)
 button.addEventListener('click', () => {
   button.classList.remove('animate-btn');
   void button.offsetWidth; 
   button.classList.add('animate-btn');
-  
-  clickCount++;
-  badge.textContent = clickCount;
 });
+
+// ==================== מרכז ההתראות ====================
+// כפתור הפעמון פותח מודל עם כל היסטוריית ההתראות (במקום פופ-אפים קופצים בצד).
+// הבאדג' ליד הפעמון מציג את מספר ההתראות שעוד לא נקראו, ומתעדכן כל כמה שניות.
+
+const notificationsModal = document.getElementById('notificationsModal');
+const notificationsList = document.getElementById('notificationsList');
+const notificationsEmptyMsg = document.getElementById('notificationsEmptyMsg');
+const messagesButton = document.getElementById('messagesButton');
+const closeNotificationsModal = document.getElementById('closeNotificationsModal');
+
+// מחזיר טקסט זמן יחסי קצר וקריא ("לפני 3 דקות" וכו') מתאריך התראה
+function formatNotificationTime(dateString) {
+    const diffMs = Date.now() - new Date(dateString).getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+    if (diffMin < 1) return 'ממש עכשיו';
+    if (diffMin < 60) return `לפני ${diffMin} דקות`;
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return `לפני ${diffHours} שעות`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `לפני ${diffDays} ימים`;
+}
+
+// שולף ומרענן רק את מספר ההתראות שלא נקראו (עבור הבאדג' ליד הפעמון)
+async function refreshNotificationsBadge() {
+    if (!loggedInUser) return;
+    try {
+        const res = await fetch('/api/notifications/user/' + loggedInUser._id);
+        const unread = await res.json();
+        if (unread.length > 0) {
+            badge.textContent = unread.length;
+            badge.classList.add('show');
+        } else {
+            badge.classList.remove('show');
+        }
+    } catch (err) {
+        console.error('שגיאה בבדיקת התראות חדשות:', err);
+    }
+}
+
+// בונה שורת התראה בודדת בתוך מרכז ההתראות, כולל כפתורי הפעולה המתאימים לסוג שלה
+function buildNotificationItem(notification) {
+    const item = document.createElement('div');
+    item.className = 'notification-item' + (notification.isRead ? '' : ' unread');
+
+    const body = document.createElement('div');
+    body.className = 'notification-item-body';
+    body.innerHTML = `
+        <p class="notification-item-text">${notification.text}</p>
+        <span class="notification-item-time">${formatNotificationTime(notification.createdAt)}</span>
+    `;
+    item.appendChild(body);
+
+    const actions = document.createElement('div');
+    actions.className = 'notification-item-actions';
+
+    if (notification.type === 'GROUP_INVITE' && notification.status === 'PENDING') {
+        const acceptBtn = document.createElement('button');
+        acceptBtn.className = 'notification-action-btn primary';
+        acceptBtn.textContent = 'אשר';
+        acceptBtn.onclick = () => respondToGroupInviteFromCenter(notification._id, 'ACCEPTED', item);
+
+        const declineBtn = document.createElement('button');
+        declineBtn.className = 'notification-action-btn secondary';
+        declineBtn.textContent = 'דחה';
+        declineBtn.onclick = () => respondToGroupInviteFromCenter(notification._id, 'DECLINED', item);
+
+        actions.appendChild(acceptBtn);
+        actions.appendChild(declineBtn);
+    } else if (notification.type === 'NEW_MESSAGE') {
+        const gotoBtn = document.createElement('button');
+        gotoBtn.className = 'notification-action-btn primary';
+        gotoBtn.textContent = 'חזרה להודעה';
+        gotoBtn.onclick = () => {
+            notificationsModal.style.display = 'none';
+            const groupId = notification.group && (notification.group._id || notification.group);
+            if (groupId && window.openGroupChatFromNotifications) {
+                window.openGroupChatFromNotifications(groupId);
+            }
+        };
+        actions.appendChild(gotoBtn);
+    } else if (notification.type === 'NEW_POST') {
+        const gotoBtn = document.createElement('button');
+        gotoBtn.className = 'notification-action-btn primary';
+        gotoBtn.textContent = 'צפייה בפיד חברים';
+        gotoBtn.onclick = () => {
+            notificationsModal.style.display = 'none';
+            showFriendsFeed();
+        };
+        actions.appendChild(gotoBtn);
+    }
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'notification-delete-btn';
+    deleteBtn.title = 'מחיקת התראה';
+    deleteBtn.textContent = '🗑';
+    deleteBtn.onclick = () => deleteNotificationFromCenter(notification._id, item);
+    actions.appendChild(deleteBtn);
+
+    item.appendChild(actions);
+    return item;
+}
+
+// שולף את כל היסטוריית ההתראות ומרנדר אותה בתוך המודל
+async function loadNotificationsCenter() {
+    if (!loggedInUser) return;
+    try {
+        const res = await fetch('/api/notifications/user/' + loggedInUser._id + '/all');
+        const notifications = await res.json();
+
+        notificationsList.querySelectorAll('.notification-item').forEach((el) => el.remove());
+
+        if (!notifications.length) {
+            notificationsEmptyMsg.style.display = 'block';
+        } else {
+            notificationsEmptyMsg.style.display = 'none';
+            notifications.forEach((notification) => {
+                notificationsList.appendChild(buildNotificationItem(notification));
+            });
+        }
+
+        // סימון כל ההתראות שנטענו כ"נקראו", ורענון הבאדג' בהתאם
+        const unreadOnes = notifications.filter((n) => !n.isRead);
+        await Promise.all(unreadOnes.map((n) =>
+            fetch('/api/notifications/' + n._id + '/read', { method: 'PUT' }).catch(() => {})
+        ));
+        refreshNotificationsBadge();
+    } catch (err) {
+        console.error('שגיאה בטעינת מרכז ההתראות:', err);
+    }
+}
+
+// מטפל בלחיצה על "אשר"/"דחה" בהזמנה לקבוצה, ישירות מתוך מרכז ההתראות
+async function respondToGroupInviteFromCenter(notificationId, response, itemEl) {
+    try {
+        await fetch('/api/groups/invite/' + notificationId + '/respond', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ response })
+        });
+        itemEl.remove();
+        if (response === 'ACCEPTED' && window.refreshMyGroupsFromNotifications) {
+            window.refreshMyGroupsFromNotifications();
+        }
+    } catch (err) {
+        console.error('שגיאה בטיפול בהזמנה:', err);
+    }
+}
+
+// מוחק התראה לצמיתות ממרכז ההתראות (וגם מה-DB)
+async function deleteNotificationFromCenter(notificationId, itemEl) {
+    try {
+        await fetch('/api/notifications/' + notificationId, { method: 'DELETE' });
+        itemEl.remove();
+        if (!notificationsList.querySelector('.notification-item')) {
+            notificationsEmptyMsg.style.display = 'block';
+        }
+    } catch (err) {
+        console.error('שגיאה במחיקת ההתראה:', err);
+    }
+}
+
+if (messagesButton) {
+    messagesButton.addEventListener('click', () => {
+        notificationsModal.style.display = 'flex';
+        loadNotificationsCenter();
+    });
+}
+if (closeNotificationsModal) {
+    closeNotificationsModal.addEventListener('click', () => {
+        notificationsModal.style.display = 'none';
+    });
+}
+notificationsModal.addEventListener('click', (e) => {
+    if (e.target === notificationsModal) {
+        notificationsModal.style.display = 'none';
+    }
+});
+
+// בודקים מייד עם טעינת הדף, ואז כל כמה שניות, אם יש התראות חדשות שלא נקראו (לבאדג' בלבד)
+refreshNotificationsBadge();
+setInterval(refreshNotificationsBadge, 5000);
 
 window.onscroll = function() {
     const topBtn = document.getElementById("scrollToTopBtn");
@@ -700,39 +944,95 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// 1. פונקציה שטוענת ומציגה את הפוסטים מהדאטהבייס
+// בונה את אלמנט ה-DOM של כרטיס פוסט בודד (משמש גם לפיד הראשי וגם לפיד החברים)
+function buildPostCardElement(post) {
+  const postElement = document.createElement('div');
+  postElement.className = 'post-card';
+  postElement.setAttribute('data-category', (post.category || 'General').toLowerCase());
+  postElement.setAttribute('data-id', post._id);
+
+  const likedBy = (post.likedBy || []).map(String);
+  const likedByMe = !!(loggedInUser && likedBy.includes(loggedInUser._id));
+
+  const img = document.createElement('img');
+  img.src = post.imageUrl;
+  img.alt = post.title;
+  img.setAttribute('data-id', post._id);
+  img.setAttribute('data-likes', likedBy.length);
+  img.setAttribute('data-liked-by-me', likedByMe ? 'true' : 'false');
+  img.setAttribute('data-username', post.authorUsername || 'משתמש לא ידוע');
+  img.setAttribute('data-description', post.textContent || '');
+  img.setAttribute('onclick', 'openModal(this)');
+  img.dataset.post = JSON.stringify(post);
+
+  postElement.appendChild(img);
+  return postElement;
+}
+
+// 1. פונקציה שטוענת ומציגה את הפוסטים מהדאטהבייס (הפיד הראשי - כל הפוסטים)
  async function loadPostsFromDB() {
   try {
     const res = await fetch('/api/posts');
     const posts = await res.json();
     const postsContainer = document.getElementById('postsContainer');
 
+    // מסירים כרטיסי DB קודמים (אם יש) כדי לא לשכפל בעת מעבר חזרה מפיד החברים
+    postsContainer.querySelectorAll('.post-card[data-id]').forEach((el) => el.remove());
+
     posts.forEach(post => {
-      const postElement = document.createElement('div');
-      postElement.className = 'post-card';
-      postElement.setAttribute('data-category', (post.category || 'General').toLowerCase());
-      postElement.setAttribute('data-id', post._id);
-
-      const img = document.createElement('img');
-      img.src = post.imageUrl;
-      img.alt = post.title;
-      img.setAttribute('data-id', post._id);
-      const likedBy = (post.likedBy || []).map(String);
-      const likedByMe = !!(loggedInUser && likedBy.includes(loggedInUser._id));
-      img.setAttribute('data-likes', likedBy.length);
-      img.setAttribute('data-liked-by-me', likedByMe ? 'true' : 'false');
-      img.setAttribute('data-username', post.authorUsername || 'משתמש לא ידוע');
-      img.setAttribute('data-description', post.textContent || '');
-      img.setAttribute('onclick', 'openModal(this)');
-      img.dataset.post = JSON.stringify(post);
-
-      postElement.appendChild(img);
-      postsContainer.appendChild(postElement);
+      postsContainer.appendChild(buildPostCardElement(post));
     });
   } catch (err) {
     console.error('שגיאה בטעינת הפוסטים:', err);
   }
 }
+
+// טוען רק פוסטים של משתמשים שהמשתמש המחובר עוקב אחריהם ("פיד חברים")
+async function loadFollowingPosts() {
+  try {
+    const res = await fetch('/api/posts/following/' + loggedInUser._id);
+    const posts = await res.json();
+    const postsContainer = document.getElementById('postsContainer');
+
+    postsContainer.querySelectorAll('.post-card[data-id]').forEach((el) => el.remove());
+
+    posts.forEach(post => {
+      postsContainer.appendChild(buildPostCardElement(post));
+    });
+
+    document.getElementById('noFriendsPostsMessage').style.display = posts.length ? 'none' : 'block';
+  } catch (err) {
+    console.error('שגיאה בטעינת פיד החברים:', err);
+  }
+}
+
+// --- מעבר בין הפיד הראשי לפיד החברים ---
+let currentFeedMode = 'main';
+
+function showMainFeed() {
+    currentFeedMode = 'main';
+    document.getElementById('mainFeedBtn').classList.add('active');
+    document.getElementById('friendsFeedBtn').classList.remove('active');
+    document.getElementById('noFriendsPostsMessage').style.display = 'none';
+    document.querySelectorAll('.post-card:not([data-id])').forEach((el) => {
+        el.style.display = '';
+    });
+    loadPostsFromDB();
+}
+
+function showFriendsFeed() {
+    currentFeedMode = 'friends';
+    document.getElementById('friendsFeedBtn').classList.add('active');
+    document.getElementById('mainFeedBtn').classList.remove('active');
+    // מסתירים את הפוסטים הלוקאליים הקבועים - פיד החברים מציג רק פוסטים אמיתיים של עוקבים
+    document.querySelectorAll('.post-card:not([data-id])').forEach((el) => {
+        el.style.display = 'none';
+    });
+    loadFollowingPosts();
+}
+
+document.getElementById('mainFeedBtn').addEventListener('click', showMainFeed);
+document.getElementById('friendsFeedBtn').addEventListener('click', showFriendsFeed);
 
 // הרצת הפונקציה מיד כשהעמוד מסיים להיטען
 document.addEventListener('DOMContentLoaded', loadPostsFromDB);

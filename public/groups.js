@@ -19,9 +19,7 @@ const groupsLoggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || '
 // מזהה הקבוצה שפתוחה כרגע בצ'אט (משמש כדי לדעת אילו הודעות לרענן ולאן לשלוח הודעה)
 let activeGroupId = null;
 
-// אוסף של מזהי התראות שכבר הצגנו כ-toast, כדי לא להציג את אותה התראה פעמיים
-// (כי אנחנו שולפים מהשרת שוב ושוב בפולינג את כל ההתראות שעדיין "לא נקראו")
-const shownNotificationIds = new Set();
+// (מרכז ההתראות עצמו חי כעת ב-feed.js; groups.js משתמש רק בפונקציות עזר חשופות ממנו בעת הצורך)
 
 // רק אם יש משתמש מחובר - מפעילים את כל הלוגיקה
 if (groupsLoggedInUser) {
@@ -59,8 +57,6 @@ if (groupsLoggedInUser) {
     const groupMessagesList = document.getElementById('groupMessagesList');
     const groupMessageInput = document.getElementById('groupMessageInput');
     const sendGroupMessageBtn = document.getElementById('sendGroupMessageBtn');
-
-    const toastContainer = document.getElementById('toastContainer');
 
     // ============== ניהול מעבר בין המסכים בתוך המודל ==============
 
@@ -376,110 +372,39 @@ if (groupsLoggedInUser) {
         }
     }
 
-    // ============== מערכת ההתראות הקופצות (Toasts) ==============
+    // ============== חשיפת פונקציות עזר עבור מרכז ההתראות (feed.js) ==============
+    // מרכז ההתראות (הנפתח מכפתור הפעמון) צריך לפעמים "לנווט" חזרה למודל הקבוצות -
+    // לדוגמה, ללחוץ "חזרה להודעה" ולפתוח ישירות את הצ'אט הרלוונטי.
+    window.openGroupChatFromNotifications = function (groupId) {
+        groupsModal.style.display = 'flex';
+        openGroupChat(groupId);
+    };
+    window.refreshMyGroupsFromNotifications = function () {
+        loadMyGroups();
+    };
 
-    // יוצר ומציג toast חדש על המסך, בהתאם לסוג ההתראה
-    function showToast(notification) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.dataset.notifId = notification._id;
-
-        if (notification.type === 'GROUP_INVITE') {
-            // הזמנה לקבוצה - מציגים כפתורי "אשר" ו"דחה"
-            toast.innerHTML = `
-                <p>${notification.text}</p>
-                <div class="toast-actions">
-                    <button class="toast-btn-secondary" data-action="decline">דחה</button>
-                    <button class="toast-btn-primary" data-action="accept">אשר</button>
-                </div>
-            `;
-
-            toast.querySelector('[data-action="accept"]').addEventListener('click', () =>
-                respondToGroupInvite(notification, 'ACCEPTED', toast)
-            );
-            toast.querySelector('[data-action="decline"]').addEventListener('click', () =>
-                respondToGroupInvite(notification, 'DECLINED', toast)
-            );
-
-        } else if (notification.type === 'NEW_MESSAGE') {
-            // הודעה חדשה - מציגים כפתור "חזרה אליה" שפותח ישירות את הצ'אט הרלוונטי
-            toast.innerHTML = `
-                <p>${notification.text}</p>
-                <div class="toast-actions">
-                    <button class="toast-btn-secondary" data-action="dismiss">סגור</button>
-                    <button class="toast-btn-primary" data-action="goto">חזרה להודעה</button>
-                </div>
-            `;
-
-            toast.querySelector('[data-action="dismiss"]').addEventListener('click', () =>
-                dismissToast(notification._id, toast)
-            );
-            toast.querySelector('[data-action="goto"]').addEventListener('click', async () => {
-                await dismissToast(notification._id, toast);
-                // פותחים את מודל הקבוצות ומנווטים ישר לצ'אט של הקבוצה הרלוונטית
-                groupsModal.style.display = 'flex';
-                openGroupChat(notification.group._id || notification.group);
-            });
-        }
-
-        toastContainer.appendChild(toast);
-    }
-
-    // מטפל בלחיצה על "אשר"/"דחה" בהזמנה לקבוצה
-    async function respondToGroupInvite(notification, response, toastEl) {
-        try {
-            await fetch('/api/groups/invite/' + notification._id + '/respond', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ response })
-            });
-            toastEl.remove();
-
-            // אם אושרה ההזמנה, מרעננים את רשימת הקבוצות (למקרה שהמודל פתוח)
-            if (response === 'ACCEPTED') {
-                loadMyGroups();
-            }
-        } catch (err) {
-            console.error('שגיאה בטיפול בהזמנה:', err);
-        }
-    }
-
-    // מסמן התראה כנקראה בשרת, ומסיר אותה מהמסך
-    async function dismissToast(notificationId, toastEl) {
-        try {
-            await fetch('/api/notifications/' + notificationId + '/read', { method: 'PUT' });
-        } catch (err) {
-            console.error('שגיאה בסימון ההתראה כנקראה:', err);
-        }
-        toastEl.remove();
-    }
-
-    // בודק מול השרת אם יש התראות חדשות שעדיין לא הוצגו, ומציג אותן כ-toast
-    async function checkForNewNotifications() {
+    // ============== רענון אוטומטי של הצ'אט הפתוח כשמגיעה בו הודעה חדשה ==============
+    // כל ההתראות (כולל הזמנות והודעות חדשות) מוצגות כעת במרכז ההתראות עצמו
+    // (דרך כפתור הפעמון), ולא כפופ-אפים קופצים על המסך. עדיין נשאר פולינג קליל
+    // שרק דואג לרענן את חלון הצ'אט אם הוא פתוח כרגע ומגיעה אליו הודעה חדשה.
+    async function checkForActiveChatUpdates() {
+        if (!activeGroupId) return;
         try {
             const res = await fetch('/api/notifications/user/' + groupsLoggedInUser._id);
             const notifications = await res.json();
 
-            notifications.forEach((notification) => {
-                // מציגים רק התראות שעוד לא הוצגו בסשן הנוכחי (כדי לא לשכפל toasts)
-                if (!shownNotificationIds.has(notification._id)) {
-                    shownNotificationIds.add(notification._id);
-                    showToast(notification);
-
-                    // אם הצ'אט של הקבוצה הזו פתוח כרגע על המסך, מרעננים אותו מיד
-                    // כדי שההודעה החדשה תופיע גם בתוך חלון הצ'אט עצמו
-                    const notifGroupId = notification.group && (notification.group._id || notification.group);
-                    if (notification.type === 'NEW_MESSAGE' && notifGroupId === activeGroupId) {
-                        loadGroupMessages(activeGroupId);
-                    }
-                }
+            const relevant = notifications.find((n) => {
+                const notifGroupId = n.group && (n.group._id || n.group);
+                return n.type === 'NEW_MESSAGE' && notifGroupId === activeGroupId;
             });
+
+            if (relevant) {
+                await loadGroupMessages(activeGroupId);
+            }
         } catch (err) {
-            console.error('שגיאה בבדיקת התראות חדשות:', err);
+            console.error('שגיאה בבדיקת עדכוני צ׳אט:', err);
         }
     }
 
-    // בודקים מייד עם טעינת הדף, ואז כל 5 שניות (פולינג פשוט - "לוקח" מהשרת אם יש חדש)
-    checkForNewNotifications();
-    setInterval(checkForNewNotifications, 5000);
+    setInterval(checkForActiveChatUpdates, 5000);
 }

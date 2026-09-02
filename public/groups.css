@@ -257,6 +257,30 @@
     display: block;
 }
 
+/* --- כפתורי מעבר בין הפיד הראשי לפיד החברים --- */
+.feed-toggle-btn {
+    border-radius: 10px;
+    padding: 6px;
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0.55;
+    transition: opacity 0.15s, background-color 0.15s;
+}
+
+.feed-toggle-btn img {
+    width: 24px;
+    height: 24px;
+}
+
+.feed-toggle-btn.active {
+    opacity: 1;
+    background-color: #efefef;
+}
+
+body.dark-mode .feed-toggle-btn.active {
+    background-color: #333333;
+}
+
 /* ==================== התראות קופצות (Toasts) ====================
    מוצגות בפינה העליונה של המסך, אחת מעל השנייה, ונעלמות אוטומטית
    או בלחיצה על "סגור"/"חזרה". */
