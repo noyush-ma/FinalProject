@@ -23,13 +23,17 @@ let pinSaveCountsCache = {};
 async function refreshPinSaveCounts() {
     try {
         const res = await fetch('/api/boards/save-counts');
-        pinSaveCountsCache = await res.json();
+        const postCounts = await res.json();
+
+        const localRes = await fetch('/api/boards/local-save-counts');
+        const localCounts = await localRes.json();
+
+        pinSaveCountsCache = Object.assign({}, postCounts, localCounts);
     } catch (err) {
         console.error('שגיאה בטעינת מספרי השמירות:', err);
         pinSaveCountsCache = {};
     }
 }
-
 // פונקציה גלובלית שמחזירה את מספר השמירות של סיכה מסוימת (לפי postId, או מזהה מקומי - תמיד 0)
 window.getPostSaveCount = function (identifier) {
     return pinSaveCountsCache[identifier] || 0;
@@ -286,7 +290,7 @@ async function renderSavedPinsTab() {
     // פינים מקומיים - אין להם פוסט אמיתי במונגו, לכן אין תיאור/סוג אמיתיים - ברירת מחדל: תמונה בלי תיאור
     try {
         getLocalPins().forEach(function (p) {
-            pins.push({ isLocal: true, localId: p.localId, identifier: p.localId, imageUrl: p.imageUrl, title: p.title || '', description: '', postType: 'IMAGE', savedAt: p.savedAt });
+            pins.push({ isLocal: true, localId: p.localId, identifier: p.imageUrl, imageUrl: p.imageUrl, title: p.title || '', description: '', postType: 'IMAGE', savedAt: p.savedAt });
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מקומיים:', err);
@@ -332,7 +336,7 @@ async function renderSavedPinsTab() {
         const countBadge = document.createElement('div');
         countBadge.className = 'pin-save-count-badge';
         // שימוש בפונקציה הגלובלית לקבלת כמות השמירות
-        const saveCount = window.getPostSaveCount(pin.identifier);
+          const saveCount = pin.isLocal ? 1 : window.getPostSaveCount(pin.identifier);
         countBadge.innerText = `📌 ${saveCount}`;
         card.setAttribute('data-likes', saveCount);
 
@@ -685,8 +689,8 @@ async function openBoard(boardId, boardName) {
         applyRatioToCard(img, card);
 
         // זיהוי המזהה הנכון ( postId או localId ) לצורך שליפת כמות השמירות
-        const identifier = item.postId || item.localId || item.imageUrl;
-        const saveCount = window.getPostSaveCount(identifier);
+       const identifier = item.postId || item.localId || item.imageUrl;
+        const saveCount = item.isLocal ? 1 : window.getPostSaveCount(identifier);
 
         const countBadge = document.createElement('div');
         countBadge.className = 'pin-save-count-badge';
