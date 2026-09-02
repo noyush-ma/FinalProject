@@ -5,6 +5,88 @@ if (!loggedInUser) {
     window.location.href = 'login.html';
 }
 
+// --- פילטרים נוספים לטאב "סיכות": טווח לייקים (מספר שמירות) / סוג פוסט / יחס גובה-רוחב ---
+// קטגוריות טווח הלייקים בקפיצות של 1000 - ניתן להרחיב בקלות ע"י הוספת זוגות [min, max] למערך.
+const LIKES_BUCKETS = [
+    [0, 1000],
+    [1000, 2000],
+    [2000, 3000],
+    [3000, 4000],
+    [4000, 5000],
+    [5000, Infinity]
+];
+
+// מטמון מספרי השמירות (📌) לכל פוסט - משמש כתחליף ל"לייקים" (שלא קיימים בפועל באפליקציה),
+// כי המספר הפופולרי היחיד שנשמר בפועל בשרת הוא כמות המשתמשים ששמרו כל פוסט.
+let pinSaveCountsCache = {};
+
+async function refreshPinSaveCounts() {
+    try {
+        const res = await fetch('/api/boards/save-counts');
+        pinSaveCountsCache = await res.json();
+    } catch (err) {
+        console.error('שגיאה בטעינת מספרי השמירות:', err);
+        pinSaveCountsCache = {};
+    }
+}
+
+// פונקציה גלובלית שמחזירה את מספר השמירות של סיכה מסוימת (לפי postId, או מזהה מקומי - תמיד 0)
+window.getPostSaveCount = function (identifier) {
+    return pinSaveCountsCache[identifier] || 0;
+};
+
+function populateLikesRangeFilter() {
+    const select = document.getElementById('likesRangeFilter');
+    if (!select || select.options.length > 0) return;
+
+    const allOption = document.createElement('option');
+    allOption.value = 'all';
+    allOption.innerText = 'הכל';
+    select.appendChild(allOption);
+
+    LIKES_BUCKETS.forEach(function (bucket, index) {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.innerText = bucket[1] === Infinity ? (bucket[0] + '+') : (bucket[0] + '-' + bucket[1]);
+        select.appendChild(option);
+    });
+}
+
+// מציג/מסתיר את סרגל הפילטרים - רלוונטי רק לתצוגות של סיכות/פינים (טאב "סיכות" ותצוגת לוח בודד), לא לטאב "לוחות"
+function setPinsFilterBarVisible(visible) {
+    const bar = document.getElementById('pinsFilterBar');
+    if (bar) bar.style.display = visible ? 'flex' : 'none';
+}
+
+function resetPinsFilters() {
+    const likesSelect = document.getElementById('likesRangeFilter');
+    const typeSelect = document.getElementById('postTypeFilter');
+    const ratioSelect = document.getElementById('aspectRatioFilter');
+    if (likesSelect) likesSelect.value = 'all';
+    if (typeSelect) typeSelect.value = 'all';
+    if (ratioSelect) ratioSelect.value = 'all';
+    filterBoardsGridBySearch();
+}
+
+// מחשב את קטגוריית יחס הגובה-רוחב של תמונה בפועל (אחרי שנטענה) ושומר אותה על הכרטיס
+function applyRatioToCard(img, card) {
+    const compute = function () {
+        if (!img.naturalWidth || !img.naturalHeight) return;
+        const ratio = img.naturalWidth / img.naturalHeight;
+        let ratioCategory = 'square';
+        if (ratio > 1.15) ratioCategory = 'landscape';
+        else if (ratio < 0.87) ratioCategory = 'portrait';
+        card.setAttribute('data-ratio', ratioCategory);
+        filterBoardsGridBySearch();
+    };
+
+    if (img.complete && img.naturalWidth) {
+        compute();
+    } else {
+        img.addEventListener('load', compute);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const usernameEl = document.getElementById('profileUsername');
     if (usernameEl && loggedInUser) {
@@ -50,7 +132,17 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', filterBoardsGridBySearch);
     }
 
+    // אתחול סרגל הפילטרים הנוסף (טווח לייקים / סוג פוסט / יחס גובה-רוחב)
+    populateLikesRangeFilter();
+    ['likesRangeFilter', 'postTypeFilter', 'aspectRatioFilter'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('change', filterBoardsGridBySearch);
+    });
+    const resetFiltersBtn = document.getElementById('resetPinsFiltersBtn');
+    if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetPinsFilters);
+
     // הטאב הפעיל כברירת מחדל הוא "סיכות"
+    setPinsFilterBarVisible(true);
     renderSavedPinsTab();
 });
 
@@ -156,6 +248,9 @@ function switchTab(btnEl, tabName) {
 
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.value = '';
+
+    // סרגל הפילטרים הנוסף רלוונטי רק לתצוגת סיכות (לא לטאב "לוחות")
+    setPinsFilterBarVisible(tabName === 'pins');
 }
 
 // מפתח האחסון המקומי לפינים ללא Post במונגו (זהה למפתח שבו משתמש savedPins.js בעמוד הבית)
@@ -174,31 +269,7 @@ function getLocalPins() {
 function setLocalPins(pins) {
     localStorage.setItem(getLocalPinsKey(), JSON.stringify(pins));
 }
-window.postSaveCounts = window.postSaveCounts || {};
 
-async function fetchPostSaveCounts(postIds) {
-    const uniqueIds = Array.from(new Set((postIds || []).filter(Boolean)));
-    if (uniqueIds.length === 0) return;
-    try {
-        const res = await fetch('/api/boards/save-counts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ postIds: uniqueIds })
-        });
-        const data = await res.json();
-        Object.assign(window.postSaveCounts, data.counts || {});
-    } catch (err) {
-        console.error('שגיאה בשליפת כמות השמירות:', err);
-    }
-}
-
-window.getPostSaveCount = function (identifier) {
-    if (!identifier) return 0;
-    if (Object.prototype.hasOwnProperty.call(window.postSaveCounts, identifier)) {
-        return window.postSaveCounts[identifier];
-    }
-    return 1;
-};
 // --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
 // כל סיכה ניתנת לביטול שמירה ישירות מכאן, גם אם היא לא משויכת לאף לוח.
 // --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
@@ -207,12 +278,15 @@ async function renderSavedPinsTab() {
     const noBoardsMsg = document.getElementById('noBoardsMessage');
     grid.innerHTML = '';
 
+    // טעינת מספרי השמירות (📌) מראש כדי שהתגיות והפילטר לפי "לייקים" יעבדו על הכרטיסים
+    await refreshPinSaveCounts();
+
     const pins = [];
 
-    // פינים מקומיים
+    // פינים מקומיים - אין להם פוסט אמיתי במונגו, לכן אין תיאור/סוג אמיתיים - ברירת מחדל: תמונה בלי תיאור
     try {
         getLocalPins().forEach(function (p) {
-            pins.push({ isLocal: true, localId: p.localId, identifier: p.localId, imageUrl: p.imageUrl, title: p.title || '', savedAt: p.savedAt });
+            pins.push({ isLocal: true, localId: p.localId, identifier: p.localId, imageUrl: p.imageUrl, title: p.title || '', description: '', postType: 'IMAGE', savedAt: p.savedAt });
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מקומיים:', err);
@@ -223,7 +297,7 @@ async function renderSavedPinsTab() {
         const res = await fetch('/api/boards/pins/' + loggedInUser._id);
         const mongoPins = await res.json();
         (mongoPins || []).forEach(function (p) {
-            pins.push({ isLocal: false, postId: p.postId, identifier: p.postId, imageUrl: p.imageUrl, title: p.title || '', savedAt: p.savedAt });
+            pins.push({ isLocal: false, postId: p.postId, identifier: p.postId, imageUrl: p.imageUrl, title: p.title || '', description: p.description || '', postType: p.postType || 'IMAGE', savedAt: p.savedAt });
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מהשרת:', err);
@@ -238,13 +312,13 @@ async function renderSavedPinsTab() {
 
     pins.sort(function (a, b) { return new Date(b.savedAt) - new Date(a.savedAt); });
 
-    const mongoPostIds = pins.filter(function (p) { return !p.isLocal; }).map(function (p) { return p.identifier; });
-    await fetchPostSaveCounts(mongoPostIds);
-
     pins.forEach(function (pin) {
         const card = document.createElement('div');
         card.className = 'board-card pin-card';
         card.setAttribute('data-title', (pin.title || '').toLowerCase());
+        // שדות נוספים לצורך סרגל הפילטרים (חיפוש לפי תיאור, סוג פוסט, טווח לייקים - יחס גובה-רוחב מחושב אחרי טעינת התמונה)
+        card.setAttribute('data-description', (pin.description || '').toLowerCase());
+        card.setAttribute('data-posttype', pin.postType || 'IMAGE');
 
         const cover = document.createElement('div');
         cover.className = 'board-cover';
@@ -252,13 +326,15 @@ async function renderSavedPinsTab() {
         const img = document.createElement('img');
         img.src = pin.imageUrl;
         img.alt = pin.title || '';
+        applyRatioToCard(img, card);
 
         // יצירת תגית מספר השמירות בצד ימין
         const countBadge = document.createElement('div');
         countBadge.className = 'pin-save-count-badge';
         // שימוש בפונקציה הגלובלית לקבלת כמות השמירות
-        const saveCount = typeof window.getPostSaveCount === 'function' ? window.getPostSaveCount(pin.identifier) : 0;
+        const saveCount = window.getPostSaveCount(pin.identifier);
         countBadge.innerText = `📌 ${saveCount}`;
+        card.setAttribute('data-likes', saveCount);
 
         // כפתור מחיקה בצד שמאל
         const unsaveBtn = document.createElement('button');
@@ -277,6 +353,9 @@ async function renderSavedPinsTab() {
         card.appendChild(unsaveBtn);  // כפתור המחיקה נשאר בצד שמאל
         grid.appendChild(card);
     });
+
+    // הפעלת הפילטרים הנוכחיים (אם הוזן משהו בשדה החיפוש/הפילטרים לפני הרענון)
+    filterBoardsGridBySearch();
 }
 
 // מבטל שמירה מלאה של סיכה מתוך טאב "סיכות" (גם אם היא לא הייתה משויכת לאף לוח)
@@ -547,12 +626,16 @@ async function openBoard(boardId, boardName) {
     const section = document.getElementById('boardPinsSection');
     section.style.display = 'block';
     document.getElementById('boardPinsTitle').innerText = boardName;
+    setPinsFilterBarVisible(true);
 
     const grid = document.getElementById('boardPinsGrid');
     
     // שינוי ה-class של הגריד כדי להבטיח עיצוב זהה ללוח הראשי
     grid.className = 'boards-grid';
     grid.innerHTML = '<p class="no-boards-text">טוען...</p>';
+
+    // טעינת מספרי השמירות (📌) מראש עבור תגיות "הלייקים" והפילטר לפי טווח
+    await refreshPinSaveCounts();
 
     const items = [];
 
@@ -561,7 +644,7 @@ async function openBoard(boardId, boardName) {
         const res = await fetch('/api/boards/' + boardId + '/pins?userId=' + loggedInUser._id);
         const posts = await res.json();
         (posts || []).forEach(function (post) {
-            items.push({ isLocal: false, postId: post._id, imageUrl: post.imageUrl, title: post.title || '' });
+            items.push({ isLocal: false, postId: post._id, imageUrl: post.imageUrl, title: post.title || '', description: post.textContent || '', postType: post.postType || 'IMAGE' });
         });
     } catch (err) {
         console.error('שגיאה בטעינת תוכן הלוח:', err);
@@ -571,27 +654,27 @@ async function openBoard(boardId, boardName) {
     try {
         getLocalPins().forEach(function (p) {
             if (p.boardId === boardId) {
-                items.push({ isLocal: true, localId: p.localId, imageUrl: p.imageUrl, title: p.title || '' });
+                items.push({ isLocal: true, localId: p.localId, imageUrl: p.imageUrl, title: p.title || '', description: '', postType: 'IMAGE' });
             }
         });
     } catch (err) {
         console.error('שגיאה בטעינת פינים מקומיים של הלוח:', err);
     }
 
-grid.innerHTML = '';
+    grid.innerHTML = '';
     if (items.length === 0) {
         grid.innerHTML = '<p class="no-boards-text">עדיין אין פינים שמורים בלוח הזה 📌</p>';
         return;
     }
-
-    const mongoItemIds = items.filter(function (it) { return !it.isLocal; }).map(function (it) { return it.postId; });
-    await fetchPostSaveCounts(mongoItemIds);
 
     
     // יצירת הכרטיסיות באותו המבנה בדיוק כמו בטאב הסיכות
     items.forEach(function (item) {
         const card = document.createElement('div');
         card.className = 'board-card pin-card';
+        card.setAttribute('data-title', (item.title || '').toLowerCase());
+        card.setAttribute('data-description', (item.description || '').toLowerCase());
+        card.setAttribute('data-posttype', item.postType || 'IMAGE');
 
         const cover = document.createElement('div');
         cover.className = 'board-cover';
@@ -599,14 +682,16 @@ grid.innerHTML = '';
         const img = document.createElement('img');
         img.src = item.imageUrl;
         img.alt = item.title || '';
+        applyRatioToCard(img, card);
 
         // זיהוי המזהה הנכון ( postId או localId ) לצורך שליפת כמות השמירות
         const identifier = item.postId || item.localId || item.imageUrl;
-        const saveCount = typeof window.getPostSaveCount === 'function' ? window.getPostSaveCount(identifier) : 0;
+        const saveCount = window.getPostSaveCount(identifier);
 
         const countBadge = document.createElement('div');
         countBadge.className = 'pin-save-count-badge';
         countBadge.innerText = `📌 ${saveCount}`;
+        card.setAttribute('data-likes', saveCount);
 
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
@@ -624,6 +709,9 @@ grid.innerHTML = '';
         card.appendChild(removeBtn);   // כפתור הסרה משמאל
         grid.appendChild(card);
     });
+
+    // הפעלת הפילטרים הנוכחיים על תוכן הלוח שנטען כרגע
+    filterBoardsGridBySearch();
 }
 
 // מסיר פין מהלוח (השמירה עצמה נשארת ב"סיכות")
@@ -677,18 +765,59 @@ function closeBoardView() {
     // 3. טעינת הלוחות מחדש וניקוי שדה החיפוש
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.value = '';
-    
+
+    // סרגל הפילטרים הנוסף רלוונטי רק לתצוגות של סיכות/פינים, לא לטאב "לוחות"
+    setPinsFilterBarVisible(false);
+
     loadBoards();
 }
 
 // חיפוש בתוך הטאב הפעיל (מסנן לפי שם לוח / כותרת סיכה)
+// חיפוש + סינון בתוך הטאב הפעיל:
+// - חיפוש חופשי לפי שם לוח / כותרת סיכה / תיאור הפוסט (כמו קודם, רק שעכשיו גם לפי תיאור)
+// - 3 פרמטרי סינון נוספים שרלוונטיים רק לכרטיסי "סיכה" (post-card): טווח לייקים (📌), סוג פוסט, יחס גובה-רוחב
+//   כרטיסי "לוח" (board-card רגיל) לא מכילים את התכונות האלו, ולכן מסוננים רק לפי החיפוש החופשי כרגיל.
 function filterBoardsGridBySearch() {
     const searchValue = document.getElementById('searchInput').value.trim().toLowerCase();
-    const cards = document.querySelectorAll('#boardsGrid .board-card:not(.add-board-card)');
+
+    const likesSelect = document.getElementById('likesRangeFilter');
+    const typeSelect = document.getElementById('postTypeFilter');
+    const ratioSelect = document.getElementById('aspectRatioFilter');
+
+    const likesBucketIndex = likesSelect && likesSelect.value !== 'all' ? parseInt(likesSelect.value, 10) : null;
+    const typeValue = typeSelect ? typeSelect.value : 'all';
+    const ratioValue = ratioSelect ? ratioSelect.value : 'all';
+
+    // כולל גם את הכרטיסים בטאב "סיכות" (#boardsGrid) וגם את אלו בתוך תצוגת לוח בודד (#boardPinsGrid)
+    const cards = document.querySelectorAll('#boardsGrid .board-card:not(.add-board-card), #boardPinsGrid .board-card');
 
     cards.forEach(function (card) {
         const title = card.getAttribute('data-title') || '';
-        card.style.display = title.includes(searchValue) ? '' : 'none';
+        const description = card.getAttribute('data-description') || '';
+        let visible = !searchValue || title.includes(searchValue) || description.includes(searchValue);
+
+        if (visible && card.classList.contains('pin-card')) {
+            // סינון לפי טווח לייקים (מספר שמירות)
+            if (visible && likesBucketIndex !== null) {
+                const likes = parseInt(card.getAttribute('data-likes'), 10) || 0;
+                const bucket = LIKES_BUCKETS[likesBucketIndex];
+                if (!bucket || likes < bucket[0] || likes > bucket[1]) visible = false;
+            }
+
+            // סינון לפי סוג פוסט
+            if (visible && typeValue !== 'all') {
+                const postType = card.getAttribute('data-posttype') || '';
+                if (postType !== typeValue) visible = false;
+            }
+
+            // סינון לפי יחס גובה-רוחב (מחושב מהתמונה בפועל אחרי טעינתה)
+            if (visible && ratioValue !== 'all') {
+                const ratio = card.getAttribute('data-ratio') || '';
+                if (ratio !== ratioValue) visible = false;
+            }
+        }
+
+        card.style.display = visible ? '' : 'none';
     });
 }
 
