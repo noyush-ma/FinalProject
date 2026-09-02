@@ -70,7 +70,7 @@ if (groupsLoggedInUser) {
     // מציג רק את המסך המבוקש (view) ומסתיר את שאר המסכים
     function showGroupsView(viewElement) {
         [groupsListView, createGroupView, joinGroupView, publicGroupsView, groupChatView].forEach((view) => {
-            view.classList.remove('active');
+            if (view) view.classList.remove('active');
         });
         viewElement.classList.add('active');
     }
@@ -162,13 +162,16 @@ if (groupsLoggedInUser) {
     });
 
     // מעבר למסך רשימת הקבוצות הציבוריות
-    openPublicGroupsBtn.addEventListener('click', () => {
-        showGroupsView(publicGroupsView);
-        loadPublicGroups();
-    });
+    if (openPublicGroupsBtn) {
+        openPublicGroupsBtn.addEventListener('click', () => {
+            showGroupsView(publicGroupsView);
+            loadPublicGroups();
+        });
+    }
 
     // שולף מהשרת את כל הקבוצות הציבוריות שהמשתמש עדיין לא חבר בהן, ומאפשר הצטרפות בלחיצה
     async function loadPublicGroups() {
+        if (!publicGroupsList) return;
         try {
             const res = await fetch('/api/groups/public/' + groupsLoggedInUser._id);
             const groups = await res.json();
@@ -530,27 +533,4 @@ if (groupsLoggedInUser) {
     }
 
     setInterval(checkForActiveChatUpdates, 5000);
-}
-
-
-function handlePostTypeChange(type) {
-    const container = document.getElementById('mediaUrlContainer');
-    const label = document.getElementById('mediaUrlLabel');
-    const input = document.getElementById('mediaUrl');
-
-    if (type === 'IMAGE') {
-        container.style.display = 'block';
-        label.innerText = 'Image URL:';
-        input.placeholder = 'Enter image URL (e.g. https://.../pic.jpg)';
-        input.required = true;
-    } else if (type === 'VIDEO') {
-        container.style.display = 'block';
-        label.innerText = 'Video URL:';
-        input.placeholder = 'Enter video URL (e.g. https://.../video.mp4)';
-        input.required = true;
-    } else { // TEXT
-        container.style.display = 'none';
-        input.required = false;
-        input.value = '';
-    }
 }
