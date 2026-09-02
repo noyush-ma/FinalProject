@@ -531,3 +531,26 @@ if (groupsLoggedInUser) {
 
     setInterval(checkForActiveChatUpdates, 5000);
 }
+
+
+function handlePostTypeChange(type) {
+    const container = document.getElementById('mediaUrlContainer');
+    const label = document.getElementById('mediaUrlLabel');
+    const input = document.getElementById('mediaUrl');
+
+    if (type === 'IMAGE') {
+        container.style.display = 'block';
+        label.innerText = 'Image URL:';
+        input.placeholder = 'Enter image URL (e.g. https://.../pic.jpg)';
+        input.required = true;
+    } else if (type === 'VIDEO') {
+        container.style.display = 'block';
+        label.innerText = 'Video URL:';
+        input.placeholder = 'Enter video URL (e.g. https://.../video.mp4)';
+        input.required = true;
+    } else { // TEXT
+        container.style.display = 'none';
+        input.required = false;
+        input.value = '';
+    }
+}

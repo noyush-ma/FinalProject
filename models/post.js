@@ -6,7 +6,7 @@ const postSchema = new mongoose.Schema({
   postType: {
     type: String,
     default: 'TEXT',
-    enum: ['TEXT', 'IMAGE', 'COMBINED'] // תמיכה בסוגי פוסטים שונים
+    enum: ['TEXT', 'IMAGE', 'VIDEO', 'COMBINED'] // תמיכה בסוגי פוסטים שונים
   },
   title: {
     type: String,

@@ -348,11 +348,20 @@
         <input type="hidden" id="editPostId" value="">
         <h2 id="postModalTitle">create new post</h2>
         <form id="postForm">
+            <label for="postType">Post Type:</label>
+            <select id="postType" required onchange="handlePostTypeChange(this.value)">
+                <option value="" disabled selected>Select type</option>
+                <option value="IMAGE">Image</option>
+                <option value="VIDEO">Video</option>
+                <option value="TEXT">Text</option>
+            </select>
             <label for="title">title:</label> 
             <input type="text" id="title" required placeholder="enter title for the post">
-            <label for="imgUrl">image URL:</label>
-            <input type="url" id="imgUrl" accept="image/*" required>
-            <img id="imgPreview" src="" alt="" style="display: none; max-width: 100%;-top: 10px;">
+            <!-- שדה מדיה דינמי (משתנה לפי סוג הפוסט) -->
+            <div id="mediaUrlContainer" style="display: none;">
+                <label id="mediaUrlLabel" for="mediaUrl">Media URL:</label>
+                <input type="url" id="mediaUrl" name="mediaUrl" placeholder="Enter URL">
+            </div>
             <label for="description">description:</label>
             <textarea id="description" rows="4" placeholder="describe the post..."></textarea>
             <label for="category">Category:</label>
@@ -369,16 +378,10 @@
                 <option value="beauty">Beauty</option>
                 <option value="general">General</option>
             </select>
-            <label for="postType">Post Type:</label>
-            <select id="postType" required>
-                <option value="" disabled selected>Select type</option>
-                <option value="IMAGE">Image</option>
-                <option value="TEXT">Text</option>
-            </select>
             <button type="submit" id="postSubmitBtn" class="submit-btn">post</button>
         </form>
-    </div>
-</div>
+            </div>
+        </div>
 
 <button id="scrollToTopBtn" onclick="scrollToTop()">▲</button>
 
