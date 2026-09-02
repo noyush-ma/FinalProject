@@ -1048,6 +1048,7 @@ function showMainFeed() {
     document.getElementById('mainFeedBtn').classList.add('active');
     document.getElementById('friendsFeedBtn').classList.remove('active');
     document.getElementById('noFriendsPostsMessage').style.display = 'none';
+    document.getElementById('postsContainer').classList.remove('friends-feed-mode');
     document.querySelectorAll('.post-card:not([data-id])').forEach((el) => {
         el.style.display = '';
     });
@@ -1058,6 +1059,7 @@ function showFriendsFeed() {
     currentFeedMode = 'friends';
     document.getElementById('friendsFeedBtn').classList.add('active');
     document.getElementById('mainFeedBtn').classList.remove('active');
+    document.getElementById('postsContainer').classList.add('friends-feed-mode');
     // מסתירים את הפוסטים הלוקאליים הקבועים - פיד החברים מציג רק פוסטים אמיתיים של עוקבים
     document.querySelectorAll('.post-card:not([data-id])').forEach((el) => {
         el.style.display = 'none';

@@ -288,6 +288,18 @@ nav a:last-child {
     column-gap: 16px;
 }
 
+/* פיד החברים בדרך כלל מציג הרבה פחות פוסטים - עמודות פחות צפופות ומרווח גדול יותר
+   כדי שהתוכן לא ייראה "אבוד" או מפוזר בצורה מוזרה בתוך רשת רחבה מדי */
+.images.friends-feed-mode {
+    column-count: 3;
+    column-gap: 28px;
+    margin-right: 120px;
+}
+
+.images.friends-feed-mode .post-card {
+    margin-bottom: 28px;
+}
+
 .post-card {
     margin-bottom: 16px;
     break-inside: avoid;
@@ -492,6 +504,7 @@ nav a:last-child {
     align-items: center;
     justify-content: space-between;
     direction: ltr;
+    width: 100%;
     margin-bottom: 15px;
 }
 

@@ -322,28 +322,30 @@
     display: block;
 }
 
-/* --- כפתורי מעבר בין הפיד הראשי לפיד החברים --- */
+/* --- כפתורי מעבר בין הפיד הראשי לפיד החברים ---
+   מותאמים לאותו גודל/מרווח בדיוק כמו שאר אייקוני התפריט (nav a),
+   כדי שלא ייראו קטנים או "מוזחים" ביחס לשאר האייקונים */
 .feed-toggle-btn {
-    border-radius: 10px;
-    padding: 6px;
-    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    margin-bottom: 25px;
+    font-size: 22px;
     line-height: 1;
-    opacity: 0.55;
-    transition: opacity 0.15s, background-color 0.15s;
+    opacity: 0.5;
+    transition: opacity 0.15s;
 }
 
 .feed-toggle-btn img {
-    width: 24px;
-    height: 24px;
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
 }
 
 .feed-toggle-btn.active {
     opacity: 1;
-    background-color: #efefef;
-}
-
-body.dark-mode .feed-toggle-btn.active {
-    background-color: #333333;
 }
 
 /* ==================== התראות קופצות (Toasts) ====================
