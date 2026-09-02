@@ -64,8 +64,8 @@ exports.updateBoard = async (req, res) => {
     }
 
     if (req.body.name) board.name = req.body.name.trim();
-    if (req.body.coverImage) board.coverImage = req.body.coverImage;
-
+    if (req.body.coverImage !== undefined) board.coverImage = req.body.coverImage;
+    
     const updatedBoard = await board.save();
     res.json(updatedBoard);
   } catch (err) {
