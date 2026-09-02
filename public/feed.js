@@ -253,23 +253,24 @@ function closeModal() {
 // עושה/מבטל לייק לפוסט הפתוח כרגע במודל, ושומר את זה לצמיתות ב-MongoDB
 // (אם הפוסט לוקאלי-קבוע מה-HTML, בלי מזהה אמיתי - הלייק נשאר ויזואלי בלבד לאותו סשן)
 async function doLike() {
-    const likeImg = document.querySelector("#likeBtn img");
+    const likeImg = document.getElementById("heartIcon") || document.querySelector("#likeBtn img");
     const likeCountSpan = document.getElementById("like-count");
 
     if (!likeImg || !likeCountSpan || !currentOpenImg) return;
 
     const postId = currentOpenImg.getAttribute("data-id");
-    let currentSrc = likeImg.getAttribute("src");
-    const wasLiked = currentSrc === "icons/fullHeart.png";
+    let currentSrc = likeImg.getAttribute("src") || likeImg.src || "";
+    // בדיקה גמישה שמכסה נתיבים יחסיים ומלאים
+    const wasLiked = currentSrc.includes("fullHeart");
 
     // עדכון אופטימי מיידי בממשק
-    likeImg.setAttribute("src", wasLiked ? "icons/emptyHeart.png" : "icons/fullHeart.png");
+    likeImg.src = wasLiked ? "icons/emptyHeart.png" : "icons/fullHeart.png";
     if (!wasLiked) {
         likeImg.classList.add("heart-pop");
         setTimeout(() => likeImg.classList.remove("heart-pop"), 400);
     }
 
-    // פוסט לוקאלי-קבוע (אין data-id אמיתי) - אין עם מי לדבר בשרת, נשאר רק ויזואלי
+    // פוסט לוקאלי-קבוע (אין data-id) - נשאר רק ויזואלי
     if (!postId || !loggedInUser) {
         let currentLikes = parseInt(likeCountSpan.textContent) || 0;
         likeCountSpan.textContent = wasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
@@ -286,19 +287,19 @@ async function doLike() {
 
         if (!res.ok) {
             // נכשל בשרת - מחזירים את המצב הקודם
-            likeImg.setAttribute("src", wasLiked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
+            likeImg.src = wasLiked ? "icons/fullHeart.png" : "icons/emptyHeart.png";
             return;
         }
 
         likeCountSpan.textContent = data.likesCount;
-        likeImg.setAttribute("src", data.liked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
+        likeImg.src = data.liked ? "icons/fullHeart.png" : "icons/emptyHeart.png";
 
-        // מעדכנים גם את הכרטיס בפיד עצמו, כדי שהמצב יישאר נכון גם בלי לרענן את הדף
+        // מעדכנים את הכרטיס בפיד עצמו כדי שהמצב יישמר בלחיצה הבאה
         currentOpenImg.setAttribute("data-likes", data.likesCount);
         currentOpenImg.setAttribute("data-liked-by-me", data.liked ? "true" : "false");
     } catch (err) {
         console.error('שגיאה בשמירת הלייק:', err);
-        likeImg.setAttribute("src", wasLiked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
+        likeImg.src = wasLiked ? "icons/fullHeart.png" : "icons/emptyHeart.png";
     }
 }
 
@@ -706,6 +707,10 @@ window.addEventListener('click', function(event) {
     const res = await fetch('/api/posts');
     const posts = await res.json();
     const postsContainer = document.getElementById('postsContainer');
+    if (!postsContainer) return;
+
+    // ניקוי הקונטיינר לפני טעינה מחדש כדי למנוע כפילויות
+    postsContainer.innerHTML = '';
 
     posts.forEach(post => {
       const postElement = document.createElement('div');
@@ -717,8 +722,11 @@ window.addEventListener('click', function(event) {
       img.src = post.imageUrl;
       img.alt = post.title;
       img.setAttribute('data-id', post._id);
-      const likedBy = (post.likedBy || []).map(String);
-      const likedByMe = !!(loggedInUser && likedBy.includes(loggedInUser._id));
+      
+      const likedBy = (post.likedBy || []).map(id => id.toString());
+      const currentUserId = loggedInUser ? (loggedInUser._id || loggedInUser.id)?.toString() : null;
+      const likedByMe = !!(currentUserId && likedBy.includes(currentUserId));
+
       img.setAttribute('data-likes', likedBy.length);
       img.setAttribute('data-liked-by-me', likedByMe ? 'true' : 'false');
       img.setAttribute('data-username', post.authorUsername || 'משתמש לא ידוע');
@@ -733,10 +741,6 @@ window.addEventListener('click', function(event) {
     console.error('שגיאה בטעינת הפוסטים:', err);
   }
 }
-
-// הרצת הפונקציה מיד כשהעמוד מסיים להיטען
-document.addEventListener('DOMContentLoaded', loadPostsFromDB);
-
 
 // 2. ניהול חלון המודל (פתיחה וסגירה)
 const modal = document.getElementById('postModal');

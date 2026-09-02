@@ -39,7 +39,7 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
-// הוספה/הסרה של לייק לפוסט (טוגל) - נשמר לצמיתות ב-MongoDB בתוך מערך likedBy
+// הוספה/הסרה של לייק לפוסט (טוגל)
 exports.toggleLike = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -52,10 +52,16 @@ exports.toggleLike = async (req, res) => {
       return res.status(404).json({ message: 'פוסט לא נמצא' });
     }
 
-    const alreadyLiked = post.likedBy.some((id) => id.toString() === userId);
+    // הגנה: ווידוא שמערך likedBy קיים
+    if (!post.likedBy) {
+      post.likedBy = [];
+    }
+
+    const userIdStr = userId.toString();
+    const alreadyLiked = post.likedBy.some((id) => id.toString() === userIdStr);
 
     if (alreadyLiked) {
-      post.likedBy = post.likedBy.filter((id) => id.toString() !== userId);
+      post.likedBy = post.likedBy.filter((id) => id.toString() !== userIdStr);
     } else {
       post.likedBy.push(userId);
     }
