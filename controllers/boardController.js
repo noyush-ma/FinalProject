@@ -240,6 +240,7 @@ exports.getUserSavedPins = async (req, res) => {
         imageUrl: sp.post.imageUrl,
         title: sp.post.title,
         description: sp.post.textContent,
+        postType: sp.post.postType,
         savedAt: sp.savedAt
       }));
 
@@ -260,6 +261,21 @@ exports.getSaveStatus = async (req, res) => {
     }
 
     res.json({ saved: true, boardId: savedPin.board });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.getPinSaveCounts = async (req, res) => {
+  try {
+    const counts = await SavedPin.aggregate([
+      { $group: { _id: '$post', count: { $sum: 1 } } }
+    ]);
+    const result = {};
+    counts.forEach(function (c) {
+      result[c._id.toString()] = c.count;
+    });
+    res.json(result);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
