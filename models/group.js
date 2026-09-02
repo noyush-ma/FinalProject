@@ -31,6 +31,15 @@ const groupSchema = new mongoose.Schema({
     unique: true
   },
 
+  // האם הקבוצה פרטית או ציבורית:
+  // ציבורית (false) - כל משתמש יכול למצוא אותה ולהצטרף אליה ישירות (וגם לפי קוד)
+  // פרטית (true) - אפשר להצטרף רק לפי קוד הצטרפות, או אם המנהל (owner) שלח הזמנה אישית
+  // רק המנהל (owner) יכול לשנות ערך זה
+  isPrivate: {
+    type: Boolean,
+    default: true
+  },
+
   createdAt: {
     type: Date,
     default: Date.now

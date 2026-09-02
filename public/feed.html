@@ -399,6 +399,7 @@
             <div class="groups-actions-row">
                 <button id="openCreateGroupBtn" class="group-action-btn">+ קבוצה חדשה</button>
                 <button id="openJoinGroupBtn" class="group-action-btn group-action-btn-secondary">הצטרפות לפי קוד</button>
+                <button id="openPublicGroupsBtn" class="group-action-btn group-action-btn-secondary">קבוצות ציבוריות</button>
             </div>
             <div id="myGroupsList" class="my-groups-list">
                 <!-- כאן ייטענו דינמית כרטיסי הקבוצות שהמשתמש חבר בהן, ע"י groups.js -->
@@ -412,6 +413,19 @@
             <h2>יצירת קבוצה חדשה</h2>
             <label for="newGroupNameInput">שם הקבוצה:</label>
             <input type="text" id="newGroupNameInput" placeholder="לדוגמה: חברים מהעבודה">
+
+            <label>סוג הקבוצה:</label>
+            <div class="group-privacy-choice">
+                <label class="group-privacy-option">
+                    <input type="radio" name="newGroupPrivacy" value="private" checked>
+                    פרטית (הצטרפות רק לפי קוד או הזמנה מהמנהל)
+                </label>
+                <label class="group-privacy-option">
+                    <input type="radio" name="newGroupPrivacy" value="public">
+                    ציבורית (כל אחד יכול להצטרף)
+                </label>
+            </div>
+
             <button id="submitCreateGroupBtn" class="group-action-btn">צור קבוצה</button>
             <p id="createGroupError" class="group-error-msg"></p>
         </div>
@@ -426,6 +440,15 @@
             <p id="joinGroupError" class="group-error-msg"></p>
         </div>
 
+        <!-- מסך 3.5: רשימת קבוצות ציבוריות שניתן להצטרף אליהן ישירות -->
+        <div id="publicGroupsView" class="groups-view">
+            <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה</button>
+            <h2>קבוצות ציבוריות</h2>
+            <div id="publicGroupsList" class="my-groups-list">
+                <p class="groups-empty-msg" id="publicGroupsEmptyMsg">אין כרגע קבוצות ציבוריות להצטרפות</p>
+            </div>
+        </div>
+
         <!-- מסך 4: הצ'אט של קבוצה ספציפית -->
         <div id="groupChatView" class="groups-view groups-chat-view">
             <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה לרשימה</button>
@@ -434,8 +457,14 @@
                 <div>
                     <h2 id="activeGroupName"></h2>
                     <span class="group-join-code">קוד הצטרפות לשיתוף: <b id="activeGroupCode"></b></span>
+                    <div class="group-privacy-status">
+                        <span id="activeGroupPrivacyBadge" class="group-privacy-badge"></span>
+                        <!-- כפתור זה מוצג רק למנהל הקבוצה - מאפשר לו לעבור בין פרטית לציבורית -->
+                        <button id="toggleGroupPrivacyBtn" class="group-privacy-toggle-btn" style="display:none;"></button>
+                    </div>
                 </div>
-                <button id="openInviteMembersBtn" class="group-action-btn group-action-btn-small">+ הוספת חברים</button>
+                <!-- כפתור ההזמנה מוצג רק למנהל הקבוצה -->
+                <button id="openInviteMembersBtn" class="group-action-btn group-action-btn-small" style="display:none;">+ הוספת חברים</button>
             </div>
 
             <!-- אזור הוספת חברים לקבוצה - מוצג/מוסתר בלחיצה על הכפתור שלמעלה -->

@@ -39,6 +39,7 @@ if (groupsLoggedInUser) {
 
     const openCreateGroupBtn = document.getElementById('openCreateGroupBtn');
     const openJoinGroupBtn = document.getElementById('openJoinGroupBtn');
+    const openPublicGroupsBtn = document.getElementById('openPublicGroupsBtn');
 
     const newGroupNameInput = document.getElementById('newGroupNameInput');
     const submitCreateGroupBtn = document.getElementById('submitCreateGroupBtn');
@@ -48,8 +49,14 @@ if (groupsLoggedInUser) {
     const submitJoinGroupBtn = document.getElementById('submitJoinGroupBtn');
     const joinGroupError = document.getElementById('joinGroupError');
 
+    const publicGroupsView = document.getElementById('publicGroupsView');
+    const publicGroupsList = document.getElementById('publicGroupsList');
+    const publicGroupsEmptyMsg = document.getElementById('publicGroupsEmptyMsg');
+
     const activeGroupName = document.getElementById('activeGroupName');
     const activeGroupCode = document.getElementById('activeGroupCode');
+    const activeGroupPrivacyBadge = document.getElementById('activeGroupPrivacyBadge');
+    const toggleGroupPrivacyBtn = document.getElementById('toggleGroupPrivacyBtn');
     const openInviteMembersBtn = document.getElementById('openInviteMembersBtn');
     const inviteMembersPanel = document.getElementById('inviteMembersPanel');
     const inviteUsersList = document.getElementById('inviteUsersList');
@@ -62,7 +69,7 @@ if (groupsLoggedInUser) {
 
     // מציג רק את המסך המבוקש (view) ומסתיר את שאר המסכים
     function showGroupsView(viewElement) {
-        [groupsListView, createGroupView, joinGroupView, groupChatView].forEach((view) => {
+        [groupsListView, createGroupView, joinGroupView, publicGroupsView, groupChatView].forEach((view) => {
             view.classList.remove('active');
         });
         viewElement.classList.add('active');
@@ -123,7 +130,7 @@ if (groupsLoggedInUser) {
                 card.className = 'group-card';
                 card.innerHTML = `
                     <div>
-                        <div class="group-card-name">${group.name}</div>
+                        <div class="group-card-name">${group.name} ${group.isPrivate ? '🔒' : '🌐'}</div>
                         <div class="group-card-members-count">${group.members.length} חברים</div>
                     </div>
                     <span>💬</span>
@@ -141,6 +148,9 @@ if (groupsLoggedInUser) {
     openCreateGroupBtn.addEventListener('click', () => {
         newGroupNameInput.value = '';
         createGroupError.textContent = '';
+        // ברירת מחדל בכל פתיחה מחדש של הטופס: קבוצה פרטית
+        const defaultPrivacyRadio = document.querySelector('input[name="newGroupPrivacy"][value="private"]');
+        if (defaultPrivacyRadio) defaultPrivacyRadio.checked = true;
         showGroupsView(createGroupView);
     });
 
@@ -151,6 +161,70 @@ if (groupsLoggedInUser) {
         showGroupsView(joinGroupView);
     });
 
+    // מעבר למסך רשימת הקבוצות הציבוריות
+    openPublicGroupsBtn.addEventListener('click', () => {
+        showGroupsView(publicGroupsView);
+        loadPublicGroups();
+    });
+
+    // שולף מהשרת את כל הקבוצות הציבוריות שהמשתמש עדיין לא חבר בהן, ומאפשר הצטרפות בלחיצה
+    async function loadPublicGroups() {
+        try {
+            const res = await fetch('/api/groups/public/' + groupsLoggedInUser._id);
+            const groups = await res.json();
+
+            publicGroupsList.querySelectorAll('.group-card').forEach((el) => el.remove());
+
+            if (!groups.length) {
+                publicGroupsEmptyMsg.style.display = 'block';
+                return;
+            }
+            publicGroupsEmptyMsg.style.display = 'none';
+
+            groups.forEach((group) => {
+                const card = document.createElement('div');
+                card.className = 'group-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="group-card-name">${group.name}</div>
+                        <div class="group-card-members-count">${group.members.length} חברים · מנהל: ${group.owner ? group.owner.username : ''}</div>
+                    </div>
+                    <button class="group-action-btn group-action-btn-small" type="button">הצטרף</button>
+                `;
+
+                card.querySelector('button').addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const btn = e.target;
+                    btn.disabled = true;
+                    btn.textContent = 'מצטרף...';
+                    try {
+                        const joinRes = await fetch('/api/groups/' + group._id + '/join-public', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: groupsLoggedInUser._id })
+                        });
+                        const data = await joinRes.json();
+                        if (!joinRes.ok) {
+                            btn.disabled = false;
+                            btn.textContent = 'הצטרף';
+                            alert(data.message || 'שגיאה בהצטרפות לקבוצה');
+                            return;
+                        }
+                        await loadMyGroups();
+                        openGroupChat(data._id);
+                    } catch (err) {
+                        btn.disabled = false;
+                        btn.textContent = 'הצטרף';
+                    }
+                });
+
+                publicGroupsList.appendChild(card);
+            });
+        } catch (err) {
+            console.error('שגיאה בטעינת הקבוצות הציבוריות:', err);
+        }
+    }
+
     // ============== יצירת קבוצה חדשה ==============
     submitCreateGroupBtn.addEventListener('click', async () => {
         const name = newGroupNameInput.value.trim();
@@ -159,11 +233,15 @@ if (groupsLoggedInUser) {
             return;
         }
 
+        // בודקים איזו אפשרות פרטיות נבחרה בטופס (ברירת מחדל: פרטית)
+        const privacyChoice = document.querySelector('input[name="newGroupPrivacy"]:checked');
+        const isPrivate = !privacyChoice || privacyChoice.value === 'private';
+
         try {
             const res = await fetch('/api/groups', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, ownerId: groupsLoggedInUser._id })
+                body: JSON.stringify({ name, ownerId: groupsLoggedInUser._id, isPrivate })
             });
             const data = await res.json();
 
@@ -232,10 +310,55 @@ if (groupsLoggedInUser) {
             // שומרים את רשימת מזהי החברים הנוכחיים על האלמנט, כדי שנוכל לסנן
             // אותם החוצה כשנציג את רשימת המשתמשים להזמנה
             groupChatView.dataset.memberIds = JSON.stringify(group.members.map((m) => m._id));
+
+            // בודקים האם המשתמש המחובר הוא מנהל (owner) הקבוצה - רק הוא רשאי
+            // להזמין חברים חדשים ולשנות את מצב הפרטיות (ציבורית/פרטית)
+            const ownerId = group.owner ? (group.owner._id || group.owner) : null;
+            const isOwner = ownerId === groupsLoggedInUser._id;
+
+            // תגית שמראה את מצב הפרטיות הנוכחי לכל חברי הקבוצה
+            activeGroupPrivacyBadge.textContent = group.isPrivate ? '🔒 קבוצה פרטית' : '🌐 קבוצה ציבורית';
+
+            // כפתור הוספת חברים - מוצג רק למנהל
+            openInviteMembersBtn.style.display = isOwner ? 'inline-block' : 'none';
+
+            // כפתור מעבר ציבורית/פרטית - מוצג רק למנהל
+            if (isOwner) {
+                toggleGroupPrivacyBtn.style.display = 'inline-block';
+                toggleGroupPrivacyBtn.textContent = group.isPrivate ? 'הפוך לציבורית' : 'הפוך לפרטית';
+                toggleGroupPrivacyBtn.dataset.currentPrivacy = group.isPrivate ? 'private' : 'public';
+            } else {
+                toggleGroupPrivacyBtn.style.display = 'none';
+            }
         } catch (err) {
             console.error('שגיאה בטעינת פרטי הקבוצה:', err);
         }
     }
+
+    // לחיצה על כפתור הפרטיות - הופכת את הקבוצה בין פרטית לציבורית (רק המנהל רואה את הכפתור)
+    toggleGroupPrivacyBtn.addEventListener('click', async () => {
+        if (!activeGroupId) return;
+        const newIsPrivate = toggleGroupPrivacyBtn.dataset.currentPrivacy !== 'private';
+
+        toggleGroupPrivacyBtn.disabled = true;
+        try {
+            const res = await fetch('/api/groups/' + activeGroupId + '/privacy', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: groupsLoggedInUser._id, isPrivate: newIsPrivate })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.message || 'שגיאה בשינוי מצב הפרטיות');
+                return;
+            }
+            await loadGroupDetails(activeGroupId);
+        } catch (err) {
+            console.error('שגיאה בשינוי מצב הפרטיות:', err);
+        } finally {
+            toggleGroupPrivacyBtn.disabled = false;
+        }
+    });
 
     // טוען ומציג את כל ההודעות של הקבוצה הפעילה
     async function loadGroupMessages(groupId) {

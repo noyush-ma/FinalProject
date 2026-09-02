@@ -21,7 +21,7 @@ function generateJoinCode() {
 // הבעלים מתווסף אוטומטית לרשימת החברים
 exports.createGroup = async (req, res) => {
   try {
-    const { name, ownerId } = req.body;
+    const { name, ownerId, isPrivate } = req.body;
 
     if (!name || !ownerId) {
       return res.status(400).json({ message: 'יש לספק שם קבוצה ומזהה בעלים' });
@@ -39,7 +39,9 @@ exports.createGroup = async (req, res) => {
       name,
       owner: ownerId,
       members: [ownerId], // הבעלים הוא החבר הראשון בקבוצה
-      joinCode
+      joinCode,
+      // אם לא צוין אחרת, הקבוצה תיווצר כפרטית (ברירת המחדל של המודל)
+      isPrivate: typeof isPrivate === 'boolean' ? isPrivate : true
     });
 
     const savedGroup = await newGroup.save();
@@ -53,6 +55,22 @@ exports.createGroup = async (req, res) => {
 exports.getUserGroups = async (req, res) => {
   try {
     const groups = await Group.find({ members: req.params.userId })
+      .populate('owner', 'username profileImage')
+      .sort({ createdAt: -1 });
+    res.json(groups);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// 2.5 שליפת כל הקבוצות ה"ציבוריות" שהמשתמש עדיין לא חבר בהן -
+// אלו קבוצות שכל משתמש יכול למצוא ולהצטרף אליהן ישירות, בלי צורך בקוד או הזמנה
+exports.getPublicGroups = async (req, res) => {
+  try {
+    const groups = await Group.find({
+      isPrivate: false,
+      members: { $ne: req.params.userId }
+    })
       .populate('owner', 'username profileImage')
       .sort({ createdAt: -1 });
     res.json(groups);
@@ -106,8 +124,71 @@ exports.joinGroupByCode = async (req, res) => {
   }
 };
 
+// 4.5 הצטרפות ישירה לקבוצה ציבורית - ללא צורך בקוד הצטרפות או בהזמנה
+// זמין רק כאשר isPrivate === false; אם הקבוצה פרטית יש להצטרף לפי קוד או הזמנה בלבד
+exports.joinPublicGroup = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const groupId = req.params.groupId;
+
+    if (!userId) {
+      return res.status(400).json({ message: 'יש לספק מזהה משתמש' });
+    }
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: 'קבוצה לא נמצאה' });
+    }
+
+    if (group.isPrivate) {
+      return res.status(403).json({ message: 'הקבוצה פרטית - ניתן להצטרף רק לפי קוד או הזמנה מהמנהל' });
+    }
+
+    if (group.members.includes(userId)) {
+      return res.status(400).json({ message: 'אתה כבר חבר בקבוצה זו' });
+    }
+
+    group.members.push(userId);
+    await group.save();
+
+    res.status(200).json(group);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// 4.6 שינוי מצב פרטיות של קבוצה (ציבורית <-> פרטית) - רק המנהל (owner) שיצר את הקבוצה רשאי לבצע זאת
+exports.setGroupPrivacy = async (req, res) => {
+  try {
+    const { userId, isPrivate } = req.body;
+    const groupId = req.params.groupId;
+
+    if (typeof isPrivate !== 'boolean') {
+      return res.status(400).json({ message: 'יש לספק ערך isPrivate מסוג בוליאני' });
+    }
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: 'קבוצה לא נמצאה' });
+    }
+
+    // רק המנהל שיצר את הקבוצה יכול לשנות את מצב הפרטיות שלה
+    if (group.owner.toString() !== userId) {
+      return res.status(403).json({ message: 'רק מנהל הקבוצה יכול לשנות את מצב הפרטיות' });
+    }
+
+    group.isPrivate = isPrivate;
+    await group.save();
+
+    res.status(200).json(group);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 // 5. הזמנת משתמש קיים לקבוצה (לפי שם משתמש/מזהה שנבחר מרשימת המשתמשים הקיימים במערכת)
 // לא מוסיפים אותו ישירות לקבוצה - יוצרים לו התראת "הזמנה" שהוא צריך לאשר
+// רק מנהל הקבוצה (owner) רשאי לשלוח הזמנות
 exports.inviteUserToGroup = async (req, res) => {
   try {
     const { inviterId, inviteeId } = req.body;
@@ -116,6 +197,11 @@ exports.inviteUserToGroup = async (req, res) => {
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ message: 'קבוצה לא נמצאה' });
+    }
+
+    // רק המנהל שיצר את הקבוצה יכול לשלוח הזמנות הצטרפות
+    if (group.owner.toString() !== inviterId) {
+      return res.status(403).json({ message: 'רק מנהל הקבוצה יכול לשלוח הזמנות הצטרפות' });
     }
 
     if (group.members.includes(inviteeId)) {
