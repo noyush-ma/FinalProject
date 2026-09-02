@@ -9,13 +9,22 @@ router.post('/', groupController.createGroup);
 // שליפת כל הקבוצות ששייכות למשתמש מסוים (להצגת רשימת "הצ'אטים שלי")
 router.get('/user/:userId', groupController.getUserGroups);
 
-// הצטרפות לקבוצה קיימת לפי קוד הצטרפות
+// שליפת כל הקבוצות הציבוריות שהמשתמש עדיין לא חבר בהן (להצגה במסך "קבוצות ציבוריות")
+router.get('/public/:userId', groupController.getPublicGroups);
+
+// הצטרפות לקבוצה קיימת לפי קוד הצטרפות (עובד גם לקבוצות פרטיות וגם לציבוריות)
 router.post('/join', groupController.joinGroupByCode);
 
 // שליפת פרטי קבוצה בודדת (כולל רשימת חברים)
 router.get('/:groupId', groupController.getGroupById);
 
-// הזמנת משתמש קיים לקבוצה מסוימת
+// הצטרפות ישירה לקבוצה ציבורית, ללא צורך בקוד או בהזמנה
+router.post('/:groupId/join-public', groupController.joinPublicGroup);
+
+// שינוי מצב פרטיות של הקבוצה (ציבורית/פרטית) - רק ע"י המנהל
+router.put('/:groupId/privacy', groupController.setGroupPrivacy);
+
+// הזמנת משתמש קיים לקבוצה מסוימת - רק ע"י המנהל
 router.post('/:groupId/invite', groupController.inviteUserToGroup);
 
 // תגובה להזמנה לקבוצה (אישור/דחייה) - מבוצע דרך מזהה ההתראה

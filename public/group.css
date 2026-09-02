@@ -99,6 +99,58 @@
     margin-bottom: 15px;
 }
 
+#createGroupView input[type="radio"] {
+    padding: 0;
+    margin: 0 6px 0 0;
+    width: auto;
+}
+
+/* בחירת ציבורית/פרטית בטופס יצירת קבוצה */
+.group-privacy-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.group-privacy-option {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #444;
+    cursor: pointer;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+
+/* תגית מצב הפרטיות + כפתור המעבר, בכותרת מסך הצ'אט */
+.group-privacy-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.group-privacy-badge {
+    font-size: 12px;
+    color: #555;
+}
+
+.group-privacy-toggle-btn {
+    background: none;
+    border: 1px solid #e60023;
+    color: #e60023;
+    border-radius: 14px;
+    padding: 2px 10px;
+    font-size: 11px;
+    cursor: pointer;
+}
+.group-privacy-toggle-btn:hover {
+    background-color: #e60023;
+    color: white;
+}
+
 /* --- רשימת הקבוצות שלי --- */
 .my-groups-list {
     display: flex;
@@ -321,8 +373,15 @@ body.dark-mode .groups-modal-content {
     color: #f1f1f1;
 }
 body.dark-mode .group-card,
-body.dark-mode .invite-members-panel {
+body.dark-mode .invite-members-panel,
+body.dark-mode .group-privacy-option {
     background-color: #2f2f2f;
+}
+body.dark-mode .group-privacy-option {
+    color: #ddd;
+}
+body.dark-mode .group-privacy-badge {
+    color: #bbb;
 }
 body.dark-mode .group-card:hover {
     background-color: #3a3a3a;
