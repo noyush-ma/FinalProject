@@ -559,8 +559,9 @@ function postsText() {
     var hasResults = false;
 
     postCards.forEach(function(card) {
-        var img = card.querySelector("img");
-        var description = img.getAttribute("data-description").toLowerCase();
+        var mediaEl = card.querySelector("img, video");
+        if (!mediaEl) return;
+        var description = (mediaEl.getAttribute("data-description") || "").toLowerCase();
 
         if (description.includes(searchValue)) {
             card.style.display = "block";
