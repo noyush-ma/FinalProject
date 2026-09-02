@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Post = require('../models/post'); // נחוץ כדי לעדכן רטרואקטיבית שם משתמש בכל הפוסטים שלו
 
 // 1. יצירת משתמש חדש (Create)
 exports.createUser = async (req, res) => {
@@ -63,6 +64,16 @@ exports.updateUser = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({ message: 'משתמש לא נמצא' });
     }
+
+    // אם שם המשתמש שונה, מעדכנים רטרואקטיבית את כל הפוסטים הקיימים שהוא כבר פרסם,
+    // כדי שהשם המוצג עליהם יתעדכן גם הוא ולא יישאר "תקוע" עם השם הישן
+    if (req.body.username) {
+      await Post.updateMany(
+        { author: updatedUser._id },
+        { authorUsername: updatedUser.username }
+      );
+    }
+
     res.json(updatedUser);
   } catch (err) {
     if (err.code === 11000) {
@@ -85,7 +96,41 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// 6. התחברות משתמש קיים (Login)
+// 7. עקיבה/הפסקת עקיבה אחרי משתמש אחר (טוגל) - נשמר לצמיתות בשדה following ב-MongoDB
+exports.toggleFollow = async (req, res) => {
+  try {
+    const targetUserId = req.params.id; // המשתמש שרוצים לעקוב/להפסיק לעקוב אחריו
+    const { followerId } = req.body; // המשתמש המחובר שמבצע את הפעולה
+
+    if (!followerId) {
+      return res.status(400).json({ message: 'יש לספק followerId' });
+    }
+    if (followerId === targetUserId) {
+      return res.status(400).json({ message: 'לא ניתן לעקוב אחרי עצמך' });
+    }
+
+    const followerUser = await User.findById(followerId);
+    const targetUser = await User.findById(targetUserId);
+    if (!followerUser || !targetUser) {
+      return res.status(404).json({ message: 'משתמש לא נמצא' });
+    }
+
+    const alreadyFollowing = followerUser.following.some((id) => id.toString() === targetUserId);
+
+    if (alreadyFollowing) {
+      followerUser.following = followerUser.following.filter((id) => id.toString() !== targetUserId);
+    } else {
+      followerUser.following.push(targetUserId);
+    }
+
+    await followerUser.save();
+    res.json({ following: !alreadyFollowing });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// 8. התחברות משתמש קיים (Login)
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;

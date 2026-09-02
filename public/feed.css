@@ -484,7 +484,62 @@ nav a:last-child {
     direction: ltr;
     text-align: left;
     width: 100%;
+    margin-bottom: 0;
+}
+
+.modal-creator-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    direction: ltr;
     margin-bottom: 15px;
+}
+
+.follow-btn {
+    background-color: #efefef;
+    color: #111111;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.follow-btn:hover {
+    background-color: #dcdcdc;
+}
+
+.follow-btn.following {
+    background-color: #111111;
+    color: #ffffff;
+}
+
+.follow-btn.following:hover {
+    background-color: #333333;
+}
+
+.follow-btn[hidden] {
+    display: none;
+}
+
+body.dark-mode .follow-btn {
+    background-color: #3a3a3a;
+    color: #ffffff;
+}
+
+body.dark-mode .follow-btn:hover {
+    background-color: #4a4a4a;
+}
+
+body.dark-mode .follow-btn.following {
+    background-color: #e60023;
+    color: #ffffff;
+}
+
+body.dark-mode .follow-btn.following:hover {
+    background-color: #ad081b;
 }
 
 .no-results {
@@ -852,6 +907,7 @@ nav a:first-child .logo-dark {
 }
 
 body.dark-mode nav a:not(:first-child) img,
+body.dark-mode .feed-toggle-btn img,
 body.dark-mode .profile-arrow,
 body.dark-mode .modal-svg-icon,
 body.dark-mode #likeBtn img[src="emptyHeart.png"],
@@ -1016,6 +1072,134 @@ body.active-pink {
 body.dark-mode .notification-toast {
     background-color: red;
     color: #111111;
+}
+
+/* ==================== מרכז ההתראות (מודל) ==================== */
+.notifications-modal-content {
+    width: 420px;
+    height: auto;
+    max-height: 70vh;
+    flex-direction: column;
+    padding: 24px;
+}
+
+.notifications-modal-content h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
+}
+
+.notifications-list {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notifications-empty-msg {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+    margin-top: 30px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    background-color: #f7f7f7;
+    position: relative;
+}
+
+.notification-item.unread {
+    background-color: #ffe9ec;
+}
+
+.notification-item-body {
+    flex: 1;
+}
+
+.notification-item-text {
+    font-size: 14px;
+    margin: 0 0 4px;
+    line-height: 1.4;
+}
+
+.notification-item-time {
+    font-size: 11px;
+    color: #999;
+}
+
+.notification-item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.notification-action-btn {
+    border: none;
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.notification-action-btn.primary {
+    background-color: #e60023;
+    color: #ffffff;
+}
+
+.notification-action-btn.secondary {
+    background-color: #e2e2e2;
+    color: #111111;
+}
+
+.notification-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #999;
+    padding: 2px;
+    align-self: flex-start;
+}
+
+.notification-delete-btn:hover {
+    color: #e60023;
+}
+
+body.dark-mode .notifications-modal-content {
+    background-color: #232323;
+    color: #ffffff;
+}
+
+body.dark-mode .notification-item {
+    background-color: #2f2f2f;
+}
+
+body.dark-mode .notification-item.unread {
+    background-color: #3a1f24;
+}
+
+body.dark-mode .notification-item-time {
+    color: #a5a5a5;
+}
+
+body.dark-mode .notification-action-btn.secondary {
+    background-color: #4a4a4a;
+    color: #ffffff;
+}
+
+body.dark-mode .notification-delete-btn {
+    color: #bdbdbd;
+}
+
+body.dark-mode .notifications-empty-msg {
+    color: #b2b2b2;
 }
 
 .filter-dropdown {

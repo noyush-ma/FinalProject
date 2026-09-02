@@ -58,14 +58,19 @@
             <img src="icons/pinterest_logo.png" class="logo-light" alt="Pinterest Light">
             <img src="icons/pinterest_logo-1empty.png" class="logo-dark" alt="Pinterest Dark">
         </a>
-        <a href="#"><img src="icons/homeLogo1.png"></a>
+        <button id="mainFeedBtn" class="nav-icon-btn feed-toggle-btn active" type="button" title="הפיד הראשי">
+            <img src="icons/homeLogo1.png">
+        </button>
+        <button id="friendsFeedBtn" class="nav-icon-btn feed-toggle-btn" type="button" title="פיד חברים">
+            👥
+        </button>
         <a href="boards.html"><img src="icons/boardsLogo1.png"></a>
 
         <div class="create-post-container">
             <button id="createPost"><img src="icons/createLogo1.png"></button>
         </div>
         <div class="messages-container">
-            <button id="messagesButton"><img src="icons/notifLogo1.png"></button>
+            <button id="messagesButton" type="button"><img src="icons/notifLogo1.png"></button>
             <span id="badge" class="badge">0</span>
         </div>
         <!-- כפתור הצ'אטים/קבוצות: לוחצים עליו ונפתח מודל שמאפשר ליצור קבוצה, -->
@@ -189,6 +194,10 @@
     לא נמצאו תוצאות תואמות לחיפוש שלך 
 </div>
 
+<div id="noFriendsPostsMessage" class="no-results" style="display:none;">
+    עדיין אין כאן פוסטים. עקבו אחרי חברים כדי לראות את הפוסטים שלהם כאן!
+</div>
+
 <div id="imageModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
@@ -235,7 +244,10 @@
             
             <div class="modal-info">
                 <p id="modalDesc"></p>
-                <div id="modalUsername" class="creator-username">username</div>
+                <div class="modal-creator-row">
+                    <div id="modalUsername" class="creator-username">username</div>
+                    <button id="followBtn" type="button" class="follow-btn" onclick="toggleFollowAuthor()">עקוב</button>
+                </div>
             </div>
 
             <div class="comments-section">
@@ -443,10 +455,19 @@
     </div>
 </div>
 
-<!-- ==================== מיכל ההתראות הקופצות ====================
-     כל התראה חדשה (הזמנה לקבוצה / הודעה חדשה) "קופצת" כאן כתיבת toast,
-     עם כפתור שמאפשר לחזור ישירות לקבוצה הרלוונטית. -->
-<div id="toastContainer" class="toast-container"></div>
+<!-- ==================== מודל מרכז ההתראות ====================
+     נפתח בלחיצה על כפתור הפעמון בתפריט העליון. מציג את כל היסטוריית ההתראות
+     (הזמנות לקבוצה, הודעות חדשות, פוסטים חדשים מחברים שאני עוקב אחריהם),
+     עם אפשרות פעולה מתאימה לכל סוג התראה ואפשרות מחיקה לצמיתות. -->
+<div id="notificationsModal" class="modal">
+    <div class="modal-content notifications-modal-content">
+        <span class="close" id="closeNotificationsModal">&times;</span>
+        <h2>התראות</h2>
+        <div id="notificationsList" class="notifications-list">
+            <p id="notificationsEmptyMsg" class="notifications-empty-msg">אין לך התראות כרגע</p>
+        </div>
+    </div>
+</div>
 
 <script src="feed.js"></script>
 <script src="savedPins.js"></script>

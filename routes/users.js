@@ -7,6 +7,7 @@ router.post('/login', userController.loginUser);
 router.get('/', userController.getAllUsers);
 router.get('/:id', userController.getUserById);
 router.put('/:id', userController.updateUser);
+router.post('/:id/follow', userController.toggleFollow);
 router.delete('/:id', userController.deleteUser);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const Post = require('../models/post');
 const User = require('../models/user'); // נחוץ כדי לאמת סיסמה מול המשתמש בעריכה
+const Notification = require('../models/notification'); // נחוץ כדי להודיע לעוקבים על פוסט חדש
 
 // יצירת פוסט חדש
 exports.createPost = async (req, res) => {
@@ -23,6 +24,25 @@ exports.createPost = async (req, res) => {
       authorUsername: authorUser.username
     });
     const savedPost = await newPost.save();
+
+    // יצירת התראת "פוסט חדש" לכל מי שעוקב אחרי המשתמש שהעלה את הפוסט
+    try {
+      const followers = await User.find({ following: authorUser._id }, '_id');
+      if (followers.length) {
+        const notificationsToInsert = followers.map((follower) => ({
+          recipient: follower._id,
+          type: 'NEW_POST',
+          text: `${authorUser.username} העלה/העלתה פוסט חדש: "${savedPost.title}"`,
+          fromUser: authorUser._id,
+          post: savedPost._id
+        }));
+        await Notification.insertMany(notificationsToInsert);
+      }
+    } catch (notifErr) {
+      // שגיאה ביצירת ההתראות לא צריכה למנוע את יצירת הפוסט עצמו
+      console.error('שגיאה ביצירת התראות פוסט חדש:', notifErr);
+    }
+
     res.status(201).json(savedPost);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -33,6 +53,21 @@ exports.createPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find();
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// שליפת פוסטים רק של משתמשים שהמשתמש המחובר עוקב אחריהם ("פיד חברים")
+exports.getFollowingPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'המשתמש לא נמצא' });
+    }
+
+    const posts = await Post.find({ author: { $in: user.following } }).sort({ createdAt: -1 });
     res.json(posts);
   } catch (err) {
     res.status(500).json({ message: err.message });

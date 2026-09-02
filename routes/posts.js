@@ -4,6 +4,7 @@ const postController = require('../controllers/postController');
 
 router.post('/', postController.createPost);
 router.get('/', postController.getAllPosts);
+router.get('/following/:userId', postController.getFollowingPosts);
 router.post('/:id/like', postController.toggleLike);
 router.get('/:id', postController.getPostById);
 router.delete('/:id', postController.deletePost);
