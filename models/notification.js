@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema({
   // סוג ההתראה - מזמין את סוג התוכן/הכפתורים שיוצגו למשתמש
   type: {
     type: String,
-    enum: ['GROUP_INVITE', 'NEW_MESSAGE'],
+    enum: ['GROUP_INVITE', 'NEW_MESSAGE', 'NEW_POST'],
     required: true
   },
 
@@ -30,6 +30,13 @@ const notificationSchema = new mongoose.Schema({
   group: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',
+    default: null
+  },
+
+  // הפוסט הרלוונטי (רק עבור NEW_POST - פוסט חדש שהעלה משתמש שאני עוקב אחריו)
+  post: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Post',
     default: null
   },
 

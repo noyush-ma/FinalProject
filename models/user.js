@@ -28,6 +28,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  // רשימת מזהי המשתמשים שהמשתמש הזה עוקב אחריהם ("חברים" לצורך פיד החברים וההתראות)
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   createdAt: {
     type: Date,
     default: Date.now
