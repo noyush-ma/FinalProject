@@ -46,6 +46,25 @@ const postSchema = new mongoose.Schema({
   likedBy: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  }],
+  // תגובות שנכתבו על הפוסט - נשמרות לצמיתות ב-MongoDB (מוטמעות בתוך מסמך הפוסט עצמו)
+  comments: [{
+    authorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    authorUsername: {
+      type: String,
+      default: 'משתמש לא ידוע'
+    },
+    text: {
+      type: String,
+      required: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   }]
 });
 

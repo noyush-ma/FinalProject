@@ -262,12 +262,13 @@ function openModal(element) {
     // --- כפתור עקיבה אחרי מי שהעלה את הפוסט ---
     var followBtn = document.getElementById("followBtn");
     var postDataRaw = element.dataset.post;
+    var parsedPostData = null;
     currentModalAuthorId = null;
     if (postDataRaw) {
         try {
-            var postData = JSON.parse(postDataRaw);
-            if (postData.author && loggedInUser && postData.author !== loggedInUser._id) {
-                currentModalAuthorId = postData.author;
+            parsedPostData = JSON.parse(postDataRaw);
+            if (parsedPostData.author && loggedInUser && parsedPostData.author !== loggedInUser._id) {
+                currentModalAuthorId = parsedPostData.author;
                 followBtn.hidden = false;
                 updateFollowBtnUI();
             } else {
@@ -286,7 +287,8 @@ function openModal(element) {
     saveBtn.style.backgroundColor = "#e60023";
     refreshSaveButtonState(element.getAttribute("data-id"));
 
-    document.getElementById("commentsList").innerHTML = "";
+    // --- תגובות: נטענות מהנתונים האמיתיים של הפוסט (נשמרות ב-MongoDB) ---
+    renderCommentsForCurrentPost(parsedPostData ? parsedPostData.comments : null);
     document.getElementById("newCommentInput").value = "";
     document.getElementById("typingIndicator").style.display = "none";
 }
@@ -619,7 +621,44 @@ function showTyping() {
     }
 }
 
-function addComment() {
+// מרנדר את רשימת התגובות האמיתית של הפוסט הפתוח (מהנתונים שחזרו מהשרת)
+function renderCommentsForCurrentPost(comments) {
+    var commentsList = document.getElementById("commentsList");
+    var titleText = document.getElementById("comments-title-text");
+    commentsList.innerHTML = "";
+
+    var list = comments || [];
+    list.forEach((comment) => {
+        commentsList.appendChild(buildCommentElement(comment));
+    });
+
+    updateCommentsTitle(list.length);
+    commentsList.scrollTop = commentsList.scrollHeight;
+}
+
+function buildCommentElement(comment) {
+    const el = document.createElement("div");
+    el.className = "comment-item";
+    const authorSpan = document.createElement("strong");
+    authorSpan.textContent = (comment.authorUsername || "משתמש לא ידוע") + ": ";
+    el.appendChild(authorSpan);
+    el.appendChild(document.createTextNode(comment.text));
+    return el;
+}
+
+function updateCommentsTitle(count) {
+    var titleText = document.getElementById("comments-title-text");
+    if (count === 0) {
+        titleText.innerText = "הערות (0)";
+    } else if (count === 1) {
+        titleText.innerText = "הערה 1";
+    } else {
+        titleText.innerText = "הערות (" + count + ")";
+    }
+}
+
+// שולח תגובה חדשה לשרת ושומר אותה לצמיתות ב-MongoDB בתוך הפוסט
+async function addComment() {
     var inputComment = document.getElementById("newCommentInput");
     var commentText = inputComment.value.trim();
     var commentsList = document.getElementById("commentsList");
@@ -629,28 +668,53 @@ function addComment() {
         return;
     }
 
+    const postId = currentOpenImg ? currentOpenImg.getAttribute("data-id") : null;
+
+    if (!postId || !loggedInUser) {
+        // פוסט לוקאלי-קבוע (אין data-id אמיתי) - אין עם מי לדבר בשרת, לא ניתן לשמור תגובה
+        alert("לא ניתן לשמור תגובות על פוסט זה כרגע");
+        return;
+    }
+
     if (commentsList.style.display === "none") {
         commentsList.style.display = "block";
         document.getElementById("accordionArrow").classList.add("open");
     }
 
-    var newComment = document.createElement("div");
-    newComment.className = "comment-item";
-    newComment.innerText = commentText;
-    commentsList.appendChild(newComment);
+    sendBtn.disabled = true;
+    try {
+        const res = await fetch('/api/posts/' + postId + '/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: loggedInUser._id, text: commentText })
+        });
+        const data = await res.json();
 
-    var titleText = document.getElementById("comments-title-text");
-    var currentCount = commentsList.getElementsByClassName("comment-item").length;
-    if (currentCount === 1) {
-        titleText.innerText = "הערה 1";
-    } else {
-        titleText.innerText = "הערות (" + currentCount + ")";
+        if (!res.ok) {
+            alert(data.message || 'שגיאה בשמירת התגובה');
+            return;
+        }
+
+        renderCommentsForCurrentPost(data.comments);
+
+        // מעדכנים גם את הכרטיס בפיד עצמו, כדי שהתגובות יישארו נכונות גם בלי לרענן את הדף
+        if (currentOpenImg) {
+            try {
+                const postData = JSON.parse(currentOpenImg.dataset.post);
+                postData.comments = data.comments;
+                currentOpenImg.dataset.post = JSON.stringify(postData);
+            } catch (e) { /* אין מה לעדכן */ }
+        }
+
+        inputComment.value = "";
+        sendBtn.style.display = "none";
+        document.getElementById("typingIndicator").style.display = "none";
+    } catch (err) {
+        console.error('שגיאה בשמירת התגובה:', err);
+        alert('שגיאת תקשורת עם השרת');
+    } finally {
+        sendBtn.disabled = false;
     }
-
-    inputComment.value = "";
-    sendBtn.style.display = "none";
-    document.getElementById("typingIndicator").style.display = "none";
-    commentsList.scrollTop = commentsList.scrollHeight;
 }
 
 function openShareModal() {

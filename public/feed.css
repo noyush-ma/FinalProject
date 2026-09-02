@@ -990,6 +990,10 @@ body.dark-mode #messagesButton img {
     filter: invert(1);
 }
 
+body.dark-mode #chatsBtn img {
+    filter: invert(1);
+}
+
 body.active-pink {
   background-color: pink;
   transition: background-color 0s; 

@@ -102,6 +102,39 @@ exports.toggleLike = async (req, res) => {
   }
 };
 
+// הוספת תגובה לפוסט - נשמרת לצמיתות ב-MongoDB בתוך מערך comments
+exports.addComment = async (req, res) => {
+  try {
+    const { userId, text } = req.body;
+    if (!userId || !text || !text.trim()) {
+      return res.status(400).json({ message: 'יש לספק userId וטקסט תגובה' });
+    }
+
+    const author = await User.findById(userId);
+    if (!author) {
+      return res.status(404).json({ message: 'משתמש לא נמצא' });
+    }
+
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'פוסט לא נמצא' });
+    }
+
+    const newComment = {
+      authorId: author._id,
+      authorUsername: author.username,
+      text: text.trim(),
+      createdAt: new Date()
+    };
+    post.comments.push(newComment);
+    await post.save();
+
+    res.status(201).json({ comments: post.comments });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // שליפת פוסט יחיד לפי מזהה
 exports.getPostById = async (req, res) => {
   try {

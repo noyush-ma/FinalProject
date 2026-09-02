@@ -344,6 +344,17 @@
     object-fit: contain;
 }
 
+.friends-icon {
+    width: 26px;
+    height: 26px;
+    color: #111111;
+    transition: color 0.15s;
+}
+
+body.dark-mode .friends-icon {
+    color: #ffffff;
+}
+
 .feed-toggle-btn.active {
     opacity: 1;
 }
