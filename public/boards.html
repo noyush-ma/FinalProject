@@ -52,6 +52,31 @@
     <a href="#"><img src="icons/settingsLogo1.png"></a>
 </nav>
 
+<div id="pinsFilterBar" class="pins-filter-bar">
+    <div class="filter-group">
+        <label for="likesRangeFilter">טווח לייקים 📌</label>
+        <select id="likesRangeFilter"></select>
+    </div>
+    <div class="filter-group">
+        <label for="postTypeFilter">סוג פוסט</label>
+        <select id="postTypeFilter">
+            <option value="all">הכל</option>
+            <option value="TEXT">טקסט</option>
+            <option value="IMAGE">תמונה</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="aspectRatioFilter">יחס גובה-רוחב</label>
+        <select id="aspectRatioFilter">
+            <option value="all">הכל</option>
+            <option value="portrait">לאורך</option>
+            <option value="landscape">לרוחב</option>
+            <option value="square">ריבועי</option>
+        </select>
+    </div>
+    <button type="button" id="resetPinsFiltersBtn" class="reset-filters-btn">איפוס סינון</button>
+</div>
+
 <div class="boards-page-container" id="boardsPageContainer">
     <div class="new-board-inline">
         <button type="button" class="tab-btn active" onclick="switchTab(this, 'pins'); renderSavedPinsTab();">סיכות</button>
@@ -80,3 +105,4 @@
 <script src="boards.js"></script>
 </body>
 </html>
+
