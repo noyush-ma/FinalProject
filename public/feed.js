@@ -1077,19 +1077,31 @@ const createPostBtn = document.getElementById('createPost');
 const closeModalBtn = document.getElementById('closeModal');
 const postForm = document.getElementById('postForm');
 
-// --- החלפת השדה/תצוגה המקדימה בהתאם לסוג הפוסט (תמונה/וידאו) ---
+// --- החלפת השדה/תצוגה המקדימה בהתאם לסוג הפוסט (תמונה/וידאו/טקסט) ---
 const postTypeSelect = document.getElementById('postType');
+const mediaUrlGroup = document.getElementById('mediaUrlGroup');
 const imgUrlInput = document.getElementById('imgUrl');
 const imgUrlLabel = document.getElementById('imgUrlLabel');
 const imgPreview = document.getElementById('imgPreview');
 const videoPreview = document.getElementById('videoPreview');
 
 function updateMediaFieldForType() {
-    const isVideo = postTypeSelect.value === 'VIDEO';
-    imgUrlLabel.innerText = isVideo ? 'video URL:' : 'image URL:';
-    imgUrlInput.placeholder = isVideo
-        ? 'https://example.com/video.mp4'
-        : 'https://example.com/image.jpg';
+    const type = postTypeSelect.value;
+
+    if (type === 'IMAGE' || type === 'VIDEO') {
+        mediaUrlGroup.style.display = 'block';
+        imgUrlInput.required = true;
+        imgUrlLabel.innerText = type === 'VIDEO' ? 'video URL:' : 'image URL:';
+        imgUrlInput.placeholder = type === 'VIDEO'
+            ? 'https://example.com/video.mp4'
+            : 'https://example.com/image.jpg';
+    } else {
+        // TEXT או שאין עדיין בחירה - אין צורך בקישור מדיה
+        mediaUrlGroup.style.display = 'none';
+        imgUrlInput.required = false;
+        imgUrlInput.value = '';
+    }
+
     updateMediaPreview();
 }
 
