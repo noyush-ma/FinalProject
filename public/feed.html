@@ -204,6 +204,7 @@
         
         <div class="modal-left-side">
             <img id="modalImg" src="" alt="Modal Image">
+            <video id="modalVideo" src="" controls style="display:none;"></video>
         </div>
         
         <div class="modal-right-side">
@@ -350,7 +351,10 @@
         <form id="postForm">
             <label for="title">title:</label> 
             <input type="text" id="title" required placeholder="enter title for the post">
-            <label for="imgUrl">image URL:</label>
+            <label for="imgUrl" id="imgUrlLabel">image URL:</label>
+            <input type="url" id="imgUrl" required placeholder="https://example.com/image.jpg">
+            <img id="imgPreview" src="" alt="" style="display: none; max-width: 100%;-top: 10px;">
+            <video id="videoPreview" src="" controls style="display: none; max-width: 100%; margin-top: 10px;"></video>
             <input type="url" id="imgUrl" accept="image/*" required>
             <img id="imgPreview" src="" alt="" style="display: none; max-width: 100%;-top: 10px;">
             <label for="description">description:</label>
@@ -371,8 +375,8 @@
             </select>
             <label for="postType">Post Type:</label>
             <select id="postType" required>
-                <option value="" disabled selected>Select type</option>
                 <option value="IMAGE">Image</option>
+                <option value="VIDEO">Video</option>
                 <option value="TEXT">Text</option>
             </select>
             <button type="submit" id="postSubmitBtn" class="submit-btn">post</button>

@@ -212,18 +212,39 @@ function openModal(element) {
     
     var modal = document.getElementById("imageModal");
     modal.style.display = "flex";
-    
-    var modalImg = document.getElementById("modalImg");
-    modalImg.src = element.src;
 
-    // זיהוי אוריינטציה: תמונה רוחבית (landscape) תוצג במלואה (contain),
-    // תמונה אנכית תמשיך להתנהג כמו היום (cover)
-    modalImg.classList.remove("landscape");
-    modalImg.onload = function () {
-        if (modalImg.naturalWidth > modalImg.naturalHeight) {
-            modalImg.classList.add("landscape");
-        }
-    };
+    var modalImg = document.getElementById("modalImg");
+    var modalVideo = document.getElementById("modalVideo");
+    var isVideo = element.tagName === 'VIDEO' || element.getAttribute('data-media-type') === 'video';
+
+    if (isVideo) {
+        modalVideo.pause();
+        modalVideo.src = element.currentSrc || element.src;
+        modalVideo.classList.remove("landscape");
+        modalVideo.onloadedmetadata = function () {
+            if (modalVideo.videoWidth > modalVideo.videoHeight) {
+                modalVideo.classList.add("landscape");
+            }
+        };
+        modalVideo.style.display = "block";
+        modalImg.style.display = "none";
+        modalImg.src = "";
+    } else {
+        modalVideo.pause();
+        modalVideo.style.display = "none";
+        modalVideo.src = "";
+        modalImg.style.display = "block";
+        modalImg.src = element.src;
+
+        // זיהוי אוריינטציה: תמונה רוחבית (landscape) תוצג במלואה (contain),
+        // תמונה אנכית תמשיך להתנהג כמו היום (cover)
+        modalImg.classList.remove("landscape");
+        modalImg.onload = function () {
+            if (modalImg.naturalWidth > modalImg.naturalHeight) {
+                modalImg.classList.add("landscape");
+            }
+        };
+    }
 
     var targetLikes = element.getAttribute("data-likes");
     document.getElementById("like-count").innerText = targetLikes;
@@ -313,6 +334,10 @@ async function toggleFollowAuthor() {
 function closeModal() {
     var modal = document.getElementById("imageModal");
     modal.style.display = "none";
+    var modalVideo = document.getElementById("modalVideo");
+    if (modalVideo) {
+        modalVideo.pause();
+    }
 }
 
 // עושה/מבטל לייק לפוסט הפתוח כרגע במודל, ושומר את זה לצמיתות ב-MongoDB
@@ -954,18 +979,26 @@ function buildPostCardElement(post) {
   const likedBy = (post.likedBy || []).map(String);
   const likedByMe = !!(loggedInUser && likedBy.includes(loggedInUser._id));
 
-  const img = document.createElement('img');
-  img.src = post.imageUrl;
-  img.alt = post.title;
-  img.setAttribute('data-id', post._id);
-  img.setAttribute('data-likes', likedBy.length);
-  img.setAttribute('data-liked-by-me', likedByMe ? 'true' : 'false');
-  img.setAttribute('data-username', post.authorUsername || 'משתמש לא ידוע');
-  img.setAttribute('data-description', post.textContent || '');
-  img.setAttribute('onclick', 'openModal(this)');
-  img.dataset.post = JSON.stringify(post);
+  const isVideo = post.postType === 'VIDEO';
+  const mediaEl = document.createElement(isVideo ? 'video' : 'img');
+  mediaEl.src = post.imageUrl;
+  if (isVideo) {
+    mediaEl.muted = true;
+    mediaEl.setAttribute('playsinline', '');
+    mediaEl.setAttribute('preload', 'metadata');
+  } else {
+    mediaEl.alt = post.title;
+  }
+  mediaEl.setAttribute('data-id', post._id);
+  mediaEl.setAttribute('data-likes', likedBy.length);
+  mediaEl.setAttribute('data-liked-by-me', likedByMe ? 'true' : 'false');
+  mediaEl.setAttribute('data-username', post.authorUsername || 'משתמש לא ידוע');
+  mediaEl.setAttribute('data-description', post.textContent || '');
+  mediaEl.setAttribute('data-media-type', isVideo ? 'video' : 'image');
+  mediaEl.setAttribute('onclick', 'openModal(this)');
+  mediaEl.dataset.post = JSON.stringify(post);
 
-  postElement.appendChild(img);
+  postElement.appendChild(mediaEl);
   return postElement;
 }
 
@@ -1044,12 +1077,60 @@ const createPostBtn = document.getElementById('createPost');
 const closeModalBtn = document.getElementById('closeModal');
 const postForm = document.getElementById('postForm');
 
+// --- החלפת השדה/תצוגה המקדימה בהתאם לסוג הפוסט (תמונה/וידאו) ---
+const postTypeSelect = document.getElementById('postType');
+const imgUrlInput = document.getElementById('imgUrl');
+const imgUrlLabel = document.getElementById('imgUrlLabel');
+const imgPreview = document.getElementById('imgPreview');
+const videoPreview = document.getElementById('videoPreview');
+
+function updateMediaFieldForType() {
+    const isVideo = postTypeSelect.value === 'VIDEO';
+    imgUrlLabel.innerText = isVideo ? 'video URL:' : 'image URL:';
+    imgUrlInput.placeholder = isVideo
+        ? 'https://example.com/video.mp4'
+        : 'https://example.com/image.jpg';
+    updateMediaPreview();
+}
+
+function updateMediaPreview() {
+    const url = imgUrlInput.value.trim();
+    const isVideo = postTypeSelect.value === 'VIDEO';
+
+    if (isVideo) {
+        imgPreview.style.display = 'none';
+        imgPreview.src = '';
+        if (url) {
+            videoPreview.src = url;
+            videoPreview.style.display = 'block';
+        } else {
+            videoPreview.style.display = 'none';
+            videoPreview.src = '';
+        }
+    } else {
+        videoPreview.style.display = 'none';
+        videoPreview.src = '';
+        if (url) {
+            imgPreview.src = url;
+            imgPreview.style.display = 'block';
+        } else {
+            imgPreview.style.display = 'none';
+            imgPreview.src = '';
+        }
+    }
+}
+
+postTypeSelect.addEventListener('change', updateMediaFieldForType);
+imgUrlInput.addEventListener('input', updateMediaPreview);
+
 // פתיחת המודל בלחיצה על כפתור יצירת פוסט
 createPostBtn.addEventListener('click', () => {
   document.getElementById('editPostId').value = '';
   pendingEditPassword = null;
   document.getElementById('postModalTitle').innerText = 'create new post';
   document.getElementById('postSubmitBtn').innerText = 'post';
+  postForm.reset();
+  updateMediaFieldForType();
   modal.style.display = 'flex';
 });
 
@@ -1096,6 +1177,7 @@ postForm.addEventListener('submit', async (e) => {
     if (res.ok) {
       alert(editId ? 'הפוסט עודכן בהצלחה!' : 'הפוסט פורסם בהצלחה!');
       postForm.reset();
+      updateMediaFieldForType();
       document.getElementById('editPostId').value = '';
       pendingEditPassword = null;
       document.getElementById('postModalTitle').innerText = 'create new post';
@@ -1130,6 +1212,7 @@ function editCurrentPost() {
     document.getElementById("description").value = postData.textContent || '';
     document.getElementById("category").value = postData.category || '';
     document.getElementById("postType").value = postData.postType || '';
+    updateMediaFieldForType();
 
     document.getElementById("postModalTitle").innerText = "עריכת פוסט";
     document.getElementById("postSubmitBtn").innerText = "עדכן פוסט";
