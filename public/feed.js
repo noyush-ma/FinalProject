@@ -231,7 +231,9 @@ function openModal(element) {
     var targetDesc = element.getAttribute("data-description");
     document.getElementById("modalDesc").innerText = targetDesc;
 
-    document.getElementById("heartIcon").src = "icons/emptyHeart.png";
+    // מצב הלב משתקף מהמצב שנשמר בפועל בפוסט (לא מתאפס יותר בכל פתיחה)
+    var likedByMe = element.getAttribute("data-liked-by-me") === "true";
+    document.getElementById("heartIcon").src = likedByMe ? "icons/fullHeart.png" : "icons/emptyHeart.png";
 
     var saveBtn = document.getElementById("saveBtn");
     saveBtn.innerText = "שמירה";
@@ -248,28 +250,55 @@ function closeModal() {
     modal.style.display = "none";
 }
 
-function doLike() {
+// עושה/מבטל לייק לפוסט הפתוח כרגע במודל, ושומר את זה לצמיתות ב-MongoDB
+// (אם הפוסט לוקאלי-קבוע מה-HTML, בלי מזהה אמיתי - הלייק נשאר ויזואלי בלבד לאותו סשן)
+async function doLike() {
     const likeImg = document.querySelector("#likeBtn img");
     const likeCountSpan = document.getElementById("like-count");
-    
-    if (!likeImg || !likeCountSpan) return;
 
+    if (!likeImg || !likeCountSpan || !currentOpenImg) return;
+
+    const postId = currentOpenImg.getAttribute("data-id");
     let currentSrc = likeImg.getAttribute("src");
-    let currentLikes = parseInt(likeCountSpan.textContent) || 0;
+    const wasLiked = currentSrc === "icons/fullHeart.png";
 
-    if (currentSrc === "icons/emptyHeart.png") {
-        likeImg.setAttribute("src", "icons/fullHeart.png");
-        likeCountSpan.textContent = currentLikes + 1;
-
+    // עדכון אופטימי מיידי בממשק
+    likeImg.setAttribute("src", wasLiked ? "icons/emptyHeart.png" : "icons/fullHeart.png");
+    if (!wasLiked) {
         likeImg.classList.add("heart-pop");
-    
-    setTimeout(() => {
-        likeImg.classList.remove("heart-pop");
-    }, 400);
-    
-    } else {
-        likeImg.setAttribute("src", "icons/emptyHeart.png");
-        likeCountSpan.textContent = Math.max(0, currentLikes - 1);
+        setTimeout(() => likeImg.classList.remove("heart-pop"), 400);
+    }
+
+    // פוסט לוקאלי-קבוע (אין data-id אמיתי) - אין עם מי לדבר בשרת, נשאר רק ויזואלי
+    if (!postId || !loggedInUser) {
+        let currentLikes = parseInt(likeCountSpan.textContent) || 0;
+        likeCountSpan.textContent = wasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/posts/' + postId + '/like', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: loggedInUser._id })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            // נכשל בשרת - מחזירים את המצב הקודם
+            likeImg.setAttribute("src", wasLiked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
+            return;
+        }
+
+        likeCountSpan.textContent = data.likesCount;
+        likeImg.setAttribute("src", data.liked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
+
+        // מעדכנים גם את הכרטיס בפיד עצמו, כדי שהמצב יישאר נכון גם בלי לרענן את הדף
+        currentOpenImg.setAttribute("data-likes", data.likesCount);
+        currentOpenImg.setAttribute("data-liked-by-me", data.liked ? "true" : "false");
+    } catch (err) {
+        console.error('שגיאה בשמירת הלייק:', err);
+        likeImg.setAttribute("src", wasLiked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
     }
 }
 
@@ -688,7 +717,10 @@ window.addEventListener('click', function(event) {
       img.src = post.imageUrl;
       img.alt = post.title;
       img.setAttribute('data-id', post._id);
-      img.setAttribute('data-likes', 0);
+      const likedBy = (post.likedBy || []).map(String);
+      const likedByMe = !!(loggedInUser && likedBy.includes(loggedInUser._id));
+      img.setAttribute('data-likes', likedBy.length);
+      img.setAttribute('data-liked-by-me', likedByMe ? 'true' : 'false');
       img.setAttribute('data-username', post.authorUsername || 'משתמש לא ידוע');
       img.setAttribute('data-description', post.textContent || '');
       img.setAttribute('onclick', 'openModal(this)');

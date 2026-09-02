@@ -36,7 +36,13 @@ const postSchema = new mongoose.Schema({
   authorUsername: {
     type: String,
     default: ''
-  }
+  },
+  // רשימת מזהי המשתמשים שעשו לייק לפוסט הזה (כדי שהלייק יישמר לצמיתות ב-MongoDB,
+  // וגם כדי לדעת אם המשתמש המחובר כרגע כבר עשה לייק - למניעת לייק כפול)
+  likedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 });
 
 // יצירת והחזרת המודל של Mongoose

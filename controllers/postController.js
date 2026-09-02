@@ -39,6 +39,34 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
+// הוספה/הסרה של לייק לפוסט (טוגל) - נשמר לצמיתות ב-MongoDB בתוך מערך likedBy
+exports.toggleLike = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ message: 'יש לספק userId' });
+    }
+
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'פוסט לא נמצא' });
+    }
+
+    const alreadyLiked = post.likedBy.some((id) => id.toString() === userId);
+
+    if (alreadyLiked) {
+      post.likedBy = post.likedBy.filter((id) => id.toString() !== userId);
+    } else {
+      post.likedBy.push(userId);
+    }
+
+    await post.save();
+    res.json({ liked: !alreadyLiked, likesCount: post.likedBy.length });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // שליפת פוסט יחיד לפי מזהה
 exports.getPostById = async (req, res) => {
   try {
