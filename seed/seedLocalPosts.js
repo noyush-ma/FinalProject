@@ -268,7 +268,7 @@ const LOCAL_POSTS = [
 
 async function run() {
   await mongoose.connect(process.env.MONGO_URI);
-  console.log('מחובר ל-MongoDB, מתחיל בזריעת הפוסטים הקבועים...');
+  console.log('Starting to upload posts, connected to MongoDB.');
 
   // יוצרים (אם עוד לא קיים) משתמש "מערכת" שישמש כבעלים הטכני של הפוסטים האלה.
   // שימו לב: השם שמוצג בפועל על כל פוסט הוא authorUsername (השם המקורי שהיה
@@ -280,7 +280,7 @@ async function run() {
       email: 'legacy-content@pinterest.local',
       password: 'not-a-real-account'
     });
-    console.log('נוצר משתמש מערכת עבור הפוסטים הקבועים.');
+    console.log('A system user was created for the fixed posts.');
   }
 
   let created = 0;
@@ -307,12 +307,12 @@ async function run() {
     created++;
   }
 
-  console.log(`הסתיים: ${created} פוסטים חדשים נוצרו, ${skipped} כבר היו קיימים ודולגו.`);
+  console.log(`Finished: ${created} new posts created, ${skipped} were already exists and skipped.`);
   await mongoose.disconnect();
   process.exit(0);
 }
 
 run().catch((err) => {
-  console.error('שגיאה בזריעת הפוסטים:', err);
+  console.error('Error uploading posts:', err);
   process.exit(1);
 });
