@@ -803,6 +803,19 @@ body.dark-mode .trash-icon {
     object-fit: contain;
 }
 
+/* מציגים תמיד רק אחת מבין שתי הגרסאות (בהירה/כהה) - לא את שתיהן יחד */
+.share-static-img.share-dark {
+    display: none;
+}
+
+body.dark-mode .share-static-img:not(.share-dark) {
+    display: none;
+}
+
+body.dark-mode .share-static-img.share-dark {
+    display: block;
+}
+
 #searchEmail {
     width: 100%;
     padding: 10px 15px;
