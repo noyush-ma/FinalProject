@@ -626,18 +626,25 @@ body.dark-mode .follow-btn.following:hover {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 13px;
-    color: #999;
     padding: 2px 4px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
 }
 
-.comment-delete-btn:hover {
+.trash-icon {
+    width: 15px;
+    height: 15px;
+    color: #111111;
+    transition: color 0.15s;
+}
+
+.comment-delete-btn:hover .trash-icon {
     color: #e60023;
 }
 
-body.dark-mode .comment-delete-btn {
-    color: #bdbdbd;
+body.dark-mode .trash-icon {
+    color: #ffffff;
 }
 
 .comment-input-area {

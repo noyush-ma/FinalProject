@@ -660,7 +660,7 @@ function buildCommentElement(comment) {
         deleteBtn.type = "button";
         deleteBtn.className = "comment-delete-btn";
         deleteBtn.title = "מחיקת תגובה";
-        deleteBtn.textContent = "🗑";
+        deleteBtn.innerHTML = '<svg viewBox="0 0 24 24" class="trash-icon" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3H9zm2 5h2v9h-2V8zm-4 0h2v9H7V8zm8 0h2v9h-2V8z"/></svg>';
         deleteBtn.onclick = () => deleteComment(comment._id);
         el.appendChild(deleteBtn);
     }
@@ -1336,12 +1336,6 @@ postForm.addEventListener('submit', async (e) => {
       document.getElementById('postModalTitle').innerText = 'create new post';
       document.getElementById('postSubmitBtn').innerText = 'post';
       modal.style.display = 'none';
-
-      // אנימציית רקע ורוד דוהה על רקע הפיד (ה-body), אחרי סגירת המודל
-      document.body.classList.remove('pink-flash');
-      void document.body.offsetWidth;
-      document.body.classList.add('pink-flash');
-
       if (typeof loadPostsFromDB === 'function') loadPostsFromDB();
     } else {
       const errorData = await res.json();
@@ -1414,4 +1408,5 @@ async function loadCategoryCounts() {
     }
 }
 
+loadCategoryCounts();
 loadCategoryCounts();
