@@ -495,14 +495,15 @@ nav a:last-child {
     padding-top: 0;
     direction: ltr;
     text-align: left;
-    width: 100%;
+    width: auto;
     margin-bottom: 0;
 }
 
 .modal-creator-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 12px;
     direction: ltr;
     width: 100%;
     margin-bottom: 15px;
@@ -759,13 +760,13 @@ body.dark-mode .follow-btn.following:hover {
 }
 
 .share-static-img {
-    position: absolute;
-    bottom: 60%;
-    right: 30px;
-    width: 520px;
+    display: block;
+    width: 100%;
+    max-width: 100%;
     height: auto;
+    margin: 0 0 15px;
     border-radius: 16px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 #searchEmail {
@@ -776,7 +777,7 @@ body.dark-mode .follow-btn.following:hover {
     outline: none;
     font-size: 14px;
     text-align: right;
-    margin-top: 100px;   
+    margin-top: 0;
     box-sizing: border-box;
     transition: background-color 0.3s;
 }

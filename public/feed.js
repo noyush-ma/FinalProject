@@ -688,7 +688,16 @@ async function addComment() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: loggedInUser._id, text: commentText })
         });
-        const data = await res.json();
+
+        let data;
+        try {
+            data = await res.json();
+        } catch (parseErr) {
+            // התקבלה תגובה שאינה JSON (למשל דף שגיאת 404 של השרת) -
+            // כמעט תמיד סימן שהשרת לא הופעל מחדש אחרי עדכון קוד
+            alert('השרת החזיר תגובה לא תקינה. נסו להפעיל מחדש את השרת (node server.js) ולרענן את הדף');
+            return;
+        }
 
         if (!res.ok) {
             alert(data.message || 'שגיאה בשמירת התגובה');
