@@ -6,7 +6,6 @@ if (!loggedInUser) {
 }
 
 // --- פילטרים נוספים לטאב "סיכות": טווח לייקים (מספר שמירות) / סוג פוסט / יחס גובה-רוחב ---
-// קטגוריות טווח הלייקים בקפיצות של 1000 - ניתן להרחיב בקלות ע"י הוספת זוגות [min, max] למערך.
 const LIKES_BUCKETS = [
     [0, 150],
     [150, 300],
@@ -16,8 +15,6 @@ const LIKES_BUCKETS = [
     [750, Infinity]
 ];
 
-// מטמון מספרי השמירות (📌) לכל פוסט - משמש כתחליף ל"לייקים" (שלא קיימים בפועל באפליקציה),
-// כי המספר הפופולרי היחיד שנשמר בפועל בשרת הוא כמות המשתמשים ששמרו כל פוסט.
 let pinSaveCountsCache = {};
 
 async function refreshPinSaveCounts() {
@@ -34,7 +31,7 @@ async function refreshPinSaveCounts() {
         pinSaveCountsCache = {};
     }
 }
-// פונקציה גלובלית שמחזירה את מספר השמירות של סיכה מסוימת (לפי postId, או מזהה מקומי - תמיד 0)
+
 window.getPostSaveCount = function (identifier) {
     return pinSaveCountsCache[identifier] || 0;
 };
@@ -56,7 +53,6 @@ function populateLikesRangeFilter() {
     });
 }
 
-// מציג/מסתיר את סרגל הפילטרים - רלוונטי רק לתצוגות של סיכות/פינים (טאב "סיכות" ותצוגת לוח בודד), לא לטאב "לוחות"
 function setPinsFilterBarVisible(visible) {
     const bar = document.getElementById('pinsFilterBar');
     if (bar) bar.style.display = visible ? 'flex' : 'none';
@@ -72,11 +68,21 @@ function resetPinsFilters() {
     filterBoardsGridBySearch();
 }
 
-// מחשב את קטגוריית יחס הגובה-רוחב של תמונה בפועל (אחרי שנטענה) ושומר אותה על הכרטיס
-function applyRatioToCard(img, card) {
+// פונקציית עזר לזיהוי האם כתובת URL היא סרטון
+function isVideoUrl(url) {
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].toLowerCase();
+    return cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg') || cleanUrl.endsWith('.mov') || cleanUrl.includes('video');
+}
+
+// מחשב את קטגוריית יחס הגובה-רוחב עבור תמונה או וידאו
+function applyRatioToCard(mediaEl, card, isVideo = false) {
     const compute = function () {
-        if (!img.naturalWidth || !img.naturalHeight) return;
-        const ratio = img.naturalWidth / img.naturalHeight;
+        let width = isVideo ? mediaEl.videoWidth : mediaEl.naturalWidth;
+        let height = isVideo ? mediaEl.videoHeight : mediaEl.naturalHeight;
+        
+        if (!width || !height) return;
+        const ratio = width / height;
         let ratioCategory = 'square';
         if (ratio > 1.15) ratioCategory = 'landscape';
         else if (ratio < 0.87) ratioCategory = 'portrait';
@@ -84,10 +90,18 @@ function applyRatioToCard(img, card) {
         filterBoardsGridBySearch();
     };
 
-    if (img.complete && img.naturalWidth) {
-        compute();
+    if (isVideo) {
+        if (mediaEl.readyState >= 1 && mediaEl.videoWidth) {
+            compute();
+        } else {
+            mediaEl.addEventListener('loadedmetadata', compute);
+        }
     } else {
-        img.addEventListener('load', compute);
+        if (mediaEl.complete && mediaEl.naturalWidth) {
+            compute();
+        } else {
+            mediaEl.addEventListener('load', compute);
+        }
     }
 }
 
@@ -125,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const createPostBtn = document.getElementById('createPost');
     if (createPostBtn) {
-        // אין מודל יצירת פוסט בעמוד הלוחות - מעבירים לעמוד הבית ליצירת פוסט
         createPostBtn.addEventListener('click', () => {
             window.location.href = 'feed.html';
         });
@@ -136,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', filterBoardsGridBySearch);
     }
 
-    // אתחול סרגל הפילטרים הנוסף (טווח לייקים / סוג פוסט / יחס גובה-רוחב)
     populateLikesRangeFilter();
     ['likesRangeFilter', 'postTypeFilter', 'aspectRatioFilter'].forEach(function (id) {
         const el = document.getElementById(id);
@@ -145,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetFiltersBtn = document.getElementById('resetPinsFiltersBtn');
     if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetPinsFilters);
 
-    // הטאב הפעיל כברירת מחדל הוא "סיכות"
     setPinsFilterBarVisible(true);
     renderSavedPinsTab();
 });
@@ -161,13 +172,11 @@ function toggleDarkMode() {
     btn.innerText = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
 }
 
-// עמוד הלוחות אינו מכיל תפריט סינון קטגוריות - שמירה על הכפתור בלי שגיאה אם אין תפריט כזה
 function toggleThreeDotsMenu() {
     const dropdown = document.getElementById('filterDropdown');
     if (dropdown) dropdown.classList.toggle('show');
 }
 
-// מכווץ תמונה גדולה לגודל סביר לפני שמירה (כדי לא לשלוח קבצים כבדים לשרת)
 function resizeImageToDataURL(file, maxSize) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -197,7 +206,6 @@ function resizeImageToDataURL(file, maxSize) {
     });
 }
 
-// מטפל בבחירת קובץ תמונה חדש מהמחשב, שולח לשרת ומעדכן את התצוגה
 async function handleProfileImageChange(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -244,7 +252,6 @@ async function handleProfileImageChange(event) {
     }
 }
 
-// --- טאבים: "סיכות" (ברירת מחדל) / "לוחות" ---
 function switchTab(btnEl, tabName) {
     const tabButtons = document.querySelectorAll('.new-board-inline .tab-btn');
     tabButtons.forEach(function (b) { b.classList.remove('active'); });
@@ -253,11 +260,9 @@ function switchTab(btnEl, tabName) {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.value = '';
 
-    // סרגל הפילטרים הנוסף רלוונטי רק לתצוגת סיכות (לא לטאב "לוחות")
     setPinsFilterBarVisible(tabName === 'pins');
 }
 
-// מפתח האחסון המקומי לפינים ללא Post במונגו (זהה למפתח שבו משתמש savedPins.js בעמוד הבית)
 function getLocalPinsKey() {
     return 'pinterestLocalSavedPins_' + loggedInUser._id;
 }
@@ -274,20 +279,15 @@ function setLocalPins(pins) {
     localStorage.setItem(getLocalPinsKey(), JSON.stringify(pins));
 }
 
-// --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
-// כל סיכה ניתנת לביטול שמירה ישירות מכאן, גם אם היא לא משויכת לאף לוח.
-// --- טאב "סיכות": כל התמונות ששמר המשתמש - גם מקומיות (localStorage) וגם מהמונגו ---
 async function renderSavedPinsTab() {
     const grid = document.getElementById('boardsGrid');
     const noBoardsMsg = document.getElementById('noBoardsMessage');
     grid.innerHTML = '';
 
-    // טעינת מספרי השמירות (📌) מראש כדי שהתגיות והפילטר לפי "לייקים" יעבדו על הכרטיסים
     await refreshPinSaveCounts();
 
     const pins = [];
 
-    // פינים מקומיים - אין להם פוסט אמיתי במונגו, לכן אין תיאור/סוג אמיתיים - ברירת מחדל: תמונה בלי תיאור
     try {
         getLocalPins().forEach(function (p) {
             pins.push({ isLocal: true, localId: p.localId, identifier: p.imageUrl, imageUrl: p.imageUrl, title: p.title || '', description: '', postType: 'IMAGE', savedAt: p.savedAt });
@@ -296,7 +296,6 @@ async function renderSavedPinsTab() {
         console.error('שגיאה בטעינת פינים מקומיים:', err);
     }
 
-    // פינים ששמורים בפועל במונגו
     try {
         const res = await fetch('/api/boards/pins/' + loggedInUser._id);
         const mongoPins = await res.json();
@@ -320,27 +319,36 @@ async function renderSavedPinsTab() {
         const card = document.createElement('div');
         card.className = 'board-card pin-card';
         card.setAttribute('data-title', (pin.title || '').toLowerCase());
-        // שדות נוספים לצורך סרגל הפילטרים (חיפוש לפי תיאור, סוג פוסט, טווח לייקים - יחס גובה-רוחב מחושב אחרי טעינת התמונה)
         card.setAttribute('data-description', (pin.description || '').toLowerCase());
         card.setAttribute('data-posttype', pin.postType || 'IMAGE');
 
         const cover = document.createElement('div');
         cover.className = 'board-cover';
 
-        const img = document.createElement('img');
-        img.src = pin.imageUrl;
-        img.alt = pin.title || '';
-        applyRatioToCard(img, card);
+        const isVid = isVideoUrl(pin.imageUrl);
+        let mediaEl;
 
-        // יצירת תגית מספר השמירות בצד ימין
+        if (isVid) {
+            mediaEl = document.createElement('video');
+            mediaEl.src = pin.imageUrl;
+            mediaEl.autoplay = true;
+            mediaEl.loop = true;
+            mediaEl.muted = true;
+            mediaEl.playsInline = true;
+            applyRatioToCard(mediaEl, card, true);
+        } else {
+            mediaEl = document.createElement('img');
+            mediaEl.src = pin.imageUrl;
+            mediaEl.alt = pin.title || '';
+            applyRatioToCard(mediaEl, card, false);
+        }
+
         const countBadge = document.createElement('div');
         countBadge.className = 'pin-save-count-badge';
-        // שימוש בפונקציה הגלובלית לקבלת כמות השמירות
-          const saveCount = pin.isLocal ? 1 : window.getPostSaveCount(pin.identifier);
+        const saveCount = pin.isLocal ? 1 : window.getPostSaveCount(pin.identifier);
         countBadge.innerText = `📌 ${saveCount}`;
         card.setAttribute('data-likes', saveCount);
 
-        // כפתור מחיקה בצד שמאל
         const unsaveBtn = document.createElement('button');
         unsaveBtn.type = 'button';
         unsaveBtn.className = 'board-delete-btn pin-unsave-btn';
@@ -351,18 +359,16 @@ async function renderSavedPinsTab() {
             unsavePinFromPinsTab(pin);
         };
 
-        cover.appendChild(img);
-        cover.appendChild(countBadge); // הוספת מספר השמירות לתוך תמונת העטיפה (צד ימין לפי עיצוב)
+        cover.appendChild(mediaEl);
+        cover.appendChild(countBadge);
         card.appendChild(cover);
-        card.appendChild(unsaveBtn);  // כפתור המחיקה נשאר בצד שמאל
+        card.appendChild(unsaveBtn);
         grid.appendChild(card);
     });
 
-    // הפעלת הפילטרים הנוכחיים (אם הוזן משהו בשדה החיפוש/הפילטרים לפני הרענון)
     filterBoardsGridBySearch();
 }
 
-// מבטל שמירה מלאה של סיכה מתוך טאב "סיכות" (גם אם היא לא הייתה משויכת לאף לוח)
 async function unsavePinFromPinsTab(pin) {
     if (pin.isLocal) {
         const pins = getLocalPins().filter(function (p) { return p.localId !== pin.localId; });
@@ -390,7 +396,6 @@ async function unsavePinFromPinsTab(pin) {
     }
 }
 
-// --- טאב "לוחות": רק הלוחות של המשתמש המחובר ---
 async function loadBoards() {
     const grid = document.getElementById('boardsGrid');
     const noBoardsMsg = document.getElementById('noBoardsMessage');
@@ -443,7 +448,6 @@ async function loadBoards() {
     }
 }
 
-// אריח "לוח חדש +" שמופיע תמיד בראש טאב הלוחות - פותח מודאל יצירה ייעודי (לא הודעת פופאפ)
 function addCreateBoardTile(grid) {
     const tile = document.createElement('div');
     tile.className = 'board-card add-board-card';
@@ -462,7 +466,6 @@ function addCreateBoardTile(grid) {
     grid.appendChild(tile);
 }
 
-// --- מודאל יצירת לוח חדש (רכיב UI אמיתי בעמוד, לא הודעת prompt/alert של הדפדפן) ---
 function ensureCreateBoardModal() {
     let modalEl = document.getElementById('createBoardModal');
     if (modalEl) return modalEl;
@@ -492,6 +495,7 @@ function ensureCreateBoardModal() {
 
     return modalEl;
 }
+
 async function openCreateBoardModal() {
     const modalEl = ensureCreateBoardModal();
     modalEl.style.display = 'flex';
@@ -502,7 +506,6 @@ async function openCreateBoardModal() {
         input.focus();
     }
 
-    // טעינת הסיכות לתוך גריד הבחירה במודאל
     const container = document.getElementById('boardPinsSelectorGrid');
     container.innerHTML = '<p>טוען סיכות...</p>';
 
@@ -530,13 +533,12 @@ function closeCreateBoardModal() {
     if (modalEl) modalEl.style.display = 'none';
 }
 
-
 async function submitCreateBoardModal() {
     const input = document.getElementById('createBoardNameInput');
     const name = input ? input.value.trim() : '';
 
     if (!name) {
-        alert('יש להזין שם ללוח');
+        alert('יש להזין שם לוח');
         return;
     }
 
@@ -567,9 +569,8 @@ async function submitCreateBoardModal() {
 
         if (res.ok) {
             const newBoard = await res.json();
-            const newBoardId = newBoard._id || newBoard.id; // וידוא שלקחנו את ה-ID הנכון מהתגובה
+            const newBoardId = newBoard._id || newBoard.id;
 
-            // שיוך כל סיכה ללוח החדש
             for (const pin of selectedPins) {
                 if (pin.isLocal) {
                     const localPins = getLocalPins().map(p => {
@@ -621,9 +622,6 @@ async function deleteBoard(boardId) {
     }
 }
 
-// פתיחת תצוגת הפינים השמורים בלוח מסוים - השרת מוודא שהמשתמש המחובר הוא בעל הלוח.
-// אפשר לחזור מכאן לדף בחירת הלוח דרך כפתור "חזרה ללוחות" (closeBoardView).
-// פתיחת תצוגת הפינים השמורים בלוח מסוים - מוצג בדיוק כמו בטאב הסיכות
 async function openBoard(boardId, boardName) {
     currentBoard = { id: boardId, name: boardName };
     document.getElementById('boardsPageContainer').style.display = 'none';
@@ -633,17 +631,13 @@ async function openBoard(boardId, boardName) {
     setPinsFilterBarVisible(true);
 
     const grid = document.getElementById('boardPinsGrid');
-    
-    // שינוי ה-class של הגריד כדי להבטיח עיצוב זהה ללוח הראשי
     grid.className = 'boards-grid';
     grid.innerHTML = '<p class="no-boards-text">טוען...</p>';
 
-    // טעינת מספרי השמירות (📌) מראש עבור תגיות "הלייקים" והפילטר לפי טווח
     await refreshPinSaveCounts();
 
     const items = [];
 
-    // 1. טעינת פינים מהשרת
     try {
         const res = await fetch('/api/boards/' + boardId + '/pins?userId=' + loggedInUser._id);
         const posts = await res.json();
@@ -654,7 +648,6 @@ async function openBoard(boardId, boardName) {
         console.error('שגיאה בטעינת תוכן הלוח:', err);
     }
 
-    // 2. טעינת פינים מקומיים שמשויכים ללוח הזה
     try {
         getLocalPins().forEach(function (p) {
             if (p.boardId === boardId) {
@@ -671,8 +664,6 @@ async function openBoard(boardId, boardName) {
         return;
     }
 
-    
-    // יצירת הכרטיסיות באותו המבנה בדיוק כמו בטאב הסיכות
     items.forEach(function (item) {
         const card = document.createElement('div');
         card.className = 'board-card pin-card';
@@ -683,13 +674,25 @@ async function openBoard(boardId, boardName) {
         const cover = document.createElement('div');
         cover.className = 'board-cover';
 
-        const img = document.createElement('img');
-        img.src = item.imageUrl;
-        img.alt = item.title || '';
-        applyRatioToCard(img, card);
+        const isVid = isVideoUrl(item.imageUrl);
+        let mediaEl;
 
-        // זיהוי המזהה הנכון ( postId או localId ) לצורך שליפת כמות השמירות
-       const identifier = item.postId || item.localId || item.imageUrl;
+        if (isVid) {
+            mediaEl = document.createElement('video');
+            mediaEl.src = item.imageUrl;
+            mediaEl.autoplay = true;
+            mediaEl.loop = true;
+            mediaEl.muted = true;
+            mediaEl.playsInline = true;
+            applyRatioToCard(mediaEl, card, true);
+        } else {
+            mediaEl = document.createElement('img');
+            mediaEl.src = item.imageUrl;
+            mediaEl.alt = item.title || '';
+            applyRatioToCard(mediaEl, card, false);
+        }
+
+        const identifier = item.postId || item.localId || item.imageUrl;
         const saveCount = item.isLocal ? 1 : window.getPostSaveCount(identifier);
 
         const countBadge = document.createElement('div');
@@ -707,18 +710,16 @@ async function openBoard(boardId, boardName) {
             removePinFromBoard(item, boardId, boardName);
         };
 
-        cover.appendChild(img);
-        cover.appendChild(countBadge); // הצגת מספר השמירות מימין
+        cover.appendChild(mediaEl);
+        cover.appendChild(countBadge);
         card.appendChild(cover);
-        card.appendChild(removeBtn);   // כפתור הסרה משמאל
+        card.appendChild(removeBtn);
         grid.appendChild(card);
     });
 
-    // הפעלת הפילטרים הנוכחיים על תוכן הלוח שנטען כרגע
     filterBoardsGridBySearch();
 }
 
-// מסיר פין מהלוח (השמירה עצמה נשארת ב"סיכות")
 async function removePinFromBoard(item, boardId, boardName) {
     if (item.isLocal) {
         const pins = getLocalPins().map(function (p) {
@@ -752,35 +753,25 @@ async function removePinFromBoard(item, boardId, boardName) {
 }
 
 function closeBoardView() {
-    // 1. הסתרת תצוגת הסיכות בתוך הלוח והצגת המיכל הראשי
     document.getElementById('boardPinsSection').style.display = 'none';
     document.getElementById('boardsPageContainer').style.display = 'block';
 
-    // 2. עדכון ויזואלי של הטאבים - הפיכת טאב "לוחות" לפעיל
     const tabButtons = document.querySelectorAll('.new-board-inline .tab-btn');
     tabButtons.forEach(btn => btn.classList.remove('active'));
 
-    // מציאת כפתור הטאב של "לוחות" והוספת מחלקת active
     const boardsTabBtn = Array.from(tabButtons).find(btn => btn.textContent.includes('לוחות'));
     if (boardsTabBtn) {
         boardsTabBtn.classList.add('active');
     }
 
-    // 3. טעינת הלוחות מחדש וניקוי שדה החיפוש
     const searchInput = document.getElementById('searchInput');
     if (searchInput) searchInput.value = '';
 
-    // סרגל הפילטרים הנוסף רלוונטי רק לתצוגות של סיכות/פינים, לא לטאב "לוחות"
     setPinsFilterBarVisible(false);
 
     loadBoards();
 }
 
-// חיפוש בתוך הטאב הפעיל (מסנן לפי שם לוח / כותרת סיכה)
-// חיפוש + סינון בתוך הטאב הפעיל:
-// - חיפוש חופשי לפי שם לוח / כותרת סיכה / תיאור הפוסט (כמו קודם, רק שעכשיו גם לפי תיאור)
-// - 3 פרמטרי סינון נוספים שרלוונטיים רק לכרטיסי "סיכה" (post-card): טווח לייקים (📌), סוג פוסט, יחס גובה-רוחב
-//   כרטיסי "לוח" (board-card רגיל) לא מכילים את התכונות האלו, ולכן מסוננים רק לפי החיפוש החופשי כרגיל.
 function filterBoardsGridBySearch() {
     const searchValue = document.getElementById('searchInput').value.trim().toLowerCase();
 
@@ -792,7 +783,6 @@ function filterBoardsGridBySearch() {
     const typeValue = typeSelect ? typeSelect.value : 'all';
     const ratioValue = ratioSelect ? ratioSelect.value : 'all';
 
-    // כולל גם את הכרטיסים בטאב "סיכות" (#boardsGrid) וגם את אלו בתוך תצוגת לוח בודד (#boardPinsGrid)
     const cards = document.querySelectorAll('#boardsGrid .board-card:not(.add-board-card), #boardPinsGrid .board-card');
 
     cards.forEach(function (card) {
@@ -801,20 +791,17 @@ function filterBoardsGridBySearch() {
         let visible = !searchValue || title.includes(searchValue) || description.includes(searchValue);
 
         if (visible && card.classList.contains('pin-card')) {
-            // סינון לפי טווח לייקים (מספר שמירות)
             if (visible && likesBucketIndex !== null) {
                 const likes = parseInt(card.getAttribute('data-likes'), 10) || 0;
                 const bucket = LIKES_BUCKETS[likesBucketIndex];
                 if (!bucket || likes < bucket[0] || likes > bucket[1]) visible = false;
             }
 
-            // סינון לפי סוג פוסט
             if (visible && typeValue !== 'all') {
                 const postType = card.getAttribute('data-posttype') || '';
                 if (postType !== typeValue) visible = false;
             }
 
-            // סינון לפי יחס גובה-רוחב (מחושב מהתמונה בפועל אחרי טעינתה)
             if (visible && ratioValue !== 'all') {
                 const ratio = card.getAttribute('data-ratio') || '';
                 if (ratio !== ratioValue) visible = false;
@@ -825,14 +812,16 @@ function filterBoardsGridBySearch() {
     });
 }
 
+// פונקציית יצירת קולאז' מתוקנת – מטפלת בסרטונים וקבצי GIF על ידי יצירת תמונת פלייסהולדר או מעבר חלק הלאה במקום להשאיר שטח לבן פגום
 function createCollageDataURL(imageUrls, width = 400, height = 400) {
     return new Promise((resolve) => {
         if (!imageUrls || imageUrls.length === 0) {
             return resolve(null);
         }
 
-        // הגבלה לעד 3 התמונות הראשונות בלבד (הכי עדכניות)
-        const recentUrls = imageUrls.slice(0, 3);
+        // סינון סרטונים או פורמטים שאינם נתמכים לציור קולאז' ישיר כ-Image, או בחירת עד 3 תקינים
+        const validUrls = imageUrls.filter(url => !isVideoUrl(url));
+        const recentUrls = (validUrls.length > 0 ? validUrls : imageUrls).slice(0, 3);
 
         const canvas = document.createElement('canvas');
         canvas.width = width;
@@ -845,13 +834,27 @@ function createCollageDataURL(imageUrls, width = 400, height = 400) {
         let loadedCount = 0;
         const total = recentUrls.length;
 
+        if (total === 0) {
+            return resolve(null);
+        }
+
         recentUrls.forEach((url, index) => {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
+            
+            let isFinished = false;
+            const finishItem = () => {
+                if (isFinished) return;
+                isFinished = true;
+                loadedCount++;
+                if (loadedCount === total) {
+                    resolve(canvas.toDataURL('image/jpeg', 0.85));
+                }
+            };
+
             img.onload = () => {
                 let x = 0, y = 0, w = width, h = height;
 
-                // חישוב מיקום לפי כמות התמונות (1, 2 או 3)
                 if (total === 2) {
                     w = width / 2;
                     x = index * w;
@@ -869,32 +872,30 @@ function createCollageDataURL(imageUrls, width = 400, height = 400) {
                     }
                 }
 
-                ctx.drawImage(img, x, y, w, h);
-                
-                // קו הפרדה לבן בין התמונות
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 3;
-                ctx.strokeRect(x, y, w, h);
+                try {
+                    ctx.drawImage(img, x, y, w, h);
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x, y, w, h);
+                } catch (e) {
+                    console.error('שגיאה בציור התמונה לקולאז:', e);
+                }
+                finishItem();
+            };
 
-                loadedCount++;
-                if (loadedCount === total) {
-                    resolve(canvas.toDataURL('image/jpeg', 0.85));
-                }
-            };
             img.onerror = () => {
-                loadedCount++;
-                if (loadedCount === total) {
-                    resolve(canvas.toDataURL('image/jpeg', 0.85));
-                }
+                // במקרה של כישלון טעינה (כמו קובץ GIF כבד או שגיאת CORS), נמשיך הלאה כדי לא להשאיר מסך לבן חסום
+                finishItem();
             };
+
             img.src = url;
         });
     });
 }
+
 async function getAllSavedPinsForUser() {
     const pins = [];
 
-    // 1. פינים מקומיים
     try {
         getLocalPins().forEach(p => {
             pins.push({ id: p.localId, imageUrl: p.imageUrl, title: p.title || '', isLocal: true });
@@ -903,7 +904,6 @@ async function getAllSavedPinsForUser() {
         console.error('שגיאה בטעינת פינים מקומיים:', err);
     }
 
-    // 2. פינים מהשרת
     try {
         const res = await fetch('/api/boards/pins/' + loggedInUser._id);
         const mongoPins = await res.json();
@@ -917,13 +917,10 @@ async function getAllSavedPinsForUser() {
     return pins;
 }
 
-
-
 async function openAddPinsModal() {
     const modal = ensureCreateBoardModal();
     modal.style.display = 'flex';
     
-    // הסתרת שדה השם
     const input = document.getElementById('createBoardNameInput');
     if (input) { 
         input.value = currentBoard.name || 'לוח'; 
@@ -932,20 +929,18 @@ async function openAddPinsModal() {
     
     document.querySelector('#createBoardModal h3').innerText = `הוספת תמונות ללוח: ${currentBoard.name}`;
     
-    // איפוס הכפתור מכל האירועים הישנים של יצירת לוח
     const oldBtn = document.getElementById('submitCreateBoardBtn');
     if (oldBtn) {
-        const newBtn = oldBtn.cloneNode(true); // ניקוי אירועים ישנים
+        const newBtn = oldBtn.cloneNode(true);
         newBtn.innerText = 'הוסף ללוח';
         newBtn.onclick = function (e) {
-            e.preventDefault(); // מונע את שליחת הטופס והקפצת ה-alert
+            e.preventDefault();
             savePinsToCurrentBoard();
         };
         oldBtn.parentNode.replaceChild(newBtn, oldBtn);
     }
 
-    // סינון תמונות שכבר קיימות בלוח
-    const currentImgs = new Set([...document.querySelectorAll('#boardPinsGrid img')].map(img => img.src));
+    const currentImgs = new Set([...document.querySelectorAll('#boardPinsGrid img, #boardPinsGrid video')].map(el => el.src));
     const allPins = await getAllSavedPinsForUser();
     const availablePins = (allPins || []).filter(pin => !currentImgs.has(pin.imageUrl));
 
@@ -961,6 +956,7 @@ async function openAddPinsModal() {
     });
 }
 
+// פונקציית שמירת הפינים ללוח הקיים – כוללת כעת קריאה לעדכון תמונת השער (updateBoardCoverAfterChange)
 async function savePinsToCurrentBoard() {
     const selected = [...document.querySelectorAll('#boardPinsSelectorGrid .pin-checkbox:checked')].map(cb => ({
         id: cb.getAttribute('data-id'),
@@ -981,7 +977,9 @@ async function savePinsToCurrentBoard() {
         }
     }
 
-    // החזרת החלון והכפתור למצב המקורי של יצירת לוח חדש
+    // עדכון תמונת השער של הלוח הקיים מיד לאחר הוספת הפינים
+    await updateBoardCoverAfterChange(currentBoard.id);
+
     const input = document.getElementById('createBoardNameInput');
     if (input) { 
         input.value = ''; 
@@ -1010,7 +1008,6 @@ async function updateBoardCoverAfterChange(boardId) {
     try {
         const remainingImages = [];
 
-        // 1. איסוף פינים מהשרת שנשארו בלוח
         const res = await fetch('/api/boards/' + boardId + '/pins?userId=' + loggedInUser._id);
         if (res.ok) {
             const posts = await res.json();
@@ -1019,22 +1016,18 @@ async function updateBoardCoverAfterChange(boardId) {
             });
         }
 
-        // 2. איסוף פינים מקומיים שנשארו בלוח
         getLocalPins().forEach(p => {
             if (p.boardId === boardId && p.imageUrl) {
                 remainingImages.push(p.imageUrl);
             }
         });
 
-        // 3. יצירת קולאז' חדש מ-3 התמונות האחרונות שנשארו בלבד
         let newCover = null;
         if (remainingImages.length > 0) {
-            // לוקחים רק עד 3 תמונות אחרונות
             const recentImages = remainingImages.slice(-3);
             newCover = await createCollageDataURL(recentImages);
         }
 
-        // 4. עדכון השער של הלוח בשרת
         await fetch('/api/boards/' + boardId, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -1047,4 +1040,3 @@ async function updateBoardCoverAfterChange(boardId) {
         console.error('שגיאה בעדכון תמונת השער של הלוח:', err);
     }
 }
-
