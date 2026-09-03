@@ -1303,21 +1303,31 @@ function editCurrentPost() {
 async function loadCategoryCounts() {
     try {
         const res = await fetch('/api/posts/stats/by-category');
-        const counts = await res.json();
+        const dbCounts = await res.json();
+
+        // סופרים את הפוסטים הלוקליים הקבועים לפי data-category שלהם ישירות מה-DOM
+        const localCounts = {};
+        document.querySelectorAll('#postsContainer .post-card:not([data-id])').forEach(card => {
+            const category = card.getAttribute('data-category');
+            if (!category) return;
+            localCounts[category] = (localCounts[category] || 0) + 1;
+        });
+
         const normalize = (s) => (s || '').replace(/\s+/g, '').toLowerCase();
+        const findCount = (counts, category) => {
+            if (counts[category] !== undefined) return counts[category];
+            const matchKey = Object.keys(counts).find(k => normalize(k) === normalize(category));
+            return matchKey ? counts[matchKey] : 0;
+        };
 
         document.querySelectorAll('#filterDropdown button[data-category]').forEach(btn => {
             const category = btn.getAttribute('data-category');
             if (category === 'all') return;
 
-            let count = counts[category];
-            if (count === undefined) {
-                const matchKey = Object.keys(counts).find(k => normalize(k) === normalize(category));
-                count = matchKey ? counts[matchKey] : 0;
-            }
+            const total = findCount(dbCounts, category) + findCount(localCounts, category);
 
             const span = btn.querySelector('.category-count');
-            if (span) span.textContent = `(${count})`;
+            if (span) span.textContent = `(${total})`;
         });
     } catch (err) {
         console.error('שגיאה בטעינת ספירת הפוסטים לפי קטגוריה:', err);
