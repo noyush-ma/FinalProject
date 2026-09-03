@@ -503,7 +503,21 @@ async function openCreateBoardModal() {
     const input = document.getElementById('createBoardNameInput');
     if (input) {
         input.value = '';
+        if (input.parentElement) input.parentElement.style.display = 'block';
         input.focus();
+    }
+
+    document.querySelector('#createBoardModal h3').innerText = 'יצירת לוח חדש';
+
+    const oldBtn = document.getElementById('submitCreateBoardBtn');
+    if (oldBtn) {
+        const newBtn = oldBtn.cloneNode(true);
+        newBtn.innerText = 'יצירת לוח';
+        newBtn.onclick = function (e) {
+            e.preventDefault();
+            submitCreateBoardModal();
+        };
+        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
     }
 
     const container = document.getElementById('boardPinsSelectorGrid');
@@ -518,12 +532,44 @@ async function openCreateBoardModal() {
     }
 
     pins.forEach(pin => {
+        const isVid = isVideoUrl(pin.imageUrl);
         const item = document.createElement('label');
         item.className = 'pin-select-item';
-        item.innerHTML = `
-            <input type="checkbox" value="${pin.imageUrl}" class="pin-checkbox" data-id="${pin.id}" data-islocal="${pin.isLocal}">
-            <img src="${pin.imageUrl}" alt="${pin.title}">
-        `;
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = pin.imageUrl;
+        checkbox.className = 'pin-checkbox';
+        checkbox.setAttribute('data-id', pin.id);
+        checkbox.setAttribute('data-islocal', pin.isLocal);
+
+        item.appendChild(checkbox);
+
+        let mediaEl;
+        if (isVid) {
+            mediaEl = document.createElement('video');
+            mediaEl.src = pin.imageUrl;
+            mediaEl.muted = true;
+            mediaEl.playsInline = true;
+            mediaEl.autoplay = true;
+            mediaEl.loop = true;
+        } else {
+            mediaEl = document.createElement('img');
+            mediaEl.src = pin.imageUrl;
+            mediaEl.alt = pin.title || '';
+        }
+        
+        mediaEl.className = 'pin-select-media';
+        mediaEl.style.width = '60px';
+        mediaEl.style.height = '60px';
+        mediaEl.style.minWidth = '60px';
+        mediaEl.style.minHeight = '60px';
+        mediaEl.style.maxWidth = '60px';
+        mediaEl.style.maxHeight = '60px';
+        mediaEl.style.objectFit = 'cover';
+        mediaEl.style.flexShrink = '0';
+
+        item.appendChild(mediaEl);
         container.appendChild(item);
     });
 }
@@ -819,9 +865,14 @@ function createCollageDataURL(imageUrls, width = 400, height = 400) {
             return resolve(null);
         }
 
-        // סינון סרטונים או פורמטים שאינם נתמכים לציור קולאז' ישיר כ-Image, או בחירת עד 3 תקינים
+        // סינון סרטונים או פורמטים שאינם נתמכים לציור קולאז' ישיר כ-Image
         const validUrls = imageUrls.filter(url => !isVideoUrl(url));
-        const recentUrls = (validUrls.length > 0 ? validUrls : imageUrls).slice(0, 3);
+        const recentUrls = validUrls.slice(0, 3);
+
+        if (recentUrls.length === 0) {
+            // כל הפריטים שנבחרו הם סרטונים - אין מה לצייר בקולאז', מחזירים ללא תמונת שער
+            return resolve(null);
+        }
 
         const canvas = document.createElement('canvas');
         canvas.width = width;
@@ -834,14 +885,10 @@ function createCollageDataURL(imageUrls, width = 400, height = 400) {
         let loadedCount = 0;
         const total = recentUrls.length;
 
-        if (total === 0) {
-            return resolve(null);
-        }
-
         recentUrls.forEach((url, index) => {
             const img = new Image();
             img.crossOrigin = 'Anonymous';
-            
+
             let isFinished = false;
             const finishItem = () => {
                 if (isFinished) return;
@@ -892,7 +939,6 @@ function createCollageDataURL(imageUrls, width = 400, height = 400) {
         });
     });
 }
-
 async function getAllSavedPinsForUser() {
     const pins = [];
 
@@ -948,11 +994,45 @@ async function openAddPinsModal() {
     container.innerHTML = availablePins.length === 0 ? '<p>כל התמונות כבר בלוח זה 📌</p>' : '';
     
     availablePins.forEach(pin => {
-        container.innerHTML += `
-            <label class="pin-select-item">
-                <input type="checkbox" value="${pin.imageUrl}" class="pin-checkbox" data-id="${pin.id}" data-islocal="${pin.isLocal}">
-                <img src="${pin.imageUrl}" alt="${pin.title || ''}">
-            </label>`;
+        const isVid = isVideoUrl(pin.imageUrl);
+        const item = document.createElement('label');
+        item.className = 'pin-select-item';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = pin.imageUrl;
+        checkbox.className = 'pin-checkbox';
+        checkbox.setAttribute('data-id', pin.id);
+        checkbox.setAttribute('data-islocal', pin.isLocal);
+
+        item.appendChild(checkbox);
+
+        let mediaEl;
+        if (isVid) {
+            mediaEl = document.createElement('video');
+            mediaEl.src = pin.imageUrl;
+            mediaEl.muted = true;
+            mediaEl.playsInline = true;
+            mediaEl.autoplay = true;
+            mediaEl.loop = true;
+        } else {
+            mediaEl = document.createElement('img');
+            mediaEl.src = pin.imageUrl;
+            mediaEl.alt = pin.title || '';
+        }
+
+        mediaEl.className = 'pin-select-media';
+        mediaEl.style.width = '60px';
+        mediaEl.style.height = '60px';
+        mediaEl.style.minWidth = '60px';
+        mediaEl.style.minHeight = '60px';
+        mediaEl.style.maxWidth = '60px';
+        mediaEl.style.maxHeight = '60px';
+        mediaEl.style.objectFit = 'cover';
+        mediaEl.style.flexShrink = '0';
+
+        item.appendChild(mediaEl);
+        container.appendChild(item);
     });
 }
 
