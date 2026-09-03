@@ -1,5 +1,4 @@
 
-// public/graphs.js
 
 // --- מצב כהה (זהה בהתנהגותו לשאר העמודים באתר) ---
 function toggleDarkMode() {
