@@ -216,20 +216,6 @@ const LOCAL_POSTS = [
     "authorUsername": "hannah"
   },
   {
-    "title": "flowerss",
-    "imageUrl": "pictures/flowerss.png",
-    "textContent": "so beutiful flowers!",
-    "category": "nature",
-    "authorUsername": "lola"
-  },
-  {
-    "title": "artsf",
-    "imageUrl": "pictures/artsf.png",
-    "textContent": "flowers and sun",
-    "category": "arts",
-    "authorUsername": "nori"
-  },
-  {
     "title": "greenLights",
     "imageUrl": "pictures/greenLights.png",
     "textContent": "Green Lights in Icelend!",
