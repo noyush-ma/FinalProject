@@ -801,7 +801,7 @@ body.dark-mode .trash-icon {
     margin: 0 0 15px;
     border-radius: 16px;
     object-fit: cover;
-    object-position: center;
+    object-position: right bottom;
 }
 
 /* מציגים תמיד רק אחת מבין שתי הגרסאות (בהירה/כהה) - לא את שתיהן יחד */
