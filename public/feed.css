@@ -797,10 +797,11 @@ body.dark-mode .trash-icon {
     display: block;
     width: 100%;
     max-width: 100%;
-    height: auto;
+    height: 110px;
     margin: 0 0 15px;
     border-radius: 16px;
-    object-fit: contain;
+    object-fit: cover;
+    object-position: center;
 }
 
 /* מציגים תמיד רק אחת מבין שתי הגרסאות (בהירה/כהה) - לא את שתיהן יחד */
