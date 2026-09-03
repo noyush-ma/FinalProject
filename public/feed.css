@@ -764,7 +764,7 @@ body.dark-mode .trash-icon {
     max-width: 90%;
     width: 450px; 
     height: auto;
-    margin-top: 120px;
+    margin-top: 50px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     max-height: 80vh;
     overflow-y: auto;
