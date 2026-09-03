@@ -1,1 +1,67 @@
+<html dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>סטטיסטיקות | Pinterest</title>
+    <link rel="stylesheet" href="feed.css">
+    <link rel="stylesheet" href="graphs.css">
+    <!-- ספריית Chart.js לצורך ציור הגרפים (נטענת מ-CDN, אך כל הלוגיקה והנתונים הם שלנו) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body>
 
+<header>
+    <h1 class="graphs-title">📊 סטטיסטיקות המערכת</h1>
+    <button id="darkModeBtn" onclick="toggleDarkMode()">🌙</button>
+</header>
+
+<nav>
+    <a href="#">
+        <img src="icons/pinterest_logo.png" class="logo-light" alt="Pinterest Light">
+        <img src="icons/pinterest_logo-1empty.png" class="logo-dark" alt="Pinterest Dark">
+    </a>
+    <a href="feed.html" title="חזרה לפיד"><img src="icons/homeLogo1.png"></a>
+    <a href="boards.html" title="הלוחות שלי"><img src="icons/boardsLogo1.png"></a>
+</nav>
+
+<main class="graphs-main">
+
+    <!-- === סעיף 1: גרפים סטטיסטיים חיים מה-DB (Chart.js) === -->
+    <section class="graphs-grid">
+
+        <div class="graph-card">
+            <h2>התפלגות פוסטים לפי קטגוריה</h2>
+            <p class="graph-subtitle">מבוסס על כל הפוסטים הקיימים כרגע ב-MongoDB</p>
+            <div class="chart-wrapper">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <div class="graph-card">
+            <h2>קצב פרסום פוסטים (14 הימים האחרונים)</h2>
+            <p class="graph-subtitle">כמות הפוסטים שפורסמו בכל יום, בזמן אמת מה-DB</p>
+            <div class="chart-wrapper">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- === סעיף 2: שימוש בשירות Web חיצוני אמיתי (Open-Meteo) === -->
+    <section class="weather-card">
+        <h2>🌤️ מזג אוויר עדכני</h2>
+        <p class="graph-subtitle">נתונים חיים מתוך שירות Web חיצוני (Open-Meteo API)</p>
+
+        <div class="weather-form">
+            <input type="text" id="cityInput" placeholder="הקלד/י שם עיר, לדוגמה: תל אביב" value="תל אביב">
+            <button id="getWeatherBtn" type="button">בדוק מזג אוויר</button>
+        </div>
+
+        <div id="weatherResult" class="weather-result"></div>
+        <div id="weatherError" class="weather-error"></div>
+    </section>
+
+</main>
+
+<script src="graphs.js"></script>
+</body>
+</html>

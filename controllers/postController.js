@@ -249,3 +249,47 @@ exports.getPostCountsByCategory = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// סטטיסטיקת פוסטים: כמות הפוסטים שפורסמו בכל אחד מ-N הימים האחרונים (ברירת מחדל: 14 יום)
+// משמש לגרף "ציר זמן" שמראה קצב פרסום פוסטים לאורך זמן, בהתאם לנתונים העדכניים ב-DB ברגע הבקשה
+exports.getPostsTimeline = async (req, res) => {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days) || 14, 1), 90);
+
+    // נקודת ההתחלה: לפני (days - 1) ימים, משעה 00:00, כדי לכלול "days" ימים שלמים כולל היום
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() - (days - 1));
+
+    // צבירה (Aggregation) של Mongo: קיבוץ הפוסטים לפי תאריך היצירה שלהם (רק תאריך, בלי שעה)
+    const results = await Post.aggregate([
+      { $match: { createdAt: { $gte: startDate } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const countsByDate = {};
+    results.forEach(function (r) {
+      countsByDate[r._id] = r.count;
+    });
+
+    // השלמת כל הימים בטווח (גם אלה שבהם לא פורסם אף פוסט) כדי שהגרף יציג רצף רציף ומדויק
+    const labels = [];
+    const data = [];
+    for (let i = 0; i < days; i++) {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      const key = d.toISOString().slice(0, 10); // YYYY-MM-DD
+      labels.push(key);
+      data.push(countsByDate[key] || 0);
+    }
+
+    res.json({ labels, data });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

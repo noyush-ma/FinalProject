@@ -1455,3 +1455,21 @@ body.dark-mode .modalP-content select {
   cursor: pointer;
   height: 35px;
 }
+
+@keyframes pinkFadeBackground {
+    0%   { background-color: #ffb6c1; }
+    100% { background-color: white; }
+}
+ 
+body.pink-flash {
+    animation: pinkFadeBackground 2.5s ease-out forwards;
+}
+ 
+body.dark-mode.pink-flash {
+    animation-name: pinkFadeBackgroundDark;
+}
+ 
+@keyframes pinkFadeBackgroundDark {
+    0%   { background-color: #ff8fa3; }
+    100% { background-color: #1a1a1a; } 
+}

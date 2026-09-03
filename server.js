@@ -8,6 +8,7 @@ const usersRouter = require('./routes/users');
 const boardsRouter = require('./routes/boards');
 const groupsRouter = require('./routes/groups'); // נתיבי קבוצות צ'אט (יצירה/הצטרפות/הזמנות/הודעות)
 const notificationsRouter = require('./routes/notifications'); // נתיבי התראות קופצות
+const weatherRouter = require('./routes/weather'); // נתיב שמפעיל קריאה לשירות Web חיצוני (מזג אוויר)
 
 app.use(express.static('public'));
 app.use(express.json({limit: '10mb'})); // הגבלת גודל הבקשה ל-10MB
@@ -17,6 +18,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/boards', boardsRouter);
 app.use('/api/groups', groupsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/weather', weatherRouter);
 
 app.get('/', (req, res) => {
   res.send('success!');
