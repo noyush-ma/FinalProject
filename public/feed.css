@@ -611,6 +611,33 @@ body.dark-mode .follow-btn.following:hover {
     color: #111;
     font-weight: normal;
     line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.comment-item-text {
+    flex: 1;
+    word-break: break-word;
+}
+
+.comment-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #999;
+    padding: 2px 4px;
+    flex-shrink: 0;
+}
+
+.comment-delete-btn:hover {
+    color: #e60023;
+}
+
+body.dark-mode .comment-delete-btn {
+    color: #bdbdbd;
 }
 
 .comment-input-area {
@@ -975,16 +1002,6 @@ body.dark-mode .send-user-btn:hover {
 }
 
 #createPost{
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-bottom: 15px;
-    display: inline-block;
-    transition: transform 0.1s ease;
-}
-
-#postSubmitBtn:active {
-    transform: scale(0.95);
     background: none;
     border: none;
     cursor: pointer;
@@ -1417,23 +1434,4 @@ body.dark-mode .modalP-content select {
 .modalP-content select {
   cursor: pointer;
   height: 35px;
-}
-
-/* אנימציית רקע ורוד דוהה על רקע הפיד, לא על המודל עצמו */
-@keyframes pinkFadeBackground {
-    0%   { background-color: #ffb6c1; }
-    100% { background-color: white; }
-}
-
-body.pink-flash {
-    animation: pinkFadeBackground 2.5s ease-out forwards;
-}
-
-body.dark-mode.pink-flash {
-    animation-name: pinkFadeBackgroundDark;
-}
-
-@keyframes pinkFadeBackgroundDark {
-    0%   { background-color: #ff8fa3; }
-    100% { background-color: #1a1a1a; } /* תשימי כאן את הצבע האמיתי של הרקע הכהה של הפיד */
 }

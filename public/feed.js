@@ -205,6 +205,7 @@ function handleLogout() {
 }
 
 let currentModalAuthorId = null;
+let currentModalPostAuthorId = null; // בעל הפוסט הפתוח כרגע - נחוץ כדי לדעת מי רשאי למחוק תגובות (בעל הפוסט יכול תמיד)
 let followingIds = new Set((loggedInUser && loggedInUser.following) ? loggedInUser.following.map(String) : []);
 
 function openModal(element) {
@@ -288,6 +289,7 @@ function openModal(element) {
     refreshSaveButtonState(element.getAttribute("data-id"));
 
     // --- תגובות: נטענות מהנתונים האמיתיים של הפוסט (נשמרות ב-MongoDB) ---
+    currentModalPostAuthorId = parsedPostData ? parsedPostData.author : null;
     renderCommentsForCurrentPost(parsedPostData ? parsedPostData.comments : null);
     document.getElementById("newCommentInput").value = "";
     document.getElementById("typingIndicator").style.display = "none";
@@ -639,10 +641,30 @@ function renderCommentsForCurrentPost(comments) {
 function buildCommentElement(comment) {
     const el = document.createElement("div");
     el.className = "comment-item";
+
+    const textWrap = document.createElement("span");
+    textWrap.className = "comment-item-text";
     const authorSpan = document.createElement("strong");
     authorSpan.textContent = (comment.authorUsername || "משתמש לא ידוע") + ": ";
-    el.appendChild(authorSpan);
-    el.appendChild(document.createTextNode(comment.text));
+    textWrap.appendChild(authorSpan);
+    textWrap.appendChild(document.createTextNode(comment.text));
+    el.appendChild(textWrap);
+
+    // כפתור מחיקה מוצג רק אם המשתמש המחובר הוא כותב התגובה, או בעל הפוסט (מנהל/ת תוכן)
+    const commentAuthorId = comment.authorId && (comment.authorId._id || comment.authorId);
+    const isCommentAuthor = loggedInUser && commentAuthorId && String(commentAuthorId) === loggedInUser._id;
+    const isPostOwner = loggedInUser && currentModalPostAuthorId && String(currentModalPostAuthorId) === loggedInUser._id;
+
+    if (comment._id && (isCommentAuthor || isPostOwner)) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "comment-delete-btn";
+        deleteBtn.title = "מחיקת תגובה";
+        deleteBtn.textContent = "🗑";
+        deleteBtn.onclick = () => deleteComment(comment._id);
+        el.appendChild(deleteBtn);
+    }
+
     return el;
 }
 
@@ -723,6 +745,49 @@ async function addComment() {
         alert('שגיאת תקשורת עם השרת');
     } finally {
         sendBtn.disabled = false;
+    }
+}
+
+// מוחק תגובה לצמיתות מהפוסט הפתוח כרגע (מותר רק לכותב התגובה או לבעל הפוסט)
+async function deleteComment(commentId) {
+    const postId = currentOpenImg ? currentOpenImg.getAttribute("data-id") : null;
+    if (!postId || !loggedInUser) return;
+
+    if (!confirm("למחוק את התגובה?")) return;
+
+    try {
+        const res = await fetch('/api/posts/' + postId + '/comments/' + commentId, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: loggedInUser._id })
+        });
+
+        let data;
+        try {
+            data = await res.json();
+        } catch (parseErr) {
+            alert('השרת החזיר תגובה לא תקינה. נסו להפעיל מחדש את השרת (node server.js) ולרענן את הדף');
+            return;
+        }
+
+        if (!res.ok) {
+            alert(data.message || 'שגיאה במחיקת התגובה');
+            return;
+        }
+
+        renderCommentsForCurrentPost(data.comments);
+
+        // מעדכנים גם את הכרטיס בפיד עצמו, כדי שהמצב יישאר נכון גם בלי לרענן את הדף
+        if (currentOpenImg) {
+            try {
+                const postData = JSON.parse(currentOpenImg.dataset.post);
+                postData.comments = data.comments;
+                currentOpenImg.dataset.post = JSON.stringify(postData);
+            } catch (e) { /* אין מה לעדכן */ }
+        }
+    } catch (err) {
+        console.error('שגיאה במחיקת התגובה:', err);
+        alert('שגיאת תקשורת עם השרת');
     }
 }
 

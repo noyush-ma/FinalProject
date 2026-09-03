@@ -135,6 +135,40 @@ exports.addComment = async (req, res) => {
   }
 };
 
+// מחיקת תגובה מפוסט - מותר רק לכותב התגובה עצמו, או לבעל הפוסט (מנהל/ת התוכן)
+exports.deleteComment = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({ message: 'יש לספק userId' });
+    }
+
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'פוסט לא נמצא' });
+    }
+
+    const comment = post.comments.id(req.params.commentId);
+    if (!comment) {
+      return res.status(404).json({ message: 'תגובה לא נמצאה' });
+    }
+
+    const isCommentAuthor = comment.authorId && comment.authorId.toString() === userId;
+    const isPostOwner = post.author && post.author.toString() === userId;
+
+    if (!isCommentAuthor && !isPostOwner) {
+      return res.status(403).json({ message: 'אין לך הרשאה למחוק תגובה זו' });
+    }
+
+    comment.deleteOne();
+    await post.save();
+
+    res.json({ comments: post.comments });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // שליפת פוסט יחיד לפי מזהה
 exports.getPostById = async (req, res) => {
   try {
