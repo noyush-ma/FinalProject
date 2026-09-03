@@ -1271,6 +1271,12 @@ postForm.addEventListener('submit', async (e) => {
       document.getElementById('postModalTitle').innerText = 'create new post';
       document.getElementById('postSubmitBtn').innerText = 'post';
       modal.style.display = 'none';
+
+      // אנימציית רקע ורוד דוהה על רקע הפיד (ה-body), אחרי סגירת המודל
+      document.body.classList.remove('pink-flash');
+      void document.body.offsetWidth;
+      document.body.classList.add('pink-flash');
+
       if (typeof loadPostsFromDB === 'function') loadPostsFromDB();
     } else {
       const errorData = await res.json();
