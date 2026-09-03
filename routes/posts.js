@@ -4,6 +4,7 @@ const postController = require('../controllers/postController');
 
 router.post('/', postController.createPost);
 router.get('/', postController.getAllPosts);
+router.get('/stats/by-category', postController.getPostCountsByCategory);
 router.get('/following/:userId', postController.getFollowingPosts);
 router.post('/:id/like', postController.toggleLike);
 router.post('/:id/comments', postController.addComment);

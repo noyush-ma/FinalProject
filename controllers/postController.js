@@ -196,3 +196,22 @@ exports.updatePost = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+// סטטיסטיקת פוסטים: כמה פוסטים קיימים בכל קטגוריה (GroupBy לפי category)
+exports.getPostCountsByCategory = async (req, res) => {
+  try {
+    const counts = await Post.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    const result = {};
+    counts.forEach(function (c) {
+      result[c._id || 'General'] = c.count;
+    });
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

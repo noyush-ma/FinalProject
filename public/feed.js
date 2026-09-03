@@ -1299,3 +1299,29 @@ function editCurrentPost() {
     closeModal();
     modal.style.display = "flex";
 }
+
+async function loadCategoryCounts() {
+    try {
+        const res = await fetch('/api/posts/stats/by-category');
+        const counts = await res.json();
+        const normalize = (s) => (s || '').replace(/\s+/g, '').toLowerCase();
+
+        document.querySelectorAll('#filterDropdown button[data-category]').forEach(btn => {
+            const category = btn.getAttribute('data-category');
+            if (category === 'all') return;
+
+            let count = counts[category];
+            if (count === undefined) {
+                const matchKey = Object.keys(counts).find(k => normalize(k) === normalize(category));
+                count = matchKey ? counts[matchKey] : 0;
+            }
+
+            const span = btn.querySelector('.category-count');
+            if (span) span.textContent = `(${count})`;
+        });
+    } catch (err) {
+        console.error('שגיאה בטעינת ספירת הפוסטים לפי קטגוריה:', err);
+    }
+}
+
+loadCategoryCounts();
