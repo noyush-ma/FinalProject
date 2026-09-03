@@ -962,7 +962,34 @@ async function getAllSavedPinsForUser() {
 
     return pins;
 }
+// פונקציית עזר: מחזירה את המזהים וגם את כתובות ה-URL של הפינים שכבר בלוח מסוים
+// (משווים לפי שני הפרמטרים כדי לתפוס גם מקרה של פין local ישן שהתיישן כי אותה תמונה כבר קיימת כפוסט אמיתי במונגו)
+async function getCurrentBoardPinIdentifiers(boardId) {
+    const identifiers = new Set();
+    const urls = new Set();
 
+    try {
+        const res = await fetch('/api/boards/' + boardId + '/pins?userId=' + loggedInUser._id);
+        if (res.ok) {
+            const posts = await res.json();
+            (posts || []).forEach(function (p) {
+                if (p && p._id) identifiers.add(p._id);
+                if (p && p.imageUrl) urls.add(p.imageUrl);
+            });
+        }
+    } catch (err) {
+        console.error('שגיאה בטעינת פינים של הלוח לבדיקת כפילויות:', err);
+    }
+
+    getLocalPins().forEach(function (p) {
+        if (p.boardId === boardId) {
+            identifiers.add(p.localId);
+            if (p.imageUrl) urls.add(p.imageUrl);
+        }
+    });
+
+    return { identifiers, urls };
+}
 async function openAddPinsModal() {
     const modal = ensureCreateBoardModal();
     modal.style.display = 'flex';
@@ -986,9 +1013,10 @@ async function openAddPinsModal() {
         oldBtn.parentNode.replaceChild(newBtn, oldBtn);
     }
 
-    const currentImgs = new Set([...document.querySelectorAll('#boardPinsGrid img, #boardPinsGrid video')].map(el => el.src));
+    // שינוי: סינון לפי מזהה (ID) וגם לפי imageUrl, במקום השוואת src מהדום
+    const { identifiers: currentIdentifiers, urls: currentUrls } = await getCurrentBoardPinIdentifiers(currentBoard.id);
     const allPins = await getAllSavedPinsForUser();
-    const availablePins = (allPins || []).filter(pin => !currentImgs.has(pin.imageUrl));
+    const availablePins = (allPins || []).filter(pin => !currentIdentifiers.has(pin.id) && !currentUrls.has(pin.imageUrl));
 
     const container = document.getElementById('boardPinsSelectorGrid');
     container.innerHTML = availablePins.length === 0 ? '<p>כל התמונות כבר בלוח זה 📌</p>' : '';
