@@ -5,7 +5,7 @@
   "main": "feed.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "seed": "node seed/seedLocalPosts.js"
+    "seed": "node HTML_to_mongo_posts/LocalPosts.js"
   },
   "repository": {
     "type": "git",
