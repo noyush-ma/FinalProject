@@ -1,10 +1,4 @@
-/* groups.css
-   עיצוב עבור מודל הקבוצות/צ'אטים (יצירה, הצטרפות, ניהול חברים, הודעות)
-   ועבור ההתראות הקופצות (toasts) שמופיעות כשמגיעה הזמנה/הודעה חדשה.
-   נשען על אותם צבעי מותג כמו feed.css (אדום פינטרסט #e60023). */
 
-/* --- מבנה כללי של המודל --- */
-/* .modal קיים כבר ב-feed.css (הרקע הכהה + מרכוז), כאן רק מתאימים את תוכן הכרטיס עצמו */
 .groups-modal-content {
     flex-direction: column;
     width: 480px;
@@ -14,7 +8,6 @@
     overflow-y: auto;
 }
 
-/* כל "מסך" בתוך המודל (רשימה/יצירה/הצטרפות/צ'אט) מוסתר כברירת מחדל */
 .groups-view {
     display: none;
     flex-direction: column;
@@ -45,7 +38,6 @@
     color: #e60023;
 }
 
-/* --- כפתורי פעולה (יצירת קבוצה / הצטרפות / שליחה וכו') --- */
 .group-action-btn {
     background-color: #e60023;
     color: white;
@@ -89,7 +81,6 @@
     min-height: 16px;
 }
 
-/* שדות טופס (יצירת קבוצה / קוד הצטרפות) */
 #createGroupView input,
 #joinGroupView input {
     padding: 10px 14px;
@@ -105,7 +96,6 @@
     width: auto;
 }
 
-/* בחירת ציבורית/פרטית בטופס יצירת קבוצה */
 .group-privacy-choice {
     display: flex;
     flex-direction: column;
@@ -124,7 +114,6 @@
     padding: 8px 10px;
 }
 
-/* תגית מצב הפרטיות + כפתור המעבר, בכותרת מסך הצ'אט */
 .group-privacy-status {
     display: flex;
     align-items: center;
@@ -151,7 +140,6 @@
     color: white;
 }
 
-/* --- רשימת הקבוצות שלי --- */
 .my-groups-list {
     display: flex;
     flex-direction: column;
@@ -189,7 +177,6 @@
     font-size: 14px;
 }
 
-/* --- מסך הצ'אט של קבוצה --- */
 .groups-chat-view {
     height: 100%;
 }
@@ -221,7 +208,6 @@
     align-items: flex-start;
 }
 
-/* פאנל הוספת חברים - מוסתר כברירת מחדל, נפתח בלחיצה */
 .invite-members-panel {
     display: none;
     background-color: #f7f7f7;
@@ -262,7 +248,6 @@
     cursor: default;
 }
 
-/* אזור ההודעות עצמו - גלילה פנימית, בועות הודעה */
 .group-messages-list {
     flex: 1;
     overflow-y: auto;
@@ -281,7 +266,6 @@
     align-self: flex-start;
 }
 
-/* הודעות שהמשתמש הנוכחי שלח מוצגות בצד ימין (RTL) ובצבע המותג */
 .group-message-bubble.own-message {
     align-self: flex-end;
     background-color: #e60023;
