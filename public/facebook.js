@@ -6,7 +6,7 @@ window.fbAsyncInit = function () {
         appId: FACEBOOK_APP_ID,
         cookie: true,
         xfbml: false,
-        version: 'v19.0'
+        version: 'v26.0'
     });
     FB.getLoginStatus(function (response) {
         if (response.status === 'connected') {
