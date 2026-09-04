@@ -1,4 +1,3 @@
-
 const FACEBOOK_APP_ID = '1021350294284366';
 
 window.fbAsyncInit = function () {
@@ -41,7 +40,7 @@ function handleFbLoginClick() {
         } else {
             fbSetStatus('ההתחברות בוטלה או נדחתה על ידי המשתמש', true);
         }
-    }, { scope: 'public_profile,email' });
+    }, { scope: 'public_profile' });
 }
 
 function fetchFacebookProfile() {
