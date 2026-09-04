@@ -286,12 +286,13 @@ nav .friends-icon {
 
 /* כפתור פעיל בנאב (עמוד נוכחי) */
 nav a.active-nav img {
-    filter: drop-shadow(0 0 4px #e60023);
+    filter: drop-shadow(0 0 3px rgba(230, 0, 35, 0.6));
     opacity: 1;
 }
 
 nav a.active-nav {
-    border-right: 3px solid #e60023;
+    background-color: rgba(230, 0, 35, 0.08);
+    border-radius: 12px;
 }
 
 .images {
@@ -1455,8 +1456,12 @@ body.dark-mode .close-btn:hover {
   font-weight: normal;
   font-size: 14px;
   cursor: pointer;
-  color: #1877f2;
+  color: #111111;
   white-space: nowrap;
+}
+
+body.dark-mode .fb-share-checkbox-group label {
+  color: #ffffff;
 }
 
 .submit-btn:hover {
