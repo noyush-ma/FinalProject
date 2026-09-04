@@ -36,6 +36,7 @@ body.dark-mode .map-page-header p {
     font-size: 14px;
     cursor: pointer;
 }
+
 .map-filter-btn.active {
     background-color: #e60023;
     color: white;
@@ -75,22 +76,145 @@ body.dark-mode .map-filter-btn.active {
     font-size: 15px;
 }
 
-.info-window-content {
+.popup-content {
     direction: rtl;
     text-align: right;
     font-family: Arial, sans-serif;
     max-width: 200px;
 }
 
-.info-window-address {
+.popup-address {
     font-size: 13px;
     color: #555;
     margin-top: 4px;
 }
 
-.info-window-category {
-    font-size: 12px;
-    color: #e60023;
-    margin-top: 4px;
+/* ==================== ניהול מיקומים (טופס + רשימה) ==================== */
+
+.location-manager {
+    margin-top: 30px;
+    background-color: #f7f7f7;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+body.dark-mode .location-manager {
+    background-color: #232323;
+}
+
+.location-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.location-form input {
+    flex: 1;
+    min-width: 160px;
+    padding: 10px 16px;
+    border: 1px solid #cdcdcd;
+    border-radius: 20px;
+    font-size: 14px;
+    text-align: right;
+    direction: rtl;
+    box-sizing: border-box;
+}
+
+body.dark-mode .location-form input {
+    background-color: #3a3a3a;
+    color: #ffffff;
+    border-color: #555;
+}
+
+.location-form button {
+    background-color: #e60023;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
     font-weight: bold;
+    cursor: pointer;
+}
+
+#locCancelEditBtn {
+    background-color: #e2e2e2;
+    color: #111;
+}
+
+body.dark-mode #locCancelEditBtn {
+    background-color: #4a4a4a;
+    color: #ffffff;
+}
+
+.loc-form-msg {
+    font-size: 13px;
+    color: #555;
+    margin: 0 0 12px;
+}
+
+body.dark-mode .loc-form-msg {
+    color: #b2b2b2;
+}
+
+.locations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.loc-empty-msg {
+    text-align: center;
+    color: #888;
+    font-size: 14px;
+}
+
+.location-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 10px 16px;
+    border-radius: 12px;
+}
+
+body.dark-mode .location-item {
+    background-color: #2f2f2f;
+    color: white;
+}
+
+.location-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.location-item-info span {
+    font-size: 13px;
+    color: #767676;
+}
+
+body.dark-mode .location-item-info span {
+    color: #b2b2b2;
+}
+
+.location-item-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px 10px;
+}
+
+.loc-edit-btn {
+    color: #0066cc;
+}
+
+.loc-delete-btn {
+    color: #e60023;
+}
+.location-manager {
+    margin-right: 95px;
+    margin-left: 20px;
+    box-sizing: border-box;
 }
