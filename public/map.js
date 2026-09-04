@@ -67,3 +67,38 @@ async function loadLocationsFromDB() {
         if (errorMsg) errorMsg.style.display = 'block';
     }
 }
+
+function buildCategoryFilter(locations) {
+    const container = document.getElementById('mapCategoryFilter');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const categories = [...new Set(locations.map(loc => loc.category).filter(Boolean))];
+    if (categories.length === 0) return;
+
+    const allBtn = document.createElement('button');
+    allBtn.className = 'map-filter-btn active';
+    allBtn.textContent = 'הכל';
+    allBtn.onclick = () => selectCategory('all', allBtn);
+    container.appendChild(allBtn);
+
+    categories.forEach(category => {
+        const btn = document.createElement('button');
+        btn.className = 'map-filter-btn';
+        btn.textContent = category;
+        btn.onclick = () => selectCategory(category, btn);
+        container.appendChild(btn);
+    });
+}
+
+function selectCategory(category, clickedBtn) {
+    document.querySelectorAll('.map-filter-btn').forEach(b => b.classList.remove('active'));
+    clickedBtn.classList.add('active');
+
+    const filtered = category === 'all'
+        ? allLocations
+        : allLocations.filter(loc => loc.category === category);
+
+    renderMarkers(filtered);
+    fitMapToMarkers(filtered);
+}
