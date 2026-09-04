@@ -297,7 +297,3 @@ function setupLocationForm() {
         }
     });
 }
-
-    const bounds = L.latLngBounds(validLocations.map(loc => [loc.lat, loc.lng]));
-    map.fitBounds(bounds, { padding: [50, 50] });
-    }
