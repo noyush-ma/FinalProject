@@ -1411,25 +1411,6 @@ async function loadCategoryCounts() {
 loadCategoryCounts();
 loadCategoryCounts();
 
-function openStatsModal() {
-    const modal = document.getElementById('statsModal');
-    modal.style.display = 'block';
-    
-    // שליפת ה-ID של המשתמש המחובר (בהתאם למה ששמור אצלכם ב-localStorage / sessionStorage)
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser'));
-    const userId = currentUser ? currentUser._id : null;
-
-    if (userId) {
-        renderUserPostsChart(userId);
-    } else {
-        console.error("משתמש לא מחובר");
-    }
-}
-
-// סגירת מודל הסטטיסטיקות
-function closeStatsModal() {
-    document.getElementById('statsModal').style.display = 'none';
-}
 
 
 
