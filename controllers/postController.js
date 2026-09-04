@@ -1,16 +1,13 @@
 const Post = require('../models/post');
-const User = require('../models/user'); // נחוץ כדי לאמת סיסמה מול המשתמש בעריכה
-const Notification = require('../models/notification'); // נחוץ כדי להודיע לעוקבים על פוסט חדש
+const User = require('../models/user');
+const Notification = require('../models/notification');  
 
-// === אינטגרציית Facebook Graph API ===
-// שולח פוסט לדף Facebook של הצוות (לא לוגין - פרסום אמיתי דרך ה-API).
-// ה-Access Token וה-Page ID מגיעים מקובץ .env, כדי שאף אחד לא יצטרך חשבון פייסבוק אישי.
 async function postToFacebookPage(post) {
   const pageId = process.env.FB_PAGE_ID;
   const pageAccessToken = process.env.FB_PAGE_ACCESS_TOKEN;
 
   if (!pageId || !pageAccessToken) {
-    return { success: false, error: 'FB_PAGE_ID או FB_PAGE_ACCESS_TOKEN לא מוגדרים בקובץ .env' };
+    return { success: false, error: 'שיתוף לפייסבוק אינו זמין כרגע (FB_PAGE_ID או FB_PAGE_ACCESS_TOKEN לא מוגדרים)' };
   }
 
   const message = `${post.title}\n\n${post.textContent || ''}`.trim();
@@ -19,7 +16,6 @@ async function postToFacebookPage(post) {
     let url;
     const params = new URLSearchParams({ access_token: pageAccessToken });
 
-    // אם יש תמונה - מפרסמים עם /photos כדי שהתמונה תוצג בפוסט עצמו
     if (post.imageUrl && post.postType === 'IMAGE') {
       url = `https://graph.facebook.com/v21.0/${pageId}/photos`;
       params.append('url', post.imageUrl);
@@ -34,17 +30,25 @@ async function postToFacebookPage(post) {
 
     if (fbData.error) {
       console.error('שגיאת Facebook Graph API:', fbData.error);
-      return { success: false, error: fbData.error.message };
+      const code = fbData.error.code;
+      let friendlyError = fbData.error.message;
+
+      if (code === 200 || code === 100) {
+        friendlyError = 'שיתוף לפייסבוק אינו זמין – ה-App טרם קיבל אישור Meta לפרסום בדפים. הפוסט נשמר בהצלחה במערכת.';
+      } else if (code === 190) {
+        friendlyError = 'שיתוף לפייסבוק נכשל – ה-Access Token פג תוקף. הפוסט נשמר בהצלחה במערכת.';
+      }
+
+      return { success: false, error: friendlyError };
     }
 
     return { success: true, fbPostId: fbData.id || fbData.post_id };
   } catch (err) {
     console.error('שגיאה בחיבור ל-Facebook Graph API:', err);
-    return { success: false, error: err.message };
+    return { success: false, error: 'שיתוף לפייסבוק נכשל עקב בעיית תקשורת. הפוסט נשמר בהצלחה במערכת.' };
   }
 }
 
-// יצירת פוסט חדש
 exports.createPost = async (req, res) => {
   try {
     if (!req.body.authorId) {
@@ -67,7 +71,6 @@ exports.createPost = async (req, res) => {
     });
     const savedPost = await newPost.save();
 
-    // יצירת התראת "פוסט חדש" לכל מי שעוקב אחרי המשתמש שהעלה את הפוסט
     try {
       const followers = await User.find({ following: authorUser._id }, '_id');
       if (followers.length) {
@@ -81,11 +84,9 @@ exports.createPost = async (req, res) => {
         await Notification.insertMany(notificationsToInsert);
       }
     } catch (notifErr) {
-      // שגיאה ביצירת ההתראות לא צריכה למנוע את יצירת הפוסט עצמו
       console.error('שגיאה ביצירת התראות פוסט חדש:', notifErr);
     }
 
-    // שיתוף בדף הפייסבוק - רק אם המשתמשת סימנה את הצ'קבוקס
     let fbShareResult = null;
     if (req.body.shareToFacebook) {
       fbShareResult = await postToFacebookPage(savedPost);
@@ -97,7 +98,6 @@ exports.createPost = async (req, res) => {
   }
 };
 
-// שליפת כל הפוסטים
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find();
@@ -107,7 +107,6 @@ exports.getAllPosts = async (req, res) => {
   }
 };
 
-// שליפת פוסטים רק של משתמשים שהמשתמש המחובר עוקב אחריהם ("פיד חברים")
 exports.getFollowingPosts = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
@@ -122,7 +121,6 @@ exports.getFollowingPosts = async (req, res) => {
   }
 };
 
-// הוספה/הסרה של לייק לפוסט (טוגל) - נשמר לצמיתות ב-MongoDB בתוך מערך likedBy
 exports.toggleLike = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -150,7 +148,6 @@ exports.toggleLike = async (req, res) => {
   }
 };
 
-// הוספת תגובה לפוסט - נשמרת לצמיתות ב-MongoDB בתוך מערך comments
 exports.addComment = async (req, res) => {
   try {
     const { userId, text } = req.body;
@@ -183,7 +180,6 @@ exports.addComment = async (req, res) => {
   }
 };
 
-// מחיקת תגובה מפוסט - מותר רק לכותב התגובה עצמו, או לבעל הפוסט (מנהל/ת התוכן)
 exports.deleteComment = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -217,7 +213,6 @@ exports.deleteComment = async (req, res) => {
   }
 };
 
-// שליפת פוסט יחיד לפי מזהה
 exports.getPostById = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -230,7 +225,6 @@ exports.getPostById = async (req, res) => {
   }
 };
 
-// מחיקת פוסט לפי מזהה
 exports.deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -240,7 +234,6 @@ exports.deletePost = async (req, res) => {
 
     const { userId } = req.body;
 
-    // בדיקה: המשתמש שמנסה למחוק הוא אכן זה שהעלה את הפוסט
     if (!userId || post.author.toString() !== userId) {
       return res.status(403).json({ message: 'ניתן למחוק רק פוסטים שהעלית בעצמך' });
     }
@@ -261,7 +254,6 @@ exports.updatePost = async (req, res) => {
 
     const { userId } = req.body;
 
-    // בדיקה: המשתמש שמנסה לערוך הוא אכן זה שהעלה את הפוסט
     if (!userId || post.author.toString() !== userId) {
       return res.status(403).json({ message: 'ניתן לערוך רק פוסטים שהעלית בעצמך' });
     }
@@ -279,7 +271,6 @@ exports.updatePost = async (req, res) => {
   }
 };
 
-// סטטיסטיקת פוסטים: כמה פוסטים קיימים בכל קטגוריה (GroupBy לפי category)
 exports.getPostCountsByCategory = async (req, res) => {
   try {
     const counts = await Post.aggregate([
@@ -298,18 +289,14 @@ exports.getPostCountsByCategory = async (req, res) => {
   }
 };
 
-// סטטיסטיקת פוסטים: כמות הפוסטים שפורסמו בכל אחד מ-N הימים האחרונים (ברירת מחדל: 14 יום)
-// משמש לגרף "ציר זמן" שמראה קצב פרסום פוסטים לאורך זמן, בהתאם לנתונים העדכניים ב-DB ברגע הבקשה
 exports.getPostsTimeline = async (req, res) => {
   try {
     const days = Math.min(Math.max(parseInt(req.query.days) || 14, 1), 90);
 
-    // נקודת ההתחלה: לפני (days - 1) ימים, משעה 00:00, כדי לכלול "days" ימים שלמים כולל היום
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
     startDate.setDate(startDate.getDate() - (days - 1));
 
-    // צבירה (Aggregation) של Mongo: קיבוץ הפוסטים לפי תאריך היצירה שלהם (רק תאריך, בלי שעה)
     const results = await Post.aggregate([
       { $match: { createdAt: { $gte: startDate } } },
       {
@@ -325,7 +312,6 @@ exports.getPostsTimeline = async (req, res) => {
       countsByDate[r._id] = r.count;
     });
 
-    // השלמת כל הימים בטווח (גם אלה שבהם לא פורסם אף פוסט) כדי שהגרף יציג רצף רציף ומדויק
     const labels = [];
     const data = [];
     for (let i = 0; i < days; i++) {
