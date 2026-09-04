@@ -70,9 +70,6 @@
             </svg>
         </button>
         <a href="boards.html"><img src="icons/boardsLogo1.png"></a>
-        <button id="statsBtn" class="nav-icon-btn" type="button" title="סטטיסטיקה " onclick="openStatsModal()">
-           📊
-       </button>
         <div class="create-post-container">
             <button id="createPost"><img src="icons/createLogo1.png"></button>
         </div>
@@ -387,23 +384,6 @@
     </div>
 </div>
 
-<!-- מודל סטטיסטיקות פוסטים באמצעות D3.js -->
-<div id="statsModal" class="modal">
-    <div class="modal-content stats-modal-content">
-        <span class="close" onclick="closeStatsModal()">&times;</span>
-        <h2>סטטיסטיקות</h2>
-        <div class="stats-charts-container">
-
-            <div class="stats-chart-card">
-                <h3>סטטיסטיקת פוסטים לפי יום</h3>
-                <p>כמות הפוסטים שהעלת לאורך הזמן</p>
-                <svg id="chart-svg" width="900" height="420" style="background-color: #f9f9f9; margin-top: 15px; border-radius: 8px; max-width: 100%; height: auto;"></svg>
-                <div id="chart-legend" style="margin-top: 10px; font-size: 14px; font-weight: bold;"></div>
-            </div>
-
-        </div>
-    </div>
-</div>
 <script src="feed.js"></script>
 <script src="savedPins.js"></script>
 <script src="groups.js"></script>
