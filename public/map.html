@@ -62,3 +62,22 @@
     <a href="map.html" title="מפת מקומות" class="nav-icon-btn" style="font-size:26px; text-decoration:none;">🗺️</a>
     <a href="#" title="הגדרות"><img src="icons/settingsLogo1.png"></a>
 </nav>
+<main class="map-page">
+    <div class="map-page-header">
+        <h1>מפת מקומות</h1>
+        <p>כל המיקומים המומלצים שנשמרו במאגר</p>
+    </div>
+
+    <div id="mapCategoryFilter" class="map-category-filter"></div>
+
+    <div id="mapContainer" class="map-container" style="height: 500px;">
+        <div id="mapLoadingMsg" class="map-loading-msg">טוען מפה...</div>
+    </div>
+
+    <div id="mapErrorMsg" class="map-error-msg" style="display:none;">
+        אירעה שגיאה בטעינת המיקומים. נסו לרענן את הדף.
+    </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="map.js"></script>
