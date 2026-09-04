@@ -282,6 +282,11 @@ nav .messages-container img {
 nav .friends-icon {
     width: 35px;
     height: 35px;
+    fill: #000000;
+}
+
+body.dark-mode nav .friends-icon {
+    fill: #ffffff;
 }
 
 /* כפתור פעיל בנאב (עמוד נוכחי) */
