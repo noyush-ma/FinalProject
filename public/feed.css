@@ -285,19 +285,7 @@ nav .friends-icon {
 }
 
 /* כפתור פעיל בנאב (עמוד נוכחי) */
-nav a.active-nav img {
-    filter: drop-shadow(0 0 3px rgba(230, 0, 35, 0.5));
-    opacity: 1;
-}
 
-nav a.active-nav {
-    background-color: rgba(0, 0, 0, 0.07);
-    border-radius: 12px;
-}
-
-body.dark-mode nav a.active-nav {
-    background-color: rgba(255, 255, 255, 0.1);
-}
 
 .images {
     margin-right: 95px; 
