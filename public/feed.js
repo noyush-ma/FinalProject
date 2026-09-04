@@ -1310,7 +1310,8 @@ postForm.addEventListener('submit', async (e) => {
     imgUrl: document.getElementById('imgUrl').value,
     description: document.getElementById('description').value,
     category: document.getElementById('category').value,
-    postType: document.getElementById('postType').value
+    postType: document.getElementById('postType').value,
+    shareToFacebook: document.getElementById('shareToFacebook').checked
   };
 
   if (editId) {
@@ -1328,7 +1329,14 @@ postForm.addEventListener('submit', async (e) => {
     });
 
     if (res.ok) {
-      alert(editId ? 'הפוסט עודכן בהצלחה!' : 'הפוסט פורסם בהצלחה!');
+      const savedPost = await res.json();
+      let msg = editId ? 'הפוסט עודכן בהצלחה!' : 'הפוסט פורסם בהצלחה!';
+      if (savedPost.fbShareResult) {
+        msg += savedPost.fbShareResult.success
+          ? '\nהפוסט שותף גם בדף הפייסבוק שלנו!'
+          : '\nשיתוף לפייסבוק נכשל: ' + savedPost.fbShareResult.error;
+      }
+      alert(msg);
       postForm.reset();
       updateMediaFieldForType();
       document.getElementById('editPostId').value = '';
@@ -1410,7 +1418,3 @@ async function loadCategoryCounts() {
 
 loadCategoryCounts();
 loadCategoryCounts();
-
-
-
-

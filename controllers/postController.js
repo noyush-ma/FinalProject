@@ -2,6 +2,48 @@ const Post = require('../models/post');
 const User = require('../models/user'); // נחוץ כדי לאמת סיסמה מול המשתמש בעריכה
 const Notification = require('../models/notification'); // נחוץ כדי להודיע לעוקבים על פוסט חדש
 
+// === אינטגרציית Facebook Graph API ===
+// שולח פוסט לדף Facebook של הצוות (לא לוגין - פרסום אמיתי דרך ה-API).
+// ה-Access Token וה-Page ID מגיעים מקובץ .env, כדי שאף אחד לא יצטרך חשבון פייסבוק אישי.
+async function postToFacebookPage(post) {
+  const pageId = process.env.FB_PAGE_ID;
+  const pageAccessToken = process.env.FB_PAGE_ACCESS_TOKEN;
+
+  if (!pageId || !pageAccessToken) {
+    return { success: false, error: 'FB_PAGE_ID או FB_PAGE_ACCESS_TOKEN לא מוגדרים בקובץ .env' };
+  }
+
+  const message = `${post.title}\n\n${post.textContent || ''}`.trim();
+
+  try {
+    let url;
+    const params = new URLSearchParams({ access_token: pageAccessToken });
+
+    // אם יש תמונה - מפרסמים עם /photos כדי שהתמונה תוצג בפוסט עצמו
+    if (post.imageUrl && post.postType === 'IMAGE') {
+      url = `https://graph.facebook.com/v21.0/${pageId}/photos`;
+      params.append('url', post.imageUrl);
+      params.append('caption', message);
+    } else {
+      url = `https://graph.facebook.com/v21.0/${pageId}/feed`;
+      params.append('message', message);
+    }
+
+    const fbResponse = await fetch(url, { method: 'POST', body: params });
+    const fbData = await fbResponse.json();
+
+    if (fbData.error) {
+      console.error('שגיאת Facebook Graph API:', fbData.error);
+      return { success: false, error: fbData.error.message };
+    }
+
+    return { success: true, fbPostId: fbData.id || fbData.post_id };
+  } catch (err) {
+    console.error('שגיאה בחיבור ל-Facebook Graph API:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 // יצירת פוסט חדש
 exports.createPost = async (req, res) => {
   try {
@@ -43,7 +85,13 @@ exports.createPost = async (req, res) => {
       console.error('שגיאה ביצירת התראות פוסט חדש:', notifErr);
     }
 
-    res.status(201).json(savedPost);
+    // שיתוף בדף הפייסבוק - רק אם המשתמשת סימנה את הצ'קבוקס
+    let fbShareResult = null;
+    if (req.body.shareToFacebook) {
+      fbShareResult = await postToFacebookPage(savedPost);
+    }
+
+    res.status(201).json({ ...savedPost.toObject(), fbShareResult });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
