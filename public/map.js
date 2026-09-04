@@ -31,3 +31,39 @@ document.addEventListener('DOMContentLoaded', () => {
     applyDarkModeFromStorage();
     initMap(); // אתחול המפה מיד כשה-DOM מוכן
 });
+
+// --- אתחול המפה עם Leaflet ו-OpenStreetMap ---
+function initMap() {
+    map = L.map('mapContainer').setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+
+    // הוספת שכבת העיצוב של המפה (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    loadLocationsFromDB();
+}
+
+async function loadLocationsFromDB() {
+    const loadingMsg = document.getElementById('mapLoadingMsg');
+    const errorMsg = document.getElementById('mapErrorMsg');
+
+    try {
+        const res = await fetch('/api/locations');
+        if (!res.ok) throw new Error('שגיאת שרת');
+
+        allLocations = await res.json();
+
+        if (loadingMsg) loadingMsg.style.display = 'none';
+        if (errorMsg) errorMsg.style.display = 'none';
+
+        buildCategoryFilter(allLocations);
+        renderMarkers(allLocations);
+        fitMapToMarkers(allLocations);
+    } catch (err) {
+        console.error('שגיאה בטעינת המיקומים:', err);
+        if (loadingMsg) loadingMsg.style.display = 'none';
+        if (errorMsg) errorMsg.style.display = 'block';
+    }
+}
