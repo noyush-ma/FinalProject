@@ -67,14 +67,12 @@ function resetPinsFilters() {
     filterBoardsGridBySearch();
 }
 
-// פונקציית עזר לזיהוי האם כתובת URL היא סרטון
 function isVideoUrl(url) {
     if (!url) return false;
     const cleanUrl = url.split('?')[0].toLowerCase();
     return cleanUrl.endsWith('.mp4') || cleanUrl.endsWith('.webm') || cleanUrl.endsWith('.ogg') || cleanUrl.endsWith('.mov') || cleanUrl.includes('video');
 }
 
-// מחשב את קטגוריית יחס הגובה-רוחב עבור תמונה או וידאו
 function applyRatioToCard(mediaEl, card, isVideo = false) {
     const compute = function () {
         let width = isVideo ? mediaEl.videoWidth : mediaEl.naturalWidth;
@@ -857,19 +855,16 @@ function filterBoardsGridBySearch() {
     });
 }
 
-// פונקציית יצירת קולאז' מתוקנת – מטפלת בסרטונים וקבצי GIF על ידי יצירת תמונת פלייסהולדר או מעבר חלק הלאה במקום להשאיר שטח לבן פגום
 function createCollageDataURL(imageUrls, width = 400, height = 400) {
     return new Promise((resolve) => {
         if (!imageUrls || imageUrls.length === 0) {
             return resolve(null);
         }
 
-        // סינון סרטונים או פורמטים שאינם נתמכים לציור קולאז' ישיר כ-Image
         const validUrls = imageUrls.filter(url => !isVideoUrl(url));
         const recentUrls = validUrls.slice(0, 3);
 
         if (recentUrls.length === 0) {
-            // כל הפריטים שנבחרו הם סרטונים - אין מה לצייר בקולאז', מחזירים ללא תמונת שער
             return resolve(null);
         }
 
@@ -930,7 +925,6 @@ function createCollageDataURL(imageUrls, width = 400, height = 400) {
             };
 
             img.onerror = () => {
-                // במקרה של כישלון טעינה (כמו קובץ GIF כבד או שגיאת CORS), נמשיך הלאה כדי לא להשאיר מסך לבן חסום
                 finishItem();
             };
 
@@ -961,8 +955,7 @@ async function getAllSavedPinsForUser() {
 
     return pins;
 }
-// פונקציית עזר: מחזירה את המזהים וגם את כתובות ה-URL של הפינים שכבר בלוח מסוים
-// (משווים לפי שני הפרמטרים כדי לתפוס גם מקרה של פין local ישן שהתיישן כי אותה תמונה כבר קיימת כפוסט אמיתי במונגו)
+
 async function getCurrentBoardPinIdentifiers(boardId) {
     const identifiers = new Set();
     const urls = new Set();
@@ -1012,7 +1005,6 @@ async function openAddPinsModal() {
         oldBtn.parentNode.replaceChild(newBtn, oldBtn);
     }
 
-    // שינוי: סינון לפי מזהה (ID) וגם לפי imageUrl, במקום השוואת src מהדום
     const { identifiers: currentIdentifiers, urls: currentUrls } = await getCurrentBoardPinIdentifiers(currentBoard.id);
     const allPins = await getAllSavedPinsForUser();
     const availablePins = (allPins || []).filter(pin => !currentIdentifiers.has(pin.id) && !currentUrls.has(pin.imageUrl));
@@ -1063,7 +1055,6 @@ async function openAddPinsModal() {
     });
 }
 
-// פונקציית שמירת הפינים ללוח הקיים – כוללת כעת קריאה לעדכון תמונת השער (updateBoardCoverAfterChange)
 async function savePinsToCurrentBoard() {
     const selected = [...document.querySelectorAll('#boardPinsSelectorGrid .pin-checkbox:checked')].map(cb => ({
         id: cb.getAttribute('data-id'),
@@ -1084,7 +1075,6 @@ async function savePinsToCurrentBoard() {
         }
     }
 
-    // עדכון תמונת השער של הלוח הקיים מיד לאחר הוספת הפינים
     await updateBoardCoverAfterChange(currentBoard.id);
 
     const input = document.getElementById('createBoardNameInput');

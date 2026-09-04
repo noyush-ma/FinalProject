@@ -6,6 +6,14 @@
     <link rel="stylesheet" href="graphs.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 </head>
+<!--
+    הגדרת ה-Facebook App ID:
+    יש להירשם ב-https://developers.facebook.com/ ליצור אפליקציה (Consumer / None),
+    ולהכניס את ה-App ID שמתקבל במקום 'YOUR_FACEBOOK_APP_ID' בקובץ facebook.js.
+    בנוסף יש להוסיף את הדומיין שבו רץ הפרויקט תחת App Domains + Valid OAuth Redirect URIs
+    בהגדרות Facebook Login של האפליקציה. במצב Development אין צורך באישור (App Review) -
+    זה עובד מיידית עבור מנהלי/בודקי האפליקציה שהוגדרו בלוח הבקרה.
+-->
 <body>
 
 <header>
@@ -77,6 +85,25 @@
         <canvas id="liveClockCanvas" width="160" height="160"></canvas>
     </section>
 
+    <section class="facebook-card">
+        <h2>🔵 התחברות עם Facebook</h2>
+        <p class="graph-subtitle">התחברות אמיתית מול Facebook API (Graph API) - לא iframe ולא כפתור שיתוף</p>
+
+        <div id="fbLoginArea">
+            <button id="fbLoginBtn" class="fb-login-btn" type="button">התחבר עם Facebook</button>
+            <p id="fbStatusMsg" class="fb-status-msg"></p>
+        </div>
+
+        <div id="fbProfileCard" class="fb-profile-card" style="display:none;">
+            <img id="fbProfilePic" class="fb-profile-pic" src="" alt="תמונת פרופיל">
+            <div>
+                <div id="fbProfileName" class="fb-profile-name"></div>
+                <div id="fbProfileEmail" class="fb-profile-email"></div>
+                <button id="fbLogoutBtn" class="fb-logout-btn" type="button">התנתק מ-Facebook</button>
+            </div>
+        </div>
+    </section>
+
 </main>
 
 <aside id="dailyTipWidget" class="daily-tip-widget">
@@ -89,7 +116,9 @@
     <p>&copy; 2026 Pinterest Clone – פרויקט פתא. כל הזכויות שמורות.</p>
 </footer>
 
+<div id="fb-root"></div>
 <script src="graphs.js"></script>
+<script src="facebook.js"></script>
 <script>
     document.getElementById('closeTipBtn')?.addEventListener('click', function () {
         document.getElementById('dailyTipWidget').style.display = 'none';

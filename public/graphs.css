@@ -202,6 +202,93 @@ nav a:nth-child(3) {
     margin-top: 10px;
 }
 
+.facebook-card {
+    background-color: #fafafa;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s;
+}
+
+.fb-login-btn {
+    padding: 10px 22px;
+    border-radius: 20px;
+    border: none;
+    background-color: #1877f2;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.fb-login-btn:hover {
+    background-color: #145dc4;
+}
+
+.fb-status-msg {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #555;
+}
+
+.fb-status-msg.fb-error {
+    color: #c8001d;
+}
+
+.fb-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.fb-profile-pic {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1877f2;
+}
+
+.fb-profile-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.fb-profile-email {
+    font-size: 13px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.fb-logout-btn {
+    margin-top: 8px;
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid #ddd;
+    background-color: white;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+body.dark-mode .facebook-card {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .fb-status-msg {
+    color: #aaa;
+}
+
+body.dark-mode .fb-profile-email {
+    color: #ccc;
+}
+
+body.dark-mode .fb-logout-btn {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #f1f1f1;
+}
+
 .daily-tip-widget {
     position: fixed;
     bottom: 20px;
