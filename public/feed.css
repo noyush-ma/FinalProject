@@ -962,12 +962,12 @@ body.dark-mode nav {
 }
 
 body.dark-mode .logo-light {
-    display: inline-block !important;
-    filter: brightness(0) invert(1);
+    display: none !important;
 }
 
 body.dark-mode .logo-dark {
-    display: none !important;
+    display: inline-block !important;
+    background: transparent !important;
 }
 
 nav a:first-child .logo-light,
