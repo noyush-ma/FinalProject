@@ -1,3 +1,554 @@
+.boards-page-title {
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    color: #111111;
+    margin: 0;
+}
+
+.boards-page-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 100px;
+}
+
+/* --- התאמת הטאבים של סיכות/לוחות (סגנון פינטרסט) --- */
+.new-board-inline {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    direction: rtl;
+}
+
+.new-board-inline input {
+    flex: 1;
+    max-width: 320px;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: 1px solid #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #111111;
+}
+
+/* עיצוב הטאבים כטקסט בלבד */
+.new-board-inline button,
+.new-board-inline .tab-btn {
+    background: none;
+    border: none;
+    padding: 8px 4px;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #111111;
+    cursor: pointer;
+    position: relative;
+    transition: opacity 0.2s ease;
+}
+
+.new-board-inline button:hover,
+.new-board-inline .tab-btn:hover {
+    opacity: 0.7;
+    background-color: transparent; /* מונע צבע אדום ב-hover */
+}
+
+/* הקו התחתון השחור בלשונית הפעילה */
+.new-board-inline button.active::after,
+.new-board-inline .tab-btn.active::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #111111;
+    border-radius: 2px;
+}
+
+/* --- שאר הקוד המקורי --- */
+.boards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+.board-card {
+    position: relative;
+    cursor: pointer;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+    transition: transform 0.15s ease;
+}
+
+.board-card:hover {
+    transform: translateY(-2px);
+}
+
+.board-cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #e2e2e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.board-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.board-cover-empty::after {
+    content: "📌";
+    font-size: 40px;
+    opacity: 0.4;
+}
+
+.board-name {
+    padding: 10px 12px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    font-size: 15px;
+    color: #111111;
+}
+
+.board-delete-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.board-delete-btn:hover {
+    background-color: #ffffff;
+}
+
+.board-pins-section {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 24px;
+}
+
+.back-to-boards-btn {
+    display: inline-block;
+    background-color: #efefef;
+    color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 25px;
+    transition: background-color 0.2s ease;
+}
+
+.back-to-boards-btn:hover {
+    background-color: #e2e2e2;
+}
+
+/* תמיכה במצב לילה לכפתור */
+body.dark-mode .back-to-boards-btn {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .back-to-boards-btn:hover {
+    background-color: #444;
+}
+
+#boardPinsTitle {
+  font-family: Arial, sans-serif;
+  color: #111111;
+  margin-top: 90px;
+  margin-bottom: 16px;
+}
+
+/* --- כרטיס "סיכה" בטאב הסיכות (תמונות שמורות) --- */
+.pin-card {
+    cursor: default;
+}
+
+.pin-card:hover {
+    transform: none;
+}
+
+/* כפתור ביטול שמירה / הסרה מלוח - מוצג בעדינות, בולט ב-hover */
+.pin-unsave-btn {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.board-card:hover .pin-unsave-btn,
+.board-pin-card:hover .pin-unsave-btn {
+    opacity: 1;
+}
+
+/* כרטיסי הפינים בתוך תצוגת לוח בודד (board-pins-section) - צריך מיקום יחסי לכפתור ההסרה */
+.board-pin-card {
+    position: relative;
+}
+
+/* --- אריח "לוח חדש +" בטאב הלוחות --- */
+.add-board-card {
+    display: flex;
+    flex-direction: column;
+    border: 2px dashed #cccccc;
+    background-color: transparent;
+}
+
+.add-board-cover {
+    font-size: 40px;
+    font-weight: bold;
+    color: #999999;
+    background-color: transparent;
+}
+
+.add-board-card:hover .add-board-cover {
+    color: #e60023;
+}
+
+.no-boards-text {
+    font-family: Arial, sans-serif;
+    color: #767676;
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* --- Dark Mode --- */
+body.dark-mode .boards-page-title,
+body.dark-mode .board-name,
+body.dark-mode #boardPinsTitle {
+    color: #f1f1f1;
+}
+
+body.dark-mode .board-card,
+body.dark-mode .board-cover {
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .new-board-inline input {
+    background-color: #3a3a3a;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+body.dark-mode .new-board-inline button,
+body.dark-mode .new-board-inline .tab-btn {
+    color: #ffffff;
+}
+
+body.dark-mode .new-board-inline button.active::after,
+body.dark-mode .new-board-inline .tab-btn.active::after {
+    background-color: #ffffff;
+}
+
+body.dark-mode .add-board-card {
+    border-color: #555555;
+}
+
+body.dark-mode .no-boards-text {
+    color: #b2b2b2;
+}
+
+body.dark-mode .board-delete-btn {
+    background-color: rgba(42, 42, 42, 0.9);
+    color: #ffffff;
+}
+
+body.dark-mode .board-delete-btn:hover {
+    background-color: #3a3a3a;
+}
+
+/* --- מודאל "יצירת לוח חדש" (רכיב UI אמיתי) --- */
+.save-board-modal-content {
+    width: 380px;
+    height: auto;
+    max-height: 80vh;
+    flex-direction: column;
+    overflow-y: auto;
+    text-align: right;
+}
+
+.save-board-modal-content h3 {
+    margin: 0 0 16px 0;
+    font-family: Arial, sans-serif;
+}
+
+.new-board-inline-save {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.new-board-inline-save input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #111111;
+}
+
+.new-board-inline-save button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e60023;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+body.dark-mode .save-board-modal-content {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+}
+
+body.dark-mode .new-board-inline-save input {
+    background-color: #3a3a3a;
+    color: #ffffff;
+    border-color: #555555;
+}
+
+.board-pins-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+body.dark-mode .board-pins-selector-grid {
+    border-color: #555555;
+    background-color: #2a2a2a;
+}
+
+.pin-select-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.pin-select-item img {
+    width: 100%;
+    height: 70px;
+    object-fit: cover;
+    display: block;
+}
+
+.pin-select-item input[type="checkbox"] {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.board-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.add-pins-to-board-btn {
+    background-color: #efefef;
+    color: #333;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-weight: bold;
+    font-size: 11px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.add-pins-to-board-btn:hover {
+    background-color: #e2e2e2;
+}
+
+body.dark-mode .add-pins-to-board-btn {
+    background-color: #333;
+    color: #fff;
+}
+
+.pin-save-count-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.pins-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 16px;
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 24px;
+    direction: rtl;
+}
+
+.pins-filter-bar .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pins-filter-bar label {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    color: #555555;
+}
+
+.pins-filter-bar select {
+    padding: 8px 12px;
+    border-radius: 16px;
+    border: 1px solid #cccccc;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    background-color: #ffffff;
+    color: #111111;
+    cursor: pointer;
+}
+
+.reset-filters-btn {
+    background-color: #efefef;
+    color: #333333;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 16px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.reset-filters-btn:hover {
+    background-color: #e2e2e2;
+}
+
+body.dark-mode .pins-filter-bar label {
+    color: #cccccc;
+}
+
+body.dark-mode .pins-filter-bar select {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border-color: #555555;
+}
+
+body.dark-mode .reset-filters-btn {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+body.dark-mode .reset-filters-btn:hover {
+    background-color: #444444;
+}
+
+nav svg,
+#friendsFeedBtn svg {
+    width: 24px;
+    height: 24px;
+    fill: #111111;
+}
+
+body.dark-mode nav svg,
+body.dark-mode #friendsFeedBtn svg {
+    fill: #ffffff;
+}
+
+nav a,
+nav button,
+#friendsFeedBtn,
+#statsBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+nav a:hover,
+nav button:hover,
+#friendsFeedBtn:hover,
+#statsBtn:hover {
+    background-color: transparent !important;
+    opacity: 0.7;
+}
+
+nav img,
+nav svg {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+#friendsFeedBtn svg {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    fill: #767676;
+}
+
+#statsBtn {
+    font-size: 20px;
+}
+
+/* תמיכה במצב לילה לאייקונים בסרגל */
+body.dark-mode nav img,
+body.dark-mode #friendsFeedBtn img,
+body.dark-mode #chatsBtn img {
+    filter: invert(1);
+}
+
+body.dark-mode nav svg {
+    fill: #ffffff;
+}
+
+body.dark-mode #friendsFeedBtn svg {
+    fill: #bdbdbd;
+}
+
+#friendsFeedBtn,
+#statsBtn {
+    background-color: transparent;
+    border-radius: 0;
+}
+
 .map-page {
     margin-right: 95px;
     margin-left: 20px;
@@ -8,6 +559,10 @@
 .map-page-header h1 {
     font-size: 26px;
     margin-bottom: 4px;
+}
+
+body.dark-mode .map-page-header h1 {
+    color: #f1f1f1;
 }
 
 .map-page-header p {
@@ -60,6 +615,10 @@ body.dark-mode .map-filter-btn.active {
     background-color: #efefef;
 }
 
+body.dark-mode .map-container {
+    background-color: #2a2a2a;
+}
+
 .map-loading-msg {
     position: absolute;
     top: 50%;
@@ -67,6 +626,10 @@ body.dark-mode .map-filter-btn.active {
     transform: translate(-50%, -50%);
     font-size: 16px;
     color: #555;
+}
+
+body.dark-mode .map-loading-msg {
+    color: #bbb;
 }
 
 .map-error-msg {
@@ -93,9 +656,12 @@ body.dark-mode .map-filter-btn.active {
 
 .location-manager {
     margin-top: 30px;
+    margin-right: 95px;
+    margin-left: 20px;
     background-color: #f7f7f7;
     border-radius: 16px;
     padding: 20px;
+    box-sizing: border-box;
 }
 
 body.dark-mode .location-manager {
@@ -169,6 +735,10 @@ body.dark-mode .loc-form-msg {
     font-size: 14px;
 }
 
+body.dark-mode .loc-empty-msg {
+    color: #aaa;
+}
+
 .location-item {
     display: flex;
     justify-content: space-between;
@@ -210,11 +780,14 @@ body.dark-mode .location-item-info span {
     color: #0066cc;
 }
 
+body.dark-mode .loc-edit-btn {
+    color: #4dabf7;
+}
+
 .loc-delete-btn {
     color: #e60023;
 }
-.location-manager {
-    margin-right: 95px;
-    margin-left: 20px;
-    box-sizing: border-box;
+
+body.dark-mode .loc-delete-btn {
+    color: #ff6b6b;
 }
