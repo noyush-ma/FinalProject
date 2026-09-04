@@ -294,13 +294,6 @@
 
 <button id="scrollToTopBtn" onclick="scrollToTop()">▲</button>
 
-<!-- ==================== מודל הקבוצות/צ'אטים ====================
-     נפתח בלחיצה על כפתור הצ'אטים בתפריט העליון (chatsBtn).
-     יש בו 3 "מסכים" פנימיים שמתחלפים ביניהם באמצעות קלאס "active":
-     1. groupsListView   - רשימת הקבוצות שלי + כפתורים ליצירה/הצטרפות
-     2. createGroupView  - טופס יצירת קבוצה חדשה
-     3. joinGroupView    - טופס הצטרפות לקבוצה קיימת לפי קוד
-     4. groupChatView    - מסך הצ'אט עצמו של קבוצה נבחרת + ניהול חברים -->
 <div id="groupsModal" class="modal groups-modal">
     <div class="modal-content groups-modal-content">
         <span class="close" id="closeGroupsModal">&times;</span>
@@ -354,13 +347,11 @@
                 </div>
             </div>
 
-            <!-- אזור הוספת חברים לקבוצה - מוצג/מוסתר בלחיצה על הכפתור שלמעלה -->
             <div id="inviteMembersPanel" class="invite-members-panel">
                 <p>בחר/י משתמש קיים כדי לשלוח לו הזמנה להצטרף לקבוצה:</p>
                 <div id="inviteUsersList" class="invite-users-list"></div>
             </div>
 
-            <!-- אזור ההודעות עצמו -->
             <div id="groupMessagesList" class="group-messages-list"></div>
 
             <div class="group-message-input-row">
@@ -371,10 +362,7 @@
     </div>
 </div>
 
-<!-- ==================== מודל מרכז ההתראות ====================
-     נפתח בלחיצה על כפתור הפעמון בתפריט העליון. מציג את כל היסטוריית ההתראות
-     (הזמנות לקבוצה, הודעות חדשות, פוסטים חדשים מחברים שאני עוקב אחריהם),
-     עם אפשרות פעולה מתאימה לכל סוג התראה ואפשרות מחיקה לצמיתות. -->
+
 <div id="notificationsModal" class="modal">
     <div class="modal-content notifications-modal-content">
         <span class="close" id="closeNotificationsModal">&times;</span>

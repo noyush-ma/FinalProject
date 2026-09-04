@@ -1,4 +1,9 @@
-// --- מצב כהה (זהה בהתנהגותו לשאר העמודים באתר) ---
+
+const loggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+if (!loggedInUser) {
+    window.location.href = 'login.html';
+}
+
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     const btn = document.getElementById('darkModeBtn');

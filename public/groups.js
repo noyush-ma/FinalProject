@@ -1,30 +1,10 @@
-// groups.js
-// קובץ זה אחראי על כל מודל הקבוצות (צ'אטים):
-//   - פתיחה/סגירה של מודל הקבוצות ומעבר בין המסכים הפנימיים שלו
-//   - יצירת קבוצה חדשה
-//   - הצטרפות לקבוצה קיימת לפי קוד הצטרפות
-//   - הזמנת חברים קיימים לקבוצה (לפי משתמשים קיימים במערכת)
-//   - שליחה/קבלה של הודעות בתוך קבוצה
-//   - מערכת ההתראות הקופצות (toasts): כשמגיעה הזמנה או הודעה חדשה,
-//     היא "קופצת" על המסך עם אפשרות לחזור אליה.
-//
-// שים לב: הקובץ הזה נטען אחרי feed.js, ומשתמש באותו משתמש מחובר
-// שנשמר ב-sessionStorage תחת המפתח 'currentUser' (בדיוק כמו ב-feed.js).
-
-// ============== משתנים גלובליים ==============
-
-// המשתמש המחובר כרגע (אם אין כזה, כל הפיצ'ר הזה פשוט לא יפעל)
 const groupsLoggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 
-// מזהה הקבוצה שפתוחה כרגע בצ'אט (משמש כדי לדעת אילו הודעות לרענן ולאן לשלוח הודעה)
 let activeGroupId = null;
-
-// (מרכז ההתראות עצמו חי כעת ב-feed.js; groups.js משתמש רק בפונקציות עזר חשופות ממנו בעת הצורך)
 
 // רק אם יש משתמש מחובר - מפעילים את כל הלוגיקה
 if (groupsLoggedInUser) {
 
-    // ============== איתור אלמנטים מה-DOM ==============
     const chatsBtn = document.getElementById('chatsBtn');
     const groupsModal = document.getElementById('groupsModal');
     const closeGroupsModal = document.getElementById('closeGroupsModal');
@@ -228,7 +208,6 @@ if (groupsLoggedInUser) {
         }
     }
 
-    // ============== יצירת קבוצה חדשה ==============
     submitCreateGroupBtn.addEventListener('click', async () => {
         const name = newGroupNameInput.value.trim();
         if (!name) {
@@ -261,7 +240,6 @@ if (groupsLoggedInUser) {
         }
     });
 
-    // ============== הצטרפות לקבוצה קיימת לפי קוד ==============
     submitJoinGroupBtn.addEventListener('click', async () => {
         const joinCode = joinGroupCodeInput.value.trim();
         if (!joinCode) {
@@ -289,7 +267,6 @@ if (groupsLoggedInUser) {
         }
     });
 
-    // ============== מסך הצ'אט של קבוצה ספציפית ==============
 
     // פותח את מסך הצ'אט עבור קבוצה נתונה: טוען פרטי קבוצה + הודעות
     async function openGroupChat(groupId) {
@@ -310,16 +287,11 @@ if (groupsLoggedInUser) {
             activeGroupName.textContent = group.name;
             activeGroupCode.textContent = group.joinCode;
 
-            // שומרים את רשימת מזהי החברים הנוכחיים על האלמנט, כדי שנוכל לסנן
-            // אותם החוצה כשנציג את רשימת המשתמשים להזמנה
             groupChatView.dataset.memberIds = JSON.stringify(group.members.map((m) => m._id));
 
-            // בודקים האם המשתמש המחובר הוא מנהל (owner) הקבוצה - רק הוא רשאי
-            // להזמין חברים חדשים ולשנות את מצב הפרטיות (ציבורית/פרטית)
             const ownerId = group.owner ? (group.owner._id || group.owner) : null;
             const isOwner = ownerId === groupsLoggedInUser._id;
 
-            // תגית שמראה את מצב הפרטיות הנוכחי לכל חברי הקבוצה
             activeGroupPrivacyBadge.textContent = group.isPrivate ? '🔒 קבוצה פרטית' : '🌐 קבוצה ציבורית';
 
             // כפתור הוספת חברים - מוצג רק למנהל
@@ -424,8 +396,6 @@ if (groupsLoggedInUser) {
         }
     });
 
-    // ============== הוספת חברים לקבוצה (הזמנה למשתמשים קיימים) ==============
-
     // פותח/סוגר את פאנל הוספת החברים, ובעת פתיחה טוען את רשימת המשתמשים הקיימים
     openInviteMembersBtn.addEventListener('click', async () => {
         const isOpen = inviteMembersPanel.classList.toggle('active');
@@ -498,9 +468,6 @@ if (groupsLoggedInUser) {
         }
     }
 
-    // ============== חשיפת פונקציות עזר עבור מרכז ההתראות (feed.js) ==============
-    // מרכז ההתראות (הנפתח מכפתור הפעמון) צריך לפעמים "לנווט" חזרה למודל הקבוצות -
-    // לדוגמה, ללחוץ "חזרה להודעה" ולפתוח ישירות את הצ'אט הרלוונטי.
     window.openGroupChatFromNotifications = function (groupId) {
         groupsModal.style.display = 'flex';
         openGroupChat(groupId);
@@ -509,10 +476,6 @@ if (groupsLoggedInUser) {
         loadMyGroups();
     };
 
-    // ============== רענון אוטומטי של הצ'אט הפתוח כשמגיעה בו הודעה חדשה ==============
-    // כל ההתראות (כולל הזמנות והודעות חדשות) מוצגות כעת במרכז ההתראות עצמו
-    // (דרך כפתור הפעמון), ולא כפופ-אפים קופצים על המסך. עדיין נשאר פולינג קליל
-    // שרק דואג לרענן את חלון הצ'אט אם הוא פתוח כרגע ומגיעה אליו הודעה חדשה.
     async function checkForActiveChatUpdates() {
         if (!activeGroupId) return;
         try {

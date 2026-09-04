@@ -1,11 +1,10 @@
-// --- ניהול משתמש מחובר ---
+
 const loggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-// הגנה על העמוד: אם אין משתמש מחובר, מחזירים לדף ההתחברות
 if (!loggedInUser) {
     window.location.href = 'login.html';
 }
 
-// --- פילטרים נוספים לטאב "סיכות": טווח לייקים (מספר שמירות) / סוג פוסט / יחס גובה-רוחב ---
+
 const LIKES_BUCKETS = [
     [0, 10],
     [20, 30],

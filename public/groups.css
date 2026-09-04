@@ -311,7 +311,6 @@
     font-size: 14px;
 }
 
-/* --- כפתור אייקון הצ'אטים בתפריט העליון --- */
 .nav-icon-btn {
     background: none;
     border: none;
@@ -322,9 +321,6 @@
     display: block;
 }
 
-/* --- כפתורי מעבר בין הפיד הראשי לפיד החברים ---
-   מותאמים לאותו גודל/מרווח בדיוק כמו שאר אייקוני התפריט (nav a),
-   כדי שלא ייראו קטנים או "מוזחים" ביחס לשאר האייקונים */
 .feed-toggle-btn {
     display: flex;
     justify-content: center;
@@ -359,13 +355,11 @@ body.dark-mode .friends-icon {
     opacity: 1;
 }
 
-/* ==================== התראות קופצות (Toasts) ====================
-   מוצגות בפינה העליונה של המסך, אחת מעל השנייה, ונעלמות אוטומטית
-   או בלחיצה על "סגור"/"חזרה". */
+
 .toast-container {
     position: fixed;
     top: 90px;
-    left: 20px; /* בעברית (RTL) נעים לשים התראות בצד שמאל שלא יפריע לתפריט */
+    left: 20px; 
     z-index: 10000;
     display: flex;
     flex-direction: column;
@@ -417,7 +411,6 @@ body.dark-mode .friends-icon {
     color: #333;
 }
 
-/* --- התאמות למצב לילה (Dark Mode) --- */
 body.dark-mode .groups-modal-content {
     background-color: #232323;
     color: #f1f1f1;
