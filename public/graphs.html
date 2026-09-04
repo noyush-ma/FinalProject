@@ -71,8 +71,73 @@
         <div id="weatherError" class="weather-error"></div>
     </section>
 
+    <section class="clock-card">
+        <h2>🕒 שעון בזמן אמת</h2>
+        <p class="graph-subtitle">שעון אנלוגי חי</p>
+        <canvas id="liveClockCanvas" width="160" height="160"></canvas>
+    </section>
+
 </main>
 
+<aside id="dailyTipWidget" class="daily-tip-widget">
+    <button id="closeTipBtn" class="daily-tip-close" type="button">&times;</button>
+    <strong>טיפ קטן 💡</strong>
+    <p>ניתן לגרור את המפה בעמוד "מפת מקומות" כדי לגלות פינים של חברים באזורים אחרים.</p>
+</aside>
+
+<footer class="site-footer">
+    <p>&copy; 2026 Pinterest Clone – פרויקט פתא. כל הזכויות שמורות.</p>
+</footer>
+
 <script src="graphs.js"></script>
+<script>
+    document.getElementById('closeTipBtn')?.addEventListener('click', function () {
+        document.getElementById('dailyTipWidget').style.display = 'none';
+    });
+
+    (function () {
+        const canvas = document.getElementById('liveClockCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const radius = canvas.width / 2;
+        ctx.translate(radius, radius);
+
+        function drawHand(angle, length, width, color) {
+            ctx.beginPath();
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = color;
+            ctx.moveTo(0, 0);
+            ctx.rotate(angle);
+            ctx.lineTo(0, -length);
+            ctx.stroke();
+            ctx.rotate(-angle);
+        }
+
+        function drawClock() {
+            ctx.clearRect(-radius, -radius, canvas.width, canvas.height);
+
+            ctx.beginPath();
+            ctx.arc(0, 0, radius - 4, 0, 2 * Math.PI);
+            ctx.fillStyle = '#fafafa';
+            ctx.fill();
+            ctx.strokeStyle = '#e60023';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            const now = new Date();
+            const hours = now.getHours() % 12;
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            drawHand((hours * Math.PI / 6) + (minutes * Math.PI / 360), radius * 0.5, 4, '#111');
+            drawHand(minutes * Math.PI / 30, radius * 0.75, 3, '#111');
+            drawHand(seconds * Math.PI / 30, radius * 0.85, 1.5, '#e60023');
+        }
+
+        drawClock();
+        setInterval(drawClock, 1000);
+    })();
+</script>
 </body>
 </html>

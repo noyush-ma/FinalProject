@@ -9,9 +9,17 @@ header {
     right: 75px;
 }
 
+@font-face {
+    font-family: 'AppTitleFont';
+    src: local('Segoe UI Semibold'), local('Arial Rounded MT Bold'), local('Arial');
+    font-weight: bold;
+}
+
 .graphs-title {
     font-size: 22px;
     margin: 0;
+    font-family: 'AppTitleFont', Arial, sans-serif;
+    text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.25);
 }
 
 nav a:nth-child(2),
@@ -181,6 +189,58 @@ nav a:nth-child(3) {
     margin-top: 6px;
 }
 
+.clock-card {
+    background-color: #fafafa;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.clock-card canvas {
+    margin-top: 10px;
+}
+
+.daily-tip-widget {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    max-width: 220px;
+    background-color: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 900;
+    transition: opacity 0.3s;
+}
+
+.daily-tip-widget p {
+    margin: 6px 0 0 0;
+}
+
+.daily-tip-close {
+    position: absolute;
+    top: 4px;
+    left: 8px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #999;
+}
+
+.site-footer {
+    text-align: center;
+    padding: 20px 10px;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #888;
+    border-top: 1px solid #eee;
+}
+
 /* --- מצב כהה --- */
 body.dark-mode {
     background-color: #121212;
@@ -196,8 +256,20 @@ body.dark-mode nav {
 }
 
 body.dark-mode .graph-card,
-body.dark-mode .weather-card {
+body.dark-mode .weather-card,
+body.dark-mode .clock-card {
     background-color: #1e1e1e;
+}
+
+body.dark-mode .daily-tip-widget {
+    background-color: #2a2410;
+    border-color: #5c4d13;
+    color: #f1f1f1;
+}
+
+body.dark-mode .site-footer {
+    color: #999;
+    border-top-color: #333;
 }
 
 body.dark-mode .graph-subtitle {
