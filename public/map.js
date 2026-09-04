@@ -102,3 +102,56 @@ function selectCategory(category, clickedBtn) {
     renderMarkers(filtered);
     fitMapToMarkers(filtered);
 }
+
+// --- הצגת ה-markers על המפה ב-Leaflet ---
+function renderMarkers(locations) {
+    currentMarkers.forEach(marker => marker.remove());
+    currentMarkers = [];
+
+    locations.forEach(loc => {
+        if (typeof loc.lat !== 'number' || typeof loc.lng !== 'number') return;
+
+        const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+
+        const popupContent = buildPopupContent(loc);
+        marker.bindPopup(popupContent);
+
+        currentMarkers.push(marker);
+    });
+}
+
+function buildPopupContent(loc) {
+    const name = escapeHtml(loc.name || '');
+    const address = escapeHtml(loc.address || '');
+    const category = loc.category ? <div class="info-window-category">${escapeHtml(loc.category)}</div> : '';
+
+    return `
+        <div class="info-window-content">
+            <strong>${name}</strong>
+            <div class="info-window-address">${address}</div>
+            ${category}
+        </div>
+    `;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function fitMapToMarkers(locations) {
+    const validLocations = locations.filter(loc => typeof loc.lat === 'number' && typeof loc.lng === 'number');
+
+    if (validLocations.length === 0) {
+        map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+        return;
+    }
+
+    if (validLocations.length === 1) {
+        map.setView([validLocations[0].lat, validLocations[0].lng], 15);
+        return;
+    }
+
+    const bounds = L.latLngBounds(validLocations.map(loc => [loc.lat, loc.lng]));
+    map.fitBounds(bounds, { padding: [50, 50] });
