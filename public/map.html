@@ -7,3 +7,28 @@
     <!-- הוספת CSS של Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
+
+<header>
+    <div class="profile-menu">
+        <button id="profileBtn" type="button" class="profile-btn">
+            <img id="profileImg" src="icons/profileLogo.png" alt="Profile">
+            <img src="icons/arrow.png" alt="arrow" class="profile-arrow">
+        </button>
+
+        <div id="profileDropdown" class="profile-dropdown">
+            <div class="profile-dropdown-header">
+                <label for="profileImageInput" class="profile-image-wrapper" title="שינוי תמונת פרופיל">
+                    <img id="profileDropdownImg" src="icons/profileLogo.png" alt="Profile">
+                    <span class="profile-image-edit-overlay">שינוי תמונה</span>
+                </label>
+                <input type="file" id="profileImageInput" accept="image/*" hidden>
+                <span id="profileUsername" class="profile-dropdown-username"></span>
+            </div>
+            <hr class="profile-dropdown-divider">
+            <button id="logoutBtn" type="button" class="profile-logout-btn" onclick="handleLogout()">התנתקות</button>
+        </div>
+    </div>
+    <div>
+       <input type="text" id="searchInput" placeholder="חיפוש">
+    </div>
+</header>
