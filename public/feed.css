@@ -284,6 +284,16 @@ nav .friends-icon {
     height: 35px;
 }
 
+/* כפתור פעיל בנאב (עמוד נוכחי) */
+nav a.active-nav img {
+    filter: drop-shadow(0 0 4px #e60023);
+    opacity: 1;
+}
+
+nav a.active-nav {
+    border-right: 3px solid #e60023;
+}
+
 .images {
     margin-right: 95px; 
     margin-left: 20px;
@@ -1416,6 +1426,37 @@ body.dark-mode .close-btn:hover {
   border-radius: 20px;
   margin-top: 15px;
   cursor: pointer;
+}
+
+/* שורת ה-checkbox של שיתוף פייסבוק - inline לצד הלייבל */
+.fb-share-checkbox-group {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  direction: rtl;
+}
+
+.fb-share-checkbox-group input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer;
+  accent-color: #1877f2;
+  flex-shrink: 0;
+}
+
+.fb-share-checkbox-group label {
+  margin: 0 !important;
+  font-weight: normal;
+  font-size: 14px;
+  cursor: pointer;
+  color: #1877f2;
+  white-space: nowrap;
 }
 
 .submit-btn:hover {
