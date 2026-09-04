@@ -20,6 +20,9 @@ app.use('/api/groups', groupsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/weather', weatherRouter);
 
+const locationsRouter = require('./routes/locations');
+app.use('/api/locations', locationsRouter);
+
 app.get('/', (req, res) => {
   res.send('success!');
 });
