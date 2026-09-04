@@ -4,8 +4,8 @@
     <title>סטטיסטיקות | Pinterest</title>
     <link rel="stylesheet" href="feed.css">
     <link rel="stylesheet" href="graphs.css">
-    <!-- ספריית Chart.js לצורך ציור הגרפים (נטענת מ-CDN, אך כל הלוגיקה והנתונים הם שלנו) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js"></script>
+    <!-- ספריית D3.js לצורך ציור הגרפים (נטענת מ-CDN, אך כל הלוגיקה והנתונים הם שלנו) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 </head>
 <body>
 
@@ -31,21 +31,21 @@
     <a href="boards.html" title="הלוחות שלי"><img src="icons/boardsLogo1.png"></a>
     <a href="#"><img src="icons/messageLogo1.png"></a>
      <button id="messagesButton"><img src="icons/notifLogo1.png"></button>
-    <a href="graphs.html" title="סטטיסטיקות" style="font-size:26px; text-decoration:none;">📊</a>
+    <a href="graphs.html" title="סטטיסטיקות"><img src="icons/graphIcon.jpg"></a>
     <a href="map.html" title="מפת מקומות" class="nav-icon-btn" style="font-size:26px; text-decoration:none;">🗺️</a>
     <a href="#"><img src="icons/settingsLogo1.png"></a>
 </nav>
 
 <main class="graphs-main">
 
-    <!-- === סעיף 1: גרפים סטטיסטיים חיים מה-DB (Chart.js) === -->
+    <!-- === סעיף 1: גרפים סטטיסטיים חיים מה-DB (D3.js) === -->
     <section class="graphs-grid">
 
         <div class="graph-card">
             <h2>התפלגות פוסטים לפי קטגוריה</h2>
             <p class="graph-subtitle">מבוסס על כל הפוסטים הקיימים כרגע ב-MongoDB</p>
             <div class="chart-wrapper">
-                <canvas id="categoryChart"></canvas>
+                <div id="categoryChart" class="d3-chart"></div>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
             <h2>קצב פרסום פוסטים (14 הימים האחרונים)</h2>
             <p class="graph-subtitle">כמות הפוסטים שפורסמו בכל יום, בזמן אמת מה-DB</p>
             <div class="chart-wrapper">
-                <canvas id="timelineChart"></canvas>
+                <div id="timelineChart" class="d3-chart"></div>
             </div>
         </div>
 

@@ -66,6 +66,55 @@ nav a:nth-child(3) {
     height: 320px;
 }
 
+.d3-chart {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.d3-chart svg {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: visible;
+}
+
+.d3-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 14px;
+    padding-top: 8px;
+    font-size: 13px;
+}
+
+.d3-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.d3-legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.d3-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+    z-index: 5;
+}
+
 .weather-form {
     display: flex;
     gap: 10px;
