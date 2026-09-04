@@ -1,4 +1,3 @@
-// savedPins.js
 (function () {
     if (typeof loggedInUser === 'undefined' || !loggedInUser) return;
 
@@ -16,7 +15,6 @@
         localStorage.setItem(LOCAL_PINS_KEY, JSON.stringify(pins));
     }
 
-    // מזהה את הפין הפתוח כרגע במודל: פוסט מונגו (data-id) או תמונה מקומית (לפי src)
     function getCurrentPinInfo() {
         if (typeof currentOpenImg === 'undefined' || !currentOpenImg) return null;
 
@@ -33,7 +31,6 @@
         };
     }
 
-    // --- דריסת פונקציות השמירה מ-feed.js ---
 
     window.refreshSaveButtonState = async function (postId) {
         const saveBtn = document.getElementById('saveBtn');
@@ -68,7 +65,6 @@
         }
     };
 
-    // לחיצה על כפתור השמירה: שמירה מיידית ל"סיכות", או ביטול שמירה אם כבר שמור
     window.doSave = function () {
         const saveBtn = document.getElementById('saveBtn');
         if (saveBtn && saveBtn.innerText === 'נשמר') {
@@ -78,7 +74,6 @@
         }
     };
 
-    // שמירה ישירה ל"סיכות"
     window.saveCurrentPinDirect = async function () {
         const pinInfo = getCurrentPinInfo();
         if (!pinInfo) {
@@ -127,7 +122,6 @@
         }
     };
 
-    // ביטול שמירה מלא
     window.unsaveCurrentPost = async function () {
         const pinInfo = getCurrentPinInfo();
         if (!pinInfo) return;

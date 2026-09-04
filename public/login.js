@@ -5,7 +5,6 @@ async function handleLogin() {
     var email = emailEl.value.trim();
     var password = passwordEl.value;
 
-    // ניקוי שגיאות קודמות
     document.getElementById("emailError").innerHTML = "";
     document.getElementById("passwordError").innerHTML = "";
     document.getElementById("serverError").innerHTML = "";
@@ -38,7 +37,6 @@ async function handleLogin() {
         const data = await res.json();
 
         if (res.ok) {
-            // שומרים את פרטי המשתמש המחובר לזיכרון הדפדפן לצורך שימוש בעמודים הבאים
             sessionStorage.setItem('currentUser', JSON.stringify(data));
             window.location.href = "feed.html";
         } else {

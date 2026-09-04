@@ -1,17 +1,17 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose'); // 1. ייבוא mongoose
+const mongoose = require('mongoose'); 
 const app = express();
 
 const postsRouter = require('./routes/posts');
 const usersRouter = require('./routes/users');
 const boardsRouter = require('./routes/boards');
-const groupsRouter = require('./routes/groups'); // נתיבי קבוצות צ'אט (יצירה/הצטרפות/הזמנות/הודעות)
-const notificationsRouter = require('./routes/notifications'); // נתיבי התראות קופצות
-const weatherRouter = require('./routes/weather'); // נתיב שמפעיל קריאה לשירות Web חיצוני (מזג אוויר)
+const groupsRouter = require('./routes/groups'); 
+const notificationsRouter = require('./routes/notifications'); 
+const weatherRouter = require('./routes/weather');
 
 app.use(express.static('public'));
-app.use(express.json({limit: '10mb'})); // הגבלת גודל הבקשה ל-10MB
+app.use(express.json({limit: '10mb'})); 
 
 app.use('/api/posts', postsRouter);
 app.use('/api/users', usersRouter);
@@ -27,7 +27,6 @@ app.get('/', (req, res) => {
   res.send('success!');
 });
 
-// 2. חיבור ל-MongoDB (מקומי או מרוחק)
 const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI)
   .then(() => console.log('Connected to MongoDB Atlas successfully!'))

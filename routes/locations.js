@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const Location = require('../models/Location');
 
-// GET - כל המיקומים
 router.get('/', async (req, res) => {
   try {
     const locations = await Location.find({});
@@ -12,7 +11,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST - הוספת מיקום חדש
 router.post('/', async (req, res) => {
   try {
     const { name, address, lat, lng, category } = req.body;
@@ -29,7 +27,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT - עדכון מיקום קיים
 router.put('/:id', async (req, res) => {
   try {
     const { name, address, lat, lng, category } = req.body;
@@ -45,7 +42,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE - מחיקת מיקום
 router.delete('/:id', async (req, res) => {
   try {
     const deleted = await Location.findByIdAndDelete(req.params.id);

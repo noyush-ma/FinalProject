@@ -1,12 +1,7 @@
-// כל הלוגיקה העסקית של קבוצות הצ'אט: יצירה, הצטרפות לפי קוד,
-// הזמנת חברים קיימים, אישור/דחיית הזמנה, ושליחת/קריאת הודעות בתוך קבוצה.
 const Group = require('../models/group');
 const GroupMessage = require('../models/message');
 const Notification = require('../models/notification');
 const User = require('../models/user');
-
-// פונקציית עזר: יוצרת קוד הצטרפות אקראי בן 6 תווים (אותיות גדולות + ספרות)
-// לדוגמה: "A1B2C3" - המשתמש ישתמש בקוד הזה כדי "להיכנס לקבוצה קיימת"
 function generateJoinCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
@@ -16,9 +11,6 @@ function generateJoinCode() {
   return code;
 }
 
-// 1. יצירת קבוצה חדשה
-// מקבל: name (שם הקבוצה), ownerId (מי יוצר אותה)
-// הבעלים מתווסף אוטומטית לרשימת החברים
 exports.createGroup = async (req, res) => {
   try {
     const { name, ownerId, isPrivate } = req.body;
@@ -27,7 +19,6 @@ exports.createGroup = async (req, res) => {
       return res.status(400).json({ message: 'יש לספק שם קבוצה ומזהה בעלים' });
     }
 
-    // מוודאים שהקוד ייחודי - במקרה הנדיר של התנגשות מגרילים שוב
     let joinCode = generateJoinCode();
     let codeExists = await Group.findOne({ joinCode });
     while (codeExists) {
@@ -38,9 +29,8 @@ exports.createGroup = async (req, res) => {
     const newGroup = new Group({
       name,
       owner: ownerId,
-      members: [ownerId], // הבעלים הוא החבר הראשון בקבוצה
+      members: [ownerId], 
       joinCode,
-      // אם לא צוין אחרת, הקבוצה תיווצר כפרטית (ברירת המחדל של המודל)
       isPrivate: typeof isPrivate === 'boolean' ? isPrivate : true
     });
 
@@ -51,7 +41,6 @@ exports.createGroup = async (req, res) => {
   }
 };
 
-// 2. שליפת כל הקבוצות שמשתמש מסוים חבר בהן (לצורך הצגת רשימת "הצ'אטים שלי")
 exports.getUserGroups = async (req, res) => {
   try {
     const groups = await Group.find({ members: req.params.userId })
@@ -63,8 +52,6 @@ exports.getUserGroups = async (req, res) => {
   }
 };
 
-// 2.5 שליפת כל הקבוצות ה"ציבוריות" שהמשתמש עדיין לא חבר בהן -
-// אלו קבוצות שכל משתמש יכול למצוא ולהצטרף אליהן ישירות, בלי צורך בקוד או הזמנה
 exports.getPublicGroups = async (req, res) => {
   try {
     const groups = await Group.find({
@@ -79,7 +66,6 @@ exports.getPublicGroups = async (req, res) => {
   }
 };
 
-// 3. שליפת פרטי קבוצה בודדת, כולל רשימת החברים המלאה (שם + תמונת פרופיל)
 exports.getGroupById = async (req, res) => {
   try {
     const group = await Group.findById(req.params.groupId)
@@ -95,8 +81,6 @@ exports.getGroupById = async (req, res) => {
   }
 };
 
-// 4. הצטרפות לקבוצה קיימת לפי קוד הצטרפות
-// זו הדרך של המשתמש "להיכנס לקבוצה קיימת" בלי לקבל הזמנה אישית
 exports.joinGroupByCode = async (req, res) => {
   try {
     const { joinCode, userId } = req.body;
@@ -110,7 +94,6 @@ exports.joinGroupByCode = async (req, res) => {
       return res.status(404).json({ message: 'לא נמצאה קבוצה עם קוד זה' });
     }
 
-    // בדיקה שהמשתמש לא כבר חבר בקבוצה
     if (group.members.includes(userId)) {
       return res.status(400).json({ message: 'אתה כבר חבר בקבוצה זו' });
     }
@@ -124,8 +107,6 @@ exports.joinGroupByCode = async (req, res) => {
   }
 };
 
-// 4.5 הצטרפות ישירה לקבוצה ציבורית - ללא צורך בקוד הצטרפות או בהזמנה
-// זמין רק כאשר isPrivate === false; אם הקבוצה פרטית יש להצטרף לפי קוד או הזמנה בלבד
 exports.joinPublicGroup = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -157,7 +138,6 @@ exports.joinPublicGroup = async (req, res) => {
   }
 };
 
-// 4.6 שינוי מצב פרטיות של קבוצה (ציבורית <-> פרטית) - רק המנהל (owner) שיצר את הקבוצה רשאי לבצע זאת
 exports.setGroupPrivacy = async (req, res) => {
   try {
     const { userId, isPrivate } = req.body;
@@ -172,7 +152,6 @@ exports.setGroupPrivacy = async (req, res) => {
       return res.status(404).json({ message: 'קבוצה לא נמצאה' });
     }
 
-    // רק המנהל שיצר את הקבוצה יכול לשנות את מצב הפרטיות שלה
     if (group.owner.toString() !== userId) {
       return res.status(403).json({ message: 'רק מנהל הקבוצה יכול לשנות את מצב הפרטיות' });
     }
@@ -186,9 +165,6 @@ exports.setGroupPrivacy = async (req, res) => {
   }
 };
 
-// 5. הזמנת משתמש קיים לקבוצה (לפי שם משתמש/מזהה שנבחר מרשימת המשתמשים הקיימים במערכת)
-// לא מוסיפים אותו ישירות לקבוצה - יוצרים לו התראת "הזמנה" שהוא צריך לאשר
-// רק מנהל הקבוצה (owner) רשאי לשלוח הזמנות
 exports.inviteUserToGroup = async (req, res) => {
   try {
     const { inviterId, inviteeId } = req.body;
@@ -199,7 +175,6 @@ exports.inviteUserToGroup = async (req, res) => {
       return res.status(404).json({ message: 'קבוצה לא נמצאה' });
     }
 
-    // רק המנהל שיצר את הקבוצה יכול לשלוח הזמנות הצטרפות
     if (group.owner.toString() !== inviterId) {
       return res.status(403).json({ message: 'רק מנהל הקבוצה יכול לשלוח הזמנות הצטרפות' });
     }
@@ -208,7 +183,6 @@ exports.inviteUserToGroup = async (req, res) => {
       return res.status(400).json({ message: 'המשתמש כבר חבר בקבוצה' });
     }
 
-    // בודקים אם כבר קיימת הזמנה ממתינה לאותו משתמש לאותה קבוצה, כדי לא לשלוח כפול
     const existingInvite = await Notification.findOne({
       recipient: inviteeId,
       group: groupId,
@@ -222,7 +196,6 @@ exports.inviteUserToGroup = async (req, res) => {
     const inviter = await User.findById(inviterId);
     const inviterName = inviter ? inviter.username : 'משתמש';
 
-    // יצירת התראת ההזמנה - היא זו שתקפוץ למוזמן על המסך
     const invite = new Notification({
       recipient: inviteeId,
       type: 'GROUP_INVITE',
@@ -239,11 +212,9 @@ exports.inviteUserToGroup = async (req, res) => {
   }
 };
 
-// 6. תגובה להזמנה לקבוצה (אישור/דחייה)
-// אם אושר - המשתמש מתווסף לרשימת החברים בקבוצה
 exports.respondToInvite = async (req, res) => {
   try {
-    const { response } = req.body; // 'ACCEPTED' או 'DECLINED'
+    const { response } = req.body; 
     const notification = await Notification.findById(req.params.notificationId);
 
     if (!notification || notification.type !== 'GROUP_INVITE') {
@@ -268,7 +239,6 @@ exports.respondToInvite = async (req, res) => {
   }
 };
 
-// 7. שליפת כל ההודעות של קבוצה מסוימת (מסודרות מהישנה לחדשה, כמו כל צ'אט)
 exports.getGroupMessages = async (req, res) => {
   try {
     const messages = await GroupMessage.find({ group: req.params.groupId })
@@ -279,9 +249,6 @@ exports.getGroupMessages = async (req, res) => {
   }
 };
 
-// 8. שליחת הודעה חדשה בתוך קבוצה
-// בנוסף לשמירת ההודעה, יוצרים התראת "הודעה חדשה" לכל שאר חברי הקבוצה
-// כדי שהיא תקפוץ להם על המסך (עם אופציה "לחזור אליה")
 exports.sendGroupMessage = async (req, res) => {
   try {
     const { senderId, text } = req.body;
@@ -307,12 +274,10 @@ exports.sendGroupMessage = async (req, res) => {
     });
     await message.save();
 
-    // יוצרים התראה לכל חבר בקבוצה חוץ מהשולח עצמו
     const recipients = group.members.filter(
       (memberId) => memberId.toString() !== senderId
     );
 
-    // מקצרים את התצוגה המקדימה של ההודעה כדי שהפופ-אפ לא יהיה ארוך מדי
     const preview = text.length > 40 ? text.slice(0, 40) + '...' : text;
 
     const notifications = recipients.map((memberId) => ({

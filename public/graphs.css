@@ -1,4 +1,3 @@
-/* graphs.css - עיצוב עמוד הסטטיסטיקות */
 
 body {
     padding: 0;
@@ -328,7 +327,6 @@ body.dark-mode .fb-logout-btn {
     border-top: 1px solid #eee;
 }
 
-/* --- מצב כהה --- */
 body.dark-mode {
     background-color: #121212;
     color: #f1f1f1;

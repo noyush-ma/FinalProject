@@ -1,7 +1,5 @@
-// models/user.js
 const mongoose = require('mongoose');
 
-// הגדרת ה-Schema של המשתמש
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -28,7 +26,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  // רשימת מזהי המשתמשים שהמשתמש הזה עוקב אחריהם ("חברים" לצורך פיד החברים וההתראות)
   following: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -39,6 +36,4 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// יצירת והחזרת המודל של Mongoose
-// Mongoose מייצר אוטומטית שדה _id ייחודי לכל משתמש!
 module.exports = mongoose.model('User', userSchema);

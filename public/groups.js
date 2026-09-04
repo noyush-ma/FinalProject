@@ -2,7 +2,6 @@ const groupsLoggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || '
 
 let activeGroupId = null;
 
-// רק אם יש משתמש מחובר - מפעילים את כל הלוגיקה
 if (groupsLoggedInUser) {
 
     const chatsBtn = document.getElementById('chatsBtn');
@@ -45,9 +44,6 @@ if (groupsLoggedInUser) {
     const groupMessageInput = document.getElementById('groupMessageInput');
     const sendGroupMessageBtn = document.getElementById('sendGroupMessageBtn');
 
-    // ============== ניהול מעבר בין המסכים בתוך המודל ==============
-
-    // מציג רק את המסך המבוקש (view) ומסתיר את שאר המסכים
     function showGroupsView(viewElement) {
         [groupsListView, createGroupView, joinGroupView, publicGroupsView, groupChatView].forEach((view) => {
             if (view) view.classList.remove('active');
@@ -55,17 +51,14 @@ if (groupsLoggedInUser) {
         viewElement.classList.add('active');
     }
 
-    // כפתורי "חזרה" בכל מסך - חוזרים תמיד לרשימת הקבוצות
     document.querySelectorAll('.groups-back-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-            // אם יוצאים ממסך הצ'אט, מפסיקים לרענן הודעות ברקע כדי לא לבזבז בקשות מיותרות
             activeGroupId = null;
             showGroupsView(groupsListView);
-            loadMyGroups(); // רענון הרשימה, למקרה שהצטרפנו/נוצרה קבוצה חדשה
+            loadMyGroups(); 
         });
     });
 
-    // ============== פתיחה/סגירה של המודל הראשי ==============
 
     if (chatsBtn) {
         chatsBtn.addEventListener('click', () => {
@@ -77,10 +70,9 @@ if (groupsLoggedInUser) {
 
     closeGroupsModal.addEventListener('click', () => {
         groupsModal.style.display = 'none';
-        activeGroupId = null; // מפסיקים "להאזין" לצ'אט ספציפי כשסוגרים את המודל
+        activeGroupId = null; 
     });
 
-    // סגירה גם בלחיצה על הרקע הכהה מחוץ לתוכן המודל
     groupsModal.addEventListener('click', (e) => {
         if (e.target === groupsModal) {
             groupsModal.style.display = 'none';
@@ -88,15 +80,11 @@ if (groupsLoggedInUser) {
         }
     });
 
-    // ============== מסך רשימת הקבוצות שלי ==============
-
-    // שולף מהשרת את כל הקבוצות שהמשתמש המחובר חבר בהן, ומצייר כרטיס לכל קבוצה
     async function loadMyGroups() {
         try {
             const res = await fetch('/api/groups/user/' + groupsLoggedInUser._id);
             const groups = await res.json();
 
-            // מנקים את הרשימה הישנה (חוץ מהודעת "אין קבוצות")
             myGroupsList.querySelectorAll('.group-card').forEach((el) => el.remove());
 
             if (!groups.length) {
@@ -115,7 +103,6 @@ if (groupsLoggedInUser) {
                     </div>
                     <span>💬</span>
                 `;
-                // לחיצה על הכרטיס פותחת את הצ'אט של הקבוצה הזו
                 card.addEventListener('click', () => openGroupChat(group._id));
                 myGroupsList.appendChild(card);
             });
@@ -124,24 +111,20 @@ if (groupsLoggedInUser) {
         }
     }
 
-    // מעבר למסך יצירת קבוצה
     openCreateGroupBtn.addEventListener('click', () => {
         newGroupNameInput.value = '';
         createGroupError.textContent = '';
-        // ברירת מחדל בכל פתיחה מחדש של הטופס: קבוצה פרטית
         const defaultPrivacyRadio = document.querySelector('input[name="newGroupPrivacy"][value="private"]');
         if (defaultPrivacyRadio) defaultPrivacyRadio.checked = true;
         showGroupsView(createGroupView);
     });
 
-    // מעבר למסך הצטרפות לפי קוד
     openJoinGroupBtn.addEventListener('click', () => {
         joinGroupCodeInput.value = '';
         joinGroupError.textContent = '';
         showGroupsView(joinGroupView);
     });
 
-    // מעבר למסך רשימת הקבוצות הציבוריות
     if (openPublicGroupsBtn) {
         openPublicGroupsBtn.addEventListener('click', () => {
             showGroupsView(publicGroupsView);
@@ -149,7 +132,6 @@ if (groupsLoggedInUser) {
         });
     }
 
-    // שולף מהשרת את כל הקבוצות הציבוריות שהמשתמש עדיין לא חבר בהן, ומאפשר הצטרפות בלחיצה
     async function loadPublicGroups() {
         if (!publicGroupsList) return;
         try {
@@ -215,7 +197,6 @@ if (groupsLoggedInUser) {
             return;
         }
 
-        // בודקים איזו אפשרות פרטיות נבחרה בטופס (ברירת מחדל: פרטית)
         const privacyChoice = document.querySelector('input[name="newGroupPrivacy"]:checked');
         const isPrivate = !privacyChoice || privacyChoice.value === 'private';
 
@@ -232,7 +213,6 @@ if (groupsLoggedInUser) {
                 return;
             }
 
-            // הקבוצה נוצרה בהצלחה - נכנסים ישר לתוכה כדי שהמשתמש יראה את קוד ההצטרפות
             await loadMyGroups();
             openGroupChat(data._id);
         } catch (err) {
@@ -268,17 +248,15 @@ if (groupsLoggedInUser) {
     });
 
 
-    // פותח את מסך הצ'אט עבור קבוצה נתונה: טוען פרטי קבוצה + הודעות
     async function openGroupChat(groupId) {
         activeGroupId = groupId;
-        inviteMembersPanel.classList.remove('active'); // מתחילים עם פאנל ההזמנה סגור
+        inviteMembersPanel.classList.remove('active'); 
 
         showGroupsView(groupChatView);
         await loadGroupDetails(groupId);
         await loadGroupMessages(groupId);
     }
 
-    // טוען את שם הקבוצה, קוד ההצטרפות שלה, ומכין את רשימת החברים לצורך ההזמנות
     async function loadGroupDetails(groupId) {
         try {
             const res = await fetch('/api/groups/' + groupId);
@@ -294,10 +272,8 @@ if (groupsLoggedInUser) {
 
             activeGroupPrivacyBadge.textContent = group.isPrivate ? '🔒 קבוצה פרטית' : '🌐 קבוצה ציבורית';
 
-            // כפתור הוספת חברים - מוצג רק למנהל
             openInviteMembersBtn.style.display = isOwner ? 'inline-block' : 'none';
 
-            // כפתור מעבר ציבורית/פרטית - מוצג רק למנהל
             if (isOwner) {
                 toggleGroupPrivacyBtn.style.display = 'inline-block';
                 toggleGroupPrivacyBtn.textContent = group.isPrivate ? 'הפוך לציבורית' : 'הפוך לפרטית';
@@ -310,7 +286,6 @@ if (groupsLoggedInUser) {
         }
     }
 
-    // לחיצה על כפתור הפרטיות - הופכת את הקבוצה בין פרטית לציבורית (רק המנהל רואה את הכפתור)
     toggleGroupPrivacyBtn.addEventListener('click', async () => {
         if (!activeGroupId) return;
         const newIsPrivate = toggleGroupPrivacyBtn.dataset.currentPrivacy !== 'private';
@@ -335,7 +310,6 @@ if (groupsLoggedInUser) {
         }
     });
 
-    // טוען ומציג את כל ההודעות של הקבוצה הפעילה
     async function loadGroupMessages(groupId) {
         try {
             const res = await fetch('/api/groups/' + groupId + '/messages');
@@ -353,21 +327,18 @@ if (groupsLoggedInUser) {
                 groupMessagesList.appendChild(bubble);
             });
 
-            // גוללים אוטומטית להודעה האחרונה
             groupMessagesList.scrollTop = groupMessagesList.scrollHeight;
         } catch (err) {
             console.error('שגיאה בטעינת ההודעות:', err);
         }
     }
 
-    // פונקציית עזר קטנה כדי למנוע הזרקת HTML זדוני דרך תוכן הודעה (אבטחה בסיסית)
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    // שליחת הודעה חדשה בקבוצה הפעילה
     async function sendGroupMessage() {
         const text = groupMessageInput.value.trim();
         if (!text || !activeGroupId) return;
@@ -388,7 +359,6 @@ if (groupsLoggedInUser) {
     }
 
     sendGroupMessageBtn.addEventListener('click', sendGroupMessage);
-    // אפשרות לשלוח הודעה גם בלחיצה על Enter בתוך תיבת הטקסט
     groupMessageInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -396,7 +366,6 @@ if (groupsLoggedInUser) {
         }
     });
 
-    // פותח/סוגר את פאנל הוספת החברים, ובעת פתיחה טוען את רשימת המשתמשים הקיימים
     openInviteMembersBtn.addEventListener('click', async () => {
         const isOpen = inviteMembersPanel.classList.toggle('active');
         if (isOpen) {
@@ -404,7 +373,6 @@ if (groupsLoggedInUser) {
         }
     });
 
-    // שולף את כל המשתמשים הקיימים במערכת, ומסנן החוצה את מי שכבר חבר בקבוצה
     async function loadInvitableUsers() {
         try {
             const currentMemberIds = JSON.parse(groupChatView.dataset.memberIds || '[]');
@@ -431,7 +399,6 @@ if (groupsLoggedInUser) {
                     <button data-user-id="${user._id}">הזמן</button>
                 `;
 
-                // לחיצה על "הזמן" שולחת בקשת הזמנה לשרת, ויוצרת למוזמן התראה קופצת
                 row.querySelector('button').addEventListener('click', async (e) => {
                     const btn = e.target;
                     btn.disabled = true;

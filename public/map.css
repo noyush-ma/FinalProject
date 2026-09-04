@@ -262,7 +262,6 @@ body.dark-mode .board-delete-btn:hover {
     background-color: #3a3a3a;
 }
 
-/* --- מודאל "יצירת לוח חדש" (רכיב UI אמיתי) --- */
 .save-board-modal-content {
     width: 380px;
     height: auto;
@@ -647,7 +646,6 @@ body.dark-mode .map-loading-msg {
     margin-top: 4px;
 }
 
-/* ==================== ניהול מיקומים (טופס + רשימה) ==================== */
 
 .location-manager {
     margin-top: 30px;

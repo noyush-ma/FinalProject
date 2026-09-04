@@ -1,9 +1,4 @@
-// controllers/weatherController.js
-// שירות Web חיצוני אמיתי: פנייה ל-Open-Meteo (API חינמי, ללא צורך במפתח/רישום)
-// שלב 1: Geocoding - המרת שם עיר שהוזן ע"י המשתמש לקואורדינטות (lat/lon)
-// שלב 2: Forecast - שליפת מזג האוויר הנוכחי לפי אותן קואורדינטות
-// שני השלבים מתבצעים בפועל מהשרת שלנו (Node) בעזרת fetch המובנה, ולא באמצעות iframe
-// או קוד מוכן מראש - השרת שלנו הוא זה שפונה, מקבל תשובה, ומחזיר אותה מעובדת ללקוח.
+
 
 exports.getWeather = async (req, res) => {
   try {
@@ -12,7 +7,6 @@ exports.getWeather = async (req, res) => {
       return res.status(400).json({ message: 'יש לספק שם עיר (פרמטר city)' });
     }
 
-    // --- שלב 1: קריאה ל-Web Service של Open-Meteo כדי להמיר שם עיר לקואורדינטות ---
     const geoUrl = 'https://geocoding-api.open-meteo.com/v1/search?name=' +
       encodeURIComponent(city) + '&count=1&language=he&format=json';
 
@@ -30,7 +24,6 @@ exports.getWeather = async (req, res) => {
     const latitude = location.latitude;
     const longitude = location.longitude;
 
-    // --- שלב 2: קריאה בפועל ל-Web Service החיצוני שמחזיר את מזג האוויר הנוכחי ---
     const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=' + latitude +
       '&longitude=' + longitude + '&current_weather=true';
 
@@ -44,7 +37,6 @@ exports.getWeather = async (req, res) => {
       return res.status(502).json({ message: 'שירות מזג האוויר לא החזיר נתונים תקינים' });
     }
 
-    // עיבוד וחזרה ללקוח רק עם השדות הרלוונטיים (זו הדוגמה ל"לקבל נתונים בחזרה ולהציג אותם")
     res.json({
       city: location.name,
       country: location.country || '',

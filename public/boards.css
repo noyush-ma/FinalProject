@@ -12,7 +12,6 @@
     padding: 0 100px;
 }
 
-/* --- התאמת הטאבים של סיכות/לוחות (סגנון פינטרסט) --- */
 .new-board-inline {
     display: flex;
     justify-content: center;
@@ -31,7 +30,6 @@
     font-size: 14px;
 }
 
-/* עיצוב הטאבים כטקסט בלבד */
 .new-board-inline button,
 .new-board-inline .tab-btn {
     background: none;
@@ -49,10 +47,9 @@
 .new-board-inline button:hover,
 .new-board-inline .tab-btn:hover {
     opacity: 0.7;
-    background-color: transparent; /* מונע צבע אדום ב-hover */
+    background-color: transparent; 
 }
 
-/* הקו התחתון השחור בלשונית הפעילה */
 .new-board-inline button.active::after,
 .new-board-inline .tab-btn.active::after {
     content: "";
@@ -65,7 +62,6 @@
     border-radius: 2px;
 }
 
-/* --- שאר הקוד המקורי --- */
 .boards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -148,7 +144,7 @@
     font-weight: bold;
     font-size: 14px;
     cursor: pointer;
-    margin-bottom: 25px; /* רווח מתחת לכפתור לפני גריד התמונות */
+    margin-bottom: 25px; 
     transition: background-color 0.2s ease;
 }
 
@@ -156,7 +152,6 @@
     background-color: #e2e2e2;
 }
 
-/* תמיכה במצב לילה לכפתור */
 body.dark-mode .back-to-boards-btn {
     background-color: #333;
     color: #fff;
@@ -174,7 +169,6 @@ body.dark-mode .back-to-boards-btn:hover {
 
 }
 
-/* --- כרטיס "סיכה" בטאב הסיכות (תמונות שמורות) --- */
 .pin-card {
     cursor: default;
 }
@@ -183,7 +177,6 @@ body.dark-mode .back-to-boards-btn:hover {
     transform: none;
 }
 
-/* כפתור ביטול שמירה / הסרה מלוח - מוצג בעדינות, בולט ב-hover */
 .pin-unsave-btn {
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -194,12 +187,10 @@ body.dark-mode .back-to-boards-btn:hover {
     opacity: 1;
 }
 
-/* כרטיסי הפינים בתוך תצוגת לוח בודד (board-pins-section) - צריך מיקום יחסי לכפתור ההסרה */
 .board-pin-card {
     position: relative;
 }
 
-/* --- אריח "לוח חדש +" בטאב הלוחות --- */
 .add-board-card {
     display: flex;
     flex-direction: column;
@@ -225,7 +216,6 @@ body.dark-mode .back-to-boards-btn:hover {
     margin-top: 40px;
 }
 
-/* --- Dark Mode --- */
 body.dark-mode .boards-page-title,
 body.dark-mode .board-name,
 body.dark-mode #boardPinsTitle {
@@ -251,7 +241,6 @@ body.dark-mode .add-board-card {
     border-color: #555555;
 }
 
-/* --- מודאל "יצירת לוח חדש" (רכיב UI אמיתי, לא הודעת prompt של הדפדפן) --- */
 .save-board-modal-content {
     width: 380px;
     height: auto;
@@ -361,7 +350,7 @@ body.dark-mode .add-pins-to-board-btn {
 .pin-save-count-badge {
     position: absolute;
     top: 8px;
-    right: 8px; /* מיקום בצד ימין */
+    right: 8px; 
     background-color: rgba(0, 0, 0, 0.6);
     color: #ffffff;
     padding: 4px 8px;

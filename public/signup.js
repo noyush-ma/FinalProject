@@ -43,7 +43,6 @@ async function handleSignup() {
         try {
             data = await res.json();
         } catch (parseErr) {
-            // השרת החזיר משהו שהוא לא JSON (למשל דף שגיאה של Express)
             throw new Error(`תגובה לא תקינה מהשרת (סטטוס ${res.status})`);
         }
 

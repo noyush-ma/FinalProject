@@ -3,23 +3,18 @@ let pendingEditPassword = null;
 let pendingEditPostId = null;
 let pendingEditPostData = null;
 
-// --- ניהול משתמש מחובר ---
-// שולף את פרטי המשתמש המחובר שנשמרו ב-sessionStorage בזמן ה-login/signup
 const loggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 
-// הגנה על עמוד ה-feed: אם אין משתמש מחובר, מחזירים אותו אוטומטית לדף ההתחברות
 if (!loggedInUser) {
     window.location.href = 'login.html';
 }
 
-// הצגת שם המשתמש בתפריט הנפתח שנפתח דרך אייקון הפרופיל
 document.addEventListener('DOMContentLoaded', () => {
     const usernameEl = document.getElementById('profileUsername');
     if (usernameEl && loggedInUser) {
         usernameEl.textContent = loggedInUser.username;
     }
 
-    // --- עריכת שם משתמש (מתעדכן גם ב-MongoDB) ---
     const editBtn = document.getElementById('editUsernameBtn');
     const editInput = document.getElementById('editUsernameInput');
     const usernameError = document.getElementById('usernameError');
@@ -66,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // עדכון הזיכרון המקומי (sessionStorage) והתצוגה, בהתאם למה שחזר בפועל מהשרת
             loggedInUser.username = data.username;
             sessionStorage.setItem('currentUser', JSON.stringify(loggedInUser));
             usernameEl.textContent = data.username;
@@ -89,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
         editInput.addEventListener('blur', saveNewUsername);
     }
 
-    // הצגת תמונת הפרופיל הנוכחית (גם באייקון בהדר וגם בתוך התפריט הנפתח)
     const headerImg = document.getElementById('profileImg');
     const dropdownImg = document.getElementById('profileDropdownImg');
     const currentImage = (loggedInUser && loggedInUser.profileImage) ? loggedInUser.profileImage : 'icons/profileLogo.png';
@@ -102,24 +95,20 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             profileDropdown.classList.toggle('show');
         });
-        // סגירת התפריט בלחיצה מחוץ לו
         window.addEventListener('click', () => {
             profileDropdown.classList.remove('show');
         });
-        // מונע סגירה כשלוחצים בתוך התפריט עצמו (למשל על תמונת הפרופיל)
         profileDropdown.addEventListener('click', (e) => {
             e.stopPropagation();
         });
     }
 
-    // העלאת תמונת פרופיל חדשה מהמחשב
     const profileImageInput = document.getElementById('profileImageInput');
     if (profileImageInput) {
         profileImageInput.addEventListener('change', handleProfileImageChange);
     }
 });
 
-// מכווץ תמונה גדולה לגודל סביר לפני שמירה (כדי לא לשלוח קבצים כבדים לשרת)
 function resizeImageToDataURL(file, maxSize) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -149,7 +138,6 @@ function resizeImageToDataURL(file, maxSize) {
     });
 }
 
-// מטפל בבחירת קובץ תמונה חדש מהמחשב, שולח לשרת ומעדכן את התצוגה
 async function handleProfileImageChange(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -181,13 +169,11 @@ async function handleProfileImageChange(event) {
 
         const updatedUser = await res.json();
 
-        // עדכון התמונה בהדר ובתפריט הנפתח
         const headerImg = document.getElementById('profileImg');
         const dropdownImg = document.getElementById('profileDropdownImg');
         if (headerImg) headerImg.src = dataUrl;
         if (dropdownImg) dropdownImg.src = dataUrl;
 
-        // עדכון המשתמש המחובר בזיכרון הדפדפן כדי שהתמונה תישאר גם אחרי רענון
         loggedInUser.profileImage = updatedUser.profileImage || dataUrl;
         sessionStorage.setItem('currentUser', JSON.stringify(loggedInUser));
     } catch (err) {
@@ -198,14 +184,13 @@ async function handleProfileImageChange(event) {
     }
 }
 
-// התנתקות: מנקה את פרטי המשתמש מהזיכרון ומחזיר לדף ההתחברות
 function handleLogout() {
     sessionStorage.removeItem('currentUser');
     window.location.href = 'login.html';
 }
 
 let currentModalAuthorId = null;
-let currentModalPostAuthorId = null; // בעל הפוסט הפתוח כרגע - נחוץ כדי לדעת מי רשאי למחוק תגובות (בעל הפוסט יכול תמיד)
+let currentModalPostAuthorId = null; 
 let followingIds = new Set((loggedInUser && loggedInUser.following) ? loggedInUser.following.map(String) : []);
 
 function openModal(element) {
@@ -236,9 +221,6 @@ function openModal(element) {
         modalVideo.src = "";
         modalImg.style.display = "block";
         modalImg.src = element.src;
-
-        // זיהוי אוריינטציה: תמונה רוחבית (landscape) תוצג במלואה (contain),
-        // תמונה אנכית תמשיך להתנהג כמו היום (cover)
         modalImg.classList.remove("landscape");
         modalImg.onload = function () {
             if (modalImg.naturalWidth > modalImg.naturalHeight) {
@@ -256,11 +238,9 @@ function openModal(element) {
     var targetDesc = element.getAttribute("data-description");
     document.getElementById("modalDesc").innerText = targetDesc;
 
-    // מצב הלב משתקף מהמצב שנשמר בפועל בפוסט (לא מתאפס יותר בכל פתיחה)
     var likedByMe = element.getAttribute("data-liked-by-me") === "true";
     document.getElementById("heartIcon").src = likedByMe ? "icons/fullHeart.png" : "icons/emptyHeart.png";
 
-    // --- כפתור עקיבה אחרי מי שהעלה את הפוסט ---
     var followBtn = document.getElementById("followBtn");
     var postDataRaw = element.dataset.post;
     var parsedPostData = null;
@@ -279,7 +259,6 @@ function openModal(element) {
             followBtn.hidden = true;
         }
     } else {
-        // פוסט לוקאלי קבוע (מה-HTML) - אין משתמש אמיתי לעקוב אחריו
         followBtn.hidden = true;
     }
 
@@ -288,7 +267,6 @@ function openModal(element) {
     saveBtn.style.backgroundColor = "#e60023";
     refreshSaveButtonState(element.getAttribute("data-id"));
 
-    // --- תגובות: נטענות מהנתונים האמיתיים של הפוסט (נשמרות ב-MongoDB) ---
     currentModalPostAuthorId = parsedPostData ? parsedPostData.author : null;
     renderCommentsForCurrentPost(parsedPostData ? parsedPostData.comments : null);
     document.getElementById("newCommentInput").value = "";
@@ -303,7 +281,6 @@ function updateFollowBtnUI() {
     followBtn.classList.toggle("following", isFollowing);
 }
 
-// טוגל עקיבה אחרי מי שהעלה את הפוסט הפתוח כרגע - מתעדכן ונשמר ב-MongoDB
 async function toggleFollowAuthor() {
     if (!currentModalAuthorId || !loggedInUser) return;
     var followBtn = document.getElementById("followBtn");
@@ -323,7 +300,6 @@ async function toggleFollowAuthor() {
             } else {
                 followingIds.delete(currentModalAuthorId);
             }
-            // עדכון גם בזיכרון המקומי כדי שהמצב יישאר תקין גם אחרי רענון
             loggedInUser.following = Array.from(followingIds);
             sessionStorage.setItem('currentUser', JSON.stringify(loggedInUser));
             updateFollowBtnUI();
@@ -344,8 +320,6 @@ function closeModal() {
     }
 }
 
-// עושה/מבטל לייק לפוסט הפתוח כרגע במודל, ושומר את זה לצמיתות ב-MongoDB
-// (אם הפוסט לוקאלי-קבוע מה-HTML, בלי מזהה אמיתי - הלייק נשאר ויזואלי בלבד לאותו סשן)
 async function doLike() {
     const likeImg = document.querySelector("#likeBtn img");
     const likeCountSpan = document.getElementById("like-count");
@@ -356,14 +330,12 @@ async function doLike() {
     let currentSrc = likeImg.getAttribute("src");
     const wasLiked = currentSrc === "icons/fullHeart.png";
 
-    // עדכון אופטימי מיידי בממשק
     likeImg.setAttribute("src", wasLiked ? "icons/emptyHeart.png" : "icons/fullHeart.png");
     if (!wasLiked) {
         likeImg.classList.add("heart-pop");
         setTimeout(() => likeImg.classList.remove("heart-pop"), 400);
     }
 
-    // פוסט לוקאלי-קבוע (אין data-id אמיתי) - אין עם מי לדבר בשרת, נשאר רק ויזואלי
     if (!postId || !loggedInUser) {
         let currentLikes = parseInt(likeCountSpan.textContent) || 0;
         likeCountSpan.textContent = wasLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1;
@@ -379,7 +351,6 @@ async function doLike() {
         const data = await res.json();
 
         if (!res.ok) {
-            // נכשל בשרת - מחזירים את המצב הקודם
             likeImg.setAttribute("src", wasLiked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
             return;
         }
@@ -387,7 +358,6 @@ async function doLike() {
         likeCountSpan.textContent = data.likesCount;
         likeImg.setAttribute("src", data.liked ? "icons/fullHeart.png" : "icons/emptyHeart.png");
 
-        // מעדכנים גם את הכרטיס בפיד עצמו, כדי שהמצב יישאר נכון גם בלי לרענן את הדף
         currentOpenImg.setAttribute("data-likes", data.likesCount);
         currentOpenImg.setAttribute("data-liked-by-me", data.liked ? "true" : "false");
     } catch (err) {
@@ -396,7 +366,6 @@ async function doLike() {
     }
 }
 
-// בודק מול השרת אם הפוסט הפתוח כרגע כבר שמור על ידי המשתמש המחובר, ומעדכן את כפתור השמירה בהתאם
 async function refreshSaveButtonState(postId) {
     var saveBtn = document.getElementById("saveBtn");
     if (!postId || !loggedInUser) return;
@@ -413,7 +382,6 @@ async function refreshSaveButtonState(postId) {
     }
 }
 
-// לחיצה על כפתור השמירה בתוך המודל: אם כבר שמור - מסירים, אחרת פותחים בחירת לוח
 function doSave() {
     var saveBtn = document.getElementById("saveBtn");
     if (saveBtn.innerText === "נשמר") {
@@ -423,7 +391,6 @@ function doSave() {
     }
 }
 
-// הסרת השמירה של הפוסט הפתוח כרגע (רק עבור המשתמש המחובר)
 async function unsaveCurrentPost() {
     if (!currentOpenImg || !loggedInUser) return;
     const postId = currentOpenImg.getAttribute("data-id");
@@ -446,7 +413,6 @@ async function unsaveCurrentPost() {
     }
 }
 
-// פותח את חלון בחירת הלוח לשמירת הפוסט הפתוח כרגע
 async function openSaveBoardModal() {
     if (!currentOpenImg) return;
     const postId = currentOpenImg.getAttribute("data-id");
@@ -457,7 +423,6 @@ async function openSaveBoardModal() {
 
     const saveBoardModalEl = document.getElementById('saveBoardModal');
     if (!saveBoardModalEl) {
-        // TODO: פיצ'ר שמירה ללוחות עדיין לא הושלם ב-HTML (חסר מודאל #saveBoardModal)
         alert('פיצ\'ר שמירה ללוחות עדיין לא זמין');
         return;
     }
@@ -470,7 +435,6 @@ function closeSaveBoardModal() {
     if (saveBoardModalEl) saveBoardModalEl.style.display = 'none';
 }
 
-// טוען את הלוחות של המשתמש המחובר בלבד (כל משתמש רואה רק את הלוחות שלו) לחלון השמירה
 async function loadUserBoardsForSaveModal() {
     const listEl = document.getElementById('userBoardsList');
     if (!loggedInUser) return;
@@ -526,7 +490,6 @@ async function saveCurrentPostToBoard(boardId) {
     }
 }
 
-// יוצר לוח חדש ומיד שומר אליו את הפוסט הפתוח כרגע
 async function createBoardAndSave() {
     const name = input.value.trim();
 
@@ -623,7 +586,6 @@ function showTyping() {
     }
 }
 
-// מרנדר את רשימת התגובות האמיתית של הפוסט הפתוח (מהנתונים שחזרו מהשרת)
 function renderCommentsForCurrentPost(comments) {
     var commentsList = document.getElementById("commentsList");
     var titleText = document.getElementById("comments-title-text");
@@ -650,7 +612,6 @@ function buildCommentElement(comment) {
     textWrap.appendChild(document.createTextNode(comment.text));
     el.appendChild(textWrap);
 
-    // כפתור מחיקה מוצג רק אם המשתמש המחובר הוא כותב התגובה, או בעל הפוסט (מנהל/ת תוכן)
     const commentAuthorId = comment.authorId && (comment.authorId._id || comment.authorId);
     const isCommentAuthor = loggedInUser && commentAuthorId && String(commentAuthorId) === loggedInUser._id;
     const isPostOwner = loggedInUser && currentModalPostAuthorId && String(currentModalPostAuthorId) === loggedInUser._id;
@@ -679,7 +640,6 @@ function updateCommentsTitle(count) {
     }
 }
 
-// שולח תגובה חדשה לשרת ושומר אותה לצמיתות ב-MongoDB בתוך הפוסט
 async function addComment() {
     var inputComment = document.getElementById("newCommentInput");
     var commentText = inputComment.value.trim();
@@ -693,7 +653,6 @@ async function addComment() {
     const postId = currentOpenImg ? currentOpenImg.getAttribute("data-id") : null;
 
     if (!postId || !loggedInUser) {
-        // פוסט לוקאלי-קבוע (אין data-id אמיתי) - אין עם מי לדבר בשרת, לא ניתן לשמור תגובה
         alert("לא ניתן לשמור תגובות על פוסט זה כרגע");
         return;
     }
@@ -715,8 +674,6 @@ async function addComment() {
         try {
             data = await res.json();
         } catch (parseErr) {
-            // התקבלה תגובה שאינה JSON (למשל דף שגיאת 404 של השרת) -
-            // כמעט תמיד סימן שהשרת לא הופעל מחדש אחרי עדכון קוד
             alert('השרת החזיר תגובה לא תקינה. נסו להפעיל מחדש את השרת (node server.js) ולרענן את הדף');
             return;
         }
@@ -728,7 +685,6 @@ async function addComment() {
 
         renderCommentsForCurrentPost(data.comments);
 
-        // מעדכנים גם את הכרטיס בפיד עצמו, כדי שהתגובות יישארו נכונות גם בלי לרענן את הדף
         if (currentOpenImg) {
             try {
                 const postData = JSON.parse(currentOpenImg.dataset.post);
@@ -748,7 +704,6 @@ async function addComment() {
     }
 }
 
-// מוחק תגובה לצמיתות מהפוסט הפתוח כרגע (מותר רק לכותב התגובה או לבעל הפוסט)
 async function deleteComment(commentId) {
     const postId = currentOpenImg ? currentOpenImg.getAttribute("data-id") : null;
     if (!postId || !loggedInUser) return;
@@ -777,7 +732,6 @@ async function deleteComment(commentId) {
 
         renderCommentsForCurrentPost(data.comments);
 
-        // מעדכנים גם את הכרטיס בפיד עצמו, כדי שהמצב יישאר נכון גם בלי לרענן את הדף
         if (currentOpenImg) {
             try {
                 const postData = JSON.parse(currentOpenImg.dataset.post);
@@ -826,7 +780,6 @@ async function deleteCurrentPost() {
 
     const postId = currentOpenImg.getAttribute("data-id");
 
-    // אם אין מזהה מונגו (למשל פוסט ישן/דמו שלא הגיע מהדאטהבייס) - רק מסתירים בעמוד
     if (!postId) {
         const postCard = currentOpenImg.closest('.post-card');
         if (postCard) postCard.remove();
@@ -864,16 +817,12 @@ function toggleDarkMode() {
 const button = document.getElementById('createPost');
 const badge = document.getElementById('badge');
 
-// אנימציית "רעד" קטנה על כפתור יצירת הפוסט בלחיצה (ויזואלי בלבד, לא קשור להתראות)
 button.addEventListener('click', () => {
   button.classList.remove('animate-btn');
   void button.offsetWidth; 
   button.classList.add('animate-btn');
 });
 
-// ==================== מרכז ההתראות ====================
-// כפתור הפעמון פותח מודל עם כל היסטוריית ההתראות (במקום פופ-אפים קופצים בצד).
-// הבאדג' ליד הפעמון מציג את מספר ההתראות שעוד לא נקראו, ומתעדכן כל כמה שניות.
 
 const notificationsModal = document.getElementById('notificationsModal');
 const notificationsList = document.getElementById('notificationsList');
@@ -881,7 +830,6 @@ const notificationsEmptyMsg = document.getElementById('notificationsEmptyMsg');
 const messagesButton = document.getElementById('messagesButton');
 const closeNotificationsModal = document.getElementById('closeNotificationsModal');
 
-// מחזיר טקסט זמן יחסי קצר וקריא ("לפני 3 דקות" וכו') מתאריך התראה
 function formatNotificationTime(dateString) {
     const diffMs = Date.now() - new Date(dateString).getTime();
     const diffMin = Math.floor(diffMs / 60000);
@@ -893,7 +841,6 @@ function formatNotificationTime(dateString) {
     return `לפני ${diffDays} ימים`;
 }
 
-// שולף ומרענן רק את מספר ההתראות שלא נקראו (עבור הבאדג' ליד הפעמון)
 async function refreshNotificationsBadge() {
     if (!loggedInUser) return;
     try {
@@ -910,7 +857,6 @@ async function refreshNotificationsBadge() {
     }
 }
 
-// בונה שורת התראה בודדת בתוך מרכז ההתראות, כולל כפתורי הפעולה המתאימים לסוג שלה
 function buildNotificationItem(notification) {
     const item = document.createElement('div');
     item.className = 'notification-item' + (notification.isRead ? '' : ' unread');
@@ -973,7 +919,6 @@ function buildNotificationItem(notification) {
     return item;
 }
 
-// שולף את כל היסטוריית ההתראות ומרנדר אותה בתוך המודל
 async function loadNotificationsCenter() {
     if (!loggedInUser) return;
     try {
@@ -991,7 +936,6 @@ async function loadNotificationsCenter() {
             });
         }
 
-        // סימון כל ההתראות שנטענו כ"נקראו", ורענון הבאדג' בהתאם
         const unreadOnes = notifications.filter((n) => !n.isRead);
         await Promise.all(unreadOnes.map((n) =>
             fetch('/api/notifications/' + n._id + '/read', { method: 'PUT' }).catch(() => {})
@@ -1002,7 +946,6 @@ async function loadNotificationsCenter() {
     }
 }
 
-// מטפל בלחיצה על "אשר"/"דחה" בהזמנה לקבוצה, ישירות מתוך מרכז ההתראות
 async function respondToGroupInviteFromCenter(notificationId, response, itemEl) {
     try {
         await fetch('/api/groups/invite/' + notificationId + '/respond', {
@@ -1019,7 +962,6 @@ async function respondToGroupInviteFromCenter(notificationId, response, itemEl) 
     }
 }
 
-// מוחק התראה לצמיתות ממרכז ההתראות (וגם מה-DB)
 async function deleteNotificationFromCenter(notificationId, itemEl) {
     try {
         await fetch('/api/notifications/' + notificationId, { method: 'DELETE' });
@@ -1049,7 +991,6 @@ notificationsModal.addEventListener('click', (e) => {
     }
 });
 
-// בודקים מייד עם טעינת הדף, ואז כל כמה שניות, אם יש התראות חדשות שלא נקראו (לבאדג' בלבד)
 refreshNotificationsBadge();
 setInterval(refreshNotificationsBadge, 5000);
 
@@ -1106,7 +1047,6 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// בונה את אלמנט ה-DOM של כרטיס פוסט בודד (משמש גם לפיד הראשי וגם לפיד החברים)
 function buildPostCardElement(post) {
   const postElement = document.createElement('div');
   postElement.className = 'post-card';
@@ -1139,14 +1079,12 @@ function buildPostCardElement(post) {
   return postElement;
 }
 
-// 1. פונקציה שטוענת ומציגה את הפוסטים מהדאטהבייס (הפיד הראשי - כל הפוסטים)
  async function loadPostsFromDB() {
   try {
     const res = await fetch('/api/posts');
     const posts = await res.json();
     const postsContainer = document.getElementById('postsContainer');
 
-    // מסירים כרטיסי DB קודמים (אם יש) כדי לא לשכפל בעת מעבר חזרה מפיד החברים
     postsContainer.querySelectorAll('.post-card[data-id]').forEach((el) => el.remove());
 
     posts.forEach(post => {
@@ -1157,7 +1095,6 @@ function buildPostCardElement(post) {
   }
 }
 
-// טוען רק פוסטים של משתמשים שהמשתמש המחובר עוקב אחריהם ("פיד חברים")
 async function loadFollowingPosts() {
   try {
     const res = await fetch('/api/posts/following/' + loggedInUser._id);
@@ -1176,7 +1113,6 @@ async function loadFollowingPosts() {
   }
 }
 
-// --- מעבר בין הפיד הראשי לפיד החברים ---
 let currentFeedMode = 'main';
 
 function showMainFeed() {
@@ -1196,7 +1132,6 @@ function showFriendsFeed() {
     document.getElementById('friendsFeedBtn').classList.add('active');
     document.getElementById('mainFeedBtn').classList.remove('active');
     document.getElementById('postsContainer').classList.add('friends-feed-mode');
-    // מסתירים את הפוסטים הלוקאליים הקבועים - פיד החברים מציג רק פוסטים אמיתיים של עוקבים
     document.querySelectorAll('.post-card:not([data-id])').forEach((el) => {
         el.style.display = 'none';
     });
@@ -1206,17 +1141,14 @@ function showFriendsFeed() {
 document.getElementById('mainFeedBtn').addEventListener('click', showMainFeed);
 document.getElementById('friendsFeedBtn').addEventListener('click', showFriendsFeed);
 
-// הרצת הפונקציה מיד כשהעמוד מסיים להיטען
 document.addEventListener('DOMContentLoaded', loadPostsFromDB);
 
 
-// 2. ניהול חלון המודל (פתיחה וסגירה)
 const modal = document.getElementById('postModal');
 const createPostBtn = document.getElementById('createPost');
 const closeModalBtn = document.getElementById('closeModal');
 const postForm = document.getElementById('postForm');
 
-// --- החלפת השדה/תצוגה המקדימה בהתאם לסוג הפוסט (תמונה/וידאו/טקסט) ---
 const postTypeSelect = document.getElementById('postType');
 const mediaUrlGroup = document.getElementById('mediaUrlGroup');
 const imgUrlInput = document.getElementById('imgUrl');
@@ -1235,7 +1167,6 @@ function updateMediaFieldForType() {
             ? 'https://example.com/video.mp4'
             : 'https://example.com/image.jpg';
     } else {
-        // TEXT או שאין עדיין בחירה - אין צורך בקישור מדיה
         mediaUrlGroup.style.display = 'none';
         imgUrlInput.required = false;
         imgUrlInput.value = '';
@@ -1274,7 +1205,6 @@ function updateMediaPreview() {
 postTypeSelect.addEventListener('change', updateMediaFieldForType);
 imgUrlInput.addEventListener('input', updateMediaPreview);
 
-// פתיחת המודל בלחיצה על כפתור יצירת פוסט
 createPostBtn.addEventListener('click', () => {
   document.getElementById('editPostId').value = '';
   pendingEditPassword = null;
@@ -1285,19 +1215,16 @@ createPostBtn.addEventListener('click', () => {
   modal.style.display = 'flex';
 });
 
-// סגירת המודל בלחיצה על ה-X
 closeModalBtn.addEventListener('click', () => {
   modal.style.display = 'none';
 });
 
-// סגירת המודל בלחיצה על הרקע מחוץ לחלון
 window.addEventListener('click', (e) => {
   if (e.target === modal) {
     modal.style.display = 'none';
   }
 });
 
-// 3. שליחת הטופס והוספת פוסט חדש לשרת
 postForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -1385,7 +1312,6 @@ async function loadCategoryCounts() {
         const res = await fetch('/api/posts/stats/by-category');
         const dbCounts = await res.json();
 
-        // סופרים את הפוסטים הלוקליים הקבועים לפי data-category שלהם ישירות מה-DOM
         const localCounts = {};
         document.querySelectorAll('#postsContainer .post-card:not([data-id])').forEach(card => {
             const category = card.getAttribute('data-category');

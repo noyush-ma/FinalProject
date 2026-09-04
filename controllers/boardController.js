@@ -1,7 +1,6 @@
 const Board = require('../models/board');
 const SavedPin = require('../models/savedPin');
 
-// יצירת לוח חדש עבור משתמש
 exports.createBoard = async (req, res) => {
   try {
     const { name, ownerId, coverImage } = req.body;
@@ -26,7 +25,6 @@ exports.createBoard = async (req, res) => {
   }
 };
 
-// שליפת כל הלוחות של משתמש מסוים בלבד (הלוחות פרטיים למשתמש שיצר אותם)
 exports.getUserBoards = async (req, res) => {
   try {
     const boards = await Board.find({ owner: req.params.userId }).sort({ createdAt: -1 });
@@ -36,7 +34,6 @@ exports.getUserBoards = async (req, res) => {
   }
 };
 
-// שליפת לוח בודד לפי מזהה - עם בדיקת בעלות אם סופק userId
 exports.getBoardById = async (req, res) => {
   try {
     const board = await Board.findById(req.params.id);
@@ -52,7 +49,6 @@ exports.getBoardById = async (req, res) => {
   }
 };
 
-// עדכון לוח (שם / תמונת שער) - רק על ידי הבעלים
 exports.updateBoard = async (req, res) => {
   try {
     const board = await Board.findById(req.params.id);
@@ -76,9 +72,6 @@ exports.updateBoard = async (req, res) => {
   }
 };
 
-// מחיקת לוח - רק על ידי הבעלים.
-// חשוב: מחיקת לוח לא מוחקת את השמירות (הסיכות) שהיו בו - היא רק מנתקת אותן מהלוח
-// (מאפסת את שדה board ל-null), כך שהתמונות נשארות שמורות בטאב "סיכות".
 exports.deleteBoard = async (req, res) => {
   try {
     const board = await Board.findById(req.params.id);
@@ -98,7 +91,6 @@ exports.deleteBoard = async (req, res) => {
   }
 };
 
-// שליפת כל הפוסטים (פינים) השמורים בלוח מסוים - רק לבעל הלוח
 exports.getBoardPins = async (req, res) => {
   try {
     const board = await Board.findById(req.params.id);
@@ -113,7 +105,6 @@ exports.getBoardPins = async (req, res) => {
       .sort({ savedAt: -1 })
       .populate('post');
 
-    // מסנן פינים שהפוסט המקורי שלהם נמחק בינתיים
     const posts = savedPins.filter(sp => sp.post).map(sp => sp.post);
     res.json(posts);
   } catch (err) {
@@ -121,9 +112,6 @@ exports.getBoardPins = async (req, res) => {
   }
 };
 
-// שמירת פוסט ל"סיכות" בלבד - שמירה מיידית, בלי לבחור/ליצור לוח.
-// אם הפוסט כבר שמור (בכל מצב, גם אם הוא כבר משויך ללוח), הפעולה לא משנה כלום
-// ופשוט מחזירה את השמירה הקיימת.
 exports.savePin = async (req, res) => {
   try {
     const { postId, userId } = req.body;
@@ -141,7 +129,6 @@ exports.savePin = async (req, res) => {
     res.status(201).json(savedPin);
   } catch (err) {
     if (err.code === 11000) {
-      // מירוץ נדיר של שתי בקשות שמירה בו-זמנית - השמירה כבר קיימת, זה בסדר
       const existing = await SavedPin.findOne({ post: req.body.postId, user: req.body.userId });
       if (existing) return res.status(200).json(existing);
     }
@@ -149,9 +136,6 @@ exports.savePin = async (req, res) => {
   }
 };
 
-// הוספת פין (שמור או לא) ללוח מסוים.
-// אם הפין עדיין לא שמור בכלל - הפעולה גם שומרת אותו ב"סיכות" וגם משייכת אותו ללוח, ביחד.
-// אם הפין כבר משויך ללוח אחר, הוא "עובר" ללוח החדש (לוח אחד בו-זמנית לכל פין).
 exports.addPinToBoard = async (req, res) => {
   try {
     const { postId, boardId, userId } = req.body;
@@ -180,7 +164,6 @@ exports.addPinToBoard = async (req, res) => {
   }
 };
 
-// הסרת פין מלוח בלבד - השמירה עצמה (הסיכה) נשארת, רק שדה board מתאפס ל-null.
 exports.removeFromBoard = async (req, res) => {
   try {
     const { postId, userId } = req.body;
@@ -204,7 +187,6 @@ exports.removeFromBoard = async (req, res) => {
   }
 };
 
-// ביטול שמירה מלא של פוסט (גם מ"סיכות" וגם מכל לוח שהוא היה בו) - ניתן לבטל רק שמירה של המשתמש עצמו
 exports.unsavePin = async (req, res) => {
   try {
     const { postId, userId } = req.body;
@@ -224,14 +206,12 @@ exports.unsavePin = async (req, res) => {
   }
 };
 
-// שליפת כל הפינים ששמר משתמש מסוים, בכל הלוחות שלו יחד (לצורך טאב "סיכות" בעמוד הלוחות)
 exports.getUserSavedPins = async (req, res) => {
   try {
     const savedPins = await SavedPin.find({ user: req.params.userId })
       .sort({ savedAt: -1 })
       .populate('post');
 
-    // מסנן פינים שהפוסט המקורי שלהם נמחק בינתיים
     const pins = savedPins
       .filter(sp => sp.post)
       .map(sp => ({
@@ -250,7 +230,6 @@ exports.getUserSavedPins = async (req, res) => {
   }
 };
 
-// בדיקת מצב שמירה: האם פוסט מסוים שמור על ידי משתמש מסוים, ובאיזה לוח
 exports.getSaveStatus = async (req, res) => {
   try {
     const { postId, userId } = req.params;

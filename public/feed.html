@@ -79,8 +79,6 @@
             <button id="messagesButton" type="button"><img src="icons/notifLogo1.png"></button>
             <span id="badge" class="badge">0</span>
         </div>
-        <!-- כפתור הצ'אטים/קבוצות: לוחצים עליו ונפתח מודל שמאפשר ליצור קבוצה, -->
-        <!-- להצטרף לקבוצה קיימת (לפי קוד), ולראות את כל הקבוצות שאני חבר בהן -->
         <button id="chatsBtn" class="nav-icon-btn" type="button">
             <img src="icons/messageLogo1.png" alt="Chats">
         </button>
@@ -306,7 +304,6 @@
     <div class="modal-content groups-modal-content">
         <span class="close" id="closeGroupsModal">&times;</span>
 
-        <!-- מסך 1: רשימת הקבוצות שלי -->
         <div id="groupsListView" class="groups-view active">
             <h2>הצ'אטים שלי</h2>
             <div class="groups-actions-row">
@@ -314,12 +311,10 @@
                 <button id="openJoinGroupBtn" class="group-action-btn group-action-btn-secondary">הצטרפות לפי קוד</button>
             </div>
             <div id="myGroupsList" class="my-groups-list">
-                <!-- כאן ייטענו דינמית כרטיסי הקבוצות שהמשתמש חבר בהן, ע"י groups.js -->
                 <p class="groups-empty-msg" id="groupsEmptyMsg">עדיין אין לך קבוצות. צור קבוצה חדשה או הצטרף לאחת קיימת!</p>
             </div>
         </div>
 
-        <!-- מסך 2: יצירת קבוצה חדשה -->
         <div id="createGroupView" class="groups-view">
             <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה</button>
             <h2>יצירת קבוצה חדשה</h2>
@@ -329,7 +324,6 @@
             <p id="createGroupError" class="group-error-msg"></p>
         </div>
 
-        <!-- מסך 3: הצטרפות לקבוצה קיימת לפי קוד -->
         <div id="joinGroupView" class="groups-view">
             <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה</button>
             <h2>הצטרפות לקבוצה קיימת</h2>
@@ -339,7 +333,6 @@
             <p id="joinGroupError" class="group-error-msg"></p>
         </div>
 
-        <!-- מסך 4: הצ'אט של קבוצה ספציפית -->
         <div id="groupChatView" class="groups-view groups-chat-view">
             <button class="groups-back-btn" data-back-to="groupsListView">→ חזרה לרשימה</button>
 
