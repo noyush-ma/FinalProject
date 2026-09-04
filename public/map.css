@@ -791,3 +791,10 @@ body.dark-mode .loc-edit-btn {
 body.dark-mode .loc-delete-btn {
     color: #ff6b6b;
 }
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+}
