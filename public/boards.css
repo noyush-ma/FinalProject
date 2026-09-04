@@ -442,3 +442,80 @@ body.dark-mode .reset-filters-btn:hover {
     background-color: #444444;
 }
 
+nav svg,
+#friendsFeedBtn svg {
+    width: 24px;
+    height: 24px;
+    fill: #111111;
+}
+
+body.dark-mode nav svg,
+body.dark-mode #friendsFeedBtn svg {
+    fill: #ffffff;
+}
+
+nav a,
+nav button,
+#friendsFeedBtn,
+#statsBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+
+nav a:hover,
+nav button:hover,
+#friendsFeedBtn:hover,
+#statsBtn:hover {
+    background-color: transparent !important;
+    opacity: 0.7;
+}
+
+
+nav img,
+nav svg {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+#friendsFeedBtn svg {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    fill: #767676;
+}
+
+#statsBtn {
+    font-size: 20px;
+}
+
+/* תמיכה במצב לילה לאייקונים בסרגל */
+body.dark-mode nav img,
+body.dark-mode #friendsFeedBtn img,
+body.dark-mode #chatsBtn img {
+    filter: invert(1);
+}
+
+body.dark-mode nav svg {
+    fill: #ffffff;
+}
+
+body.dark-mode #friendsFeedBtn svg {
+    fill: #bdbdbd;
+}
+
+#friendsFeedBtn,
+#statsBtn {
+    background-color: transparent ;
+    border-radius: 0 ;
+}
+
+
