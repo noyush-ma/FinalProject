@@ -11,14 +11,6 @@ function toggleDarkMode() {
     btn.innerText = isDark ? '☀️' : '🌙';
 }
 
-(function () {
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        const btn = document.getElementById('darkModeBtn');
-        if (btn) btn.innerText = '☀️';
-    }
-})();
-
 const CATEGORY_COLORS = {
     'nature': '#4caf50',
     'animals': '#ff9800',
@@ -179,7 +171,6 @@ function drawTimelineChart(containerId, labels, values) {
         .attr('color', 'currentColor')
         .attr('font-size', '11px');
 
-    // ציר X עם תוויות התאריכים
     g.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(x).tickSizeOuter(0))
@@ -251,6 +242,7 @@ function errorMessageNode(text) {
     p.textContent = text;
     return p;
 }
+
 
 const WEATHER_CODE_MAP = {
     0: ['בהיר', '☀️'],

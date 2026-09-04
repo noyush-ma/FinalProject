@@ -1,4 +1,3 @@
-// --- הגנת עמוד: רק משתמש מחובר יכול לצפות במפה ---
 const loggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 if (!loggedInUser) {
     window.location.href = 'login.html';
@@ -11,16 +10,6 @@ let currentMarkers = [];
 const DEFAULT_CENTER = [32.0853, 34.7818];
 const DEFAULT_ZOOM = 12;
 
-// --- Dark mode: החלת מצב כהה על העמוד (עקבי עם שאר האתר) ---
-function applyDarkModeFromStorage() {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-        const btn = document.getElementById('darkModeBtn');
-        if (btn) btn.innerText = '☀️';
-    }
-}
-
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
@@ -30,12 +19,10 @@ function toggleDarkMode() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    applyDarkModeFromStorage();
     initMap();
     setupLocationForm();
 });
 
-// --- אתחול המפה (Leaflet, ללא מפתח API) ---
 function initMap() {
     map = L.map('mapContainer').setView(DEFAULT_CENTER, DEFAULT_ZOOM);
 
@@ -47,7 +34,6 @@ function initMap() {
     loadLocationsFromDB();
 }
 
-// --- טעינת המיקומים מהשרת (מה-DB) ---
 async function loadLocationsFromDB() {
     const loadingMsg = document.getElementById('mapLoadingMsg');
     const errorMsg = document.getElementById('mapErrorMsg');
@@ -72,7 +58,6 @@ async function loadLocationsFromDB() {
     }
 }
 
-// --- בניית שורת סינון לפי קטגוריה (יוצג רק אם יש בפועל מיקומים עם category ב-DB) ---
 function buildCategoryFilter(locations) {
     const container = document.getElementById('mapCategoryFilter');
     container.innerHTML = '';
@@ -134,14 +119,12 @@ function buildPopupContent(loc) {
     `;
 }
 
-// מונע החדרת HTML זדוני משדות שמגיעים מה-DB
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// --- מתאים את זום/מרכז המפה כך שכל ה-markers המוצגים ייראו יחד ---
 function fitMapToMarkers(locations) {
     const validLocations = locations.filter(loc => typeof loc.lat === 'number' && typeof loc.lng === 'number');
 
@@ -159,9 +142,6 @@ function fitMapToMarkers(locations) {
     map.fitBounds(bounds, { padding: [30, 30] });
 }
 
-// ==================== ניהול מיקומים דרך האפליקציה (CRUD) ====================
-
-// --- Geocoding חינמי דרך Nominatim (OpenStreetMap) - הופך כתובת טקסטואלית לקואורדינטות ---
 async function geocodeAddress(address) {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
     const res = await fetch(url);
@@ -176,7 +156,6 @@ async function geocodeAddress(address) {
     };
 }
 
-// --- הצגת רשימת המיקומים עם כפתורי עריכה/מחיקה ---
 function renderLocationsList(locations) {
     const container = document.getElementById('locationsList');
     if (!container) return;
@@ -244,7 +223,6 @@ async function deleteLocation(id) {
     }
 }
 
-// --- הרשמת מאזין לשליחת הטופס: הוספה או עדכון ---
 function setupLocationForm() {
     const form = document.getElementById('locationForm');
     const cancelBtn = document.getElementById('locCancelEditBtn');

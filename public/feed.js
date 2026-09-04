@@ -860,15 +860,6 @@ function toggleDarkMode() {
     const btn = document.getElementById("darkModeBtn");
     btn.innerText = isDark ? "☀️" : "🌙";
 }
-
-// טעינת מצב כהה מה-localStorage בטעינת הדף
-(function () {
-    if (localStorage.getItem('darkMode') === 'true') {
-        document.body.classList.add('dark-mode');
-        const btn = document.getElementById('darkModeBtn');
-        if (btn) btn.innerText = '☀️';
-    }
-})();
    
 const button = document.getElementById('createPost');
 const badge = document.getElementById('badge');
