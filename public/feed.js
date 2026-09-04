@@ -855,13 +855,20 @@ window.addEventListener('click', function() {
 
 function toggleDarkMode() {
     document.body.classList.toggle("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
+    localStorage.setItem('darkMode', isDark);
     const btn = document.getElementById("darkModeBtn");
-    if (document.body.classList.contains("dark-mode")) {
-        btn.innerText = "☀️";
-    } else {
-        btn.innerText = "🌙";
-    }
+    btn.innerText = isDark ? "☀️" : "🌙";
 }
+
+// טעינת מצב כהה מה-localStorage בטעינת הדף
+(function () {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        const btn = document.getElementById('darkModeBtn');
+        if (btn) btn.innerText = '☀️';
+    }
+})();
    
 const button = document.getElementById('createPost');
 const badge = document.getElementById('badge');

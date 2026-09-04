@@ -1,4 +1,3 @@
-
 const loggedInUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 if (!loggedInUser) {
     window.location.href = 'login.html';
@@ -6,11 +5,20 @@ if (!loggedInUser) {
 
 function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark);
     const btn = document.getElementById('darkModeBtn');
-    btn.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    btn.innerText = isDark ? '☀️' : '🌙';
 }
 
-// צבעים קבועים לפי קטגוריה, כדי שהגרף יהיה עקבי גם כשהוא נטען מחדש
+(function () {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        const btn = document.getElementById('darkModeBtn');
+        if (btn) btn.innerText = '☀️';
+    }
+})();
+
 const CATEGORY_COLORS = {
     'nature': '#4caf50',
     'animals': '#ff9800',
@@ -29,12 +37,11 @@ function colorForCategory(name, index) {
     return CATEGORY_COLORS[key] || `hsl(${(index * 47) % 360}, 65%, 55%)`;
 }
 
-// === גרף 1: התפלגות פוסטים לפי קטגוריה (נתונים חיים מ-MongoDB דרך ה-API של השרת) ===
 async function loadCategoryChart() {
     try {
         const res = await fetch('/api/posts/stats/by-category');
         if (!res.ok) throw new Error('שגיאה בטעינת נתוני קטגוריות');
-        const data = await res.json(); // { category: count, ... }
+        const data = await res.json(); 
 
         const labels = Object.keys(data);
         const values = Object.values(data);
@@ -42,7 +49,6 @@ async function loadCategoryChart() {
 
         drawDoughnutChart('categoryChart', labels, values, colors);
 
-        // ציור מחדש בעת שינוי גודל החלון, כדי לשמור על responsive כמו קודם
         window.addEventListener('resize', debounce(() => {
             drawDoughnutChart('categoryChart', labels, values, colors);
         }, 200));
@@ -54,7 +60,6 @@ async function loadCategoryChart() {
     }
 }
 
-// מצייר גרף דונאט (doughnut) בעזרת D3.js בתוך div נתון
 function drawDoughnutChart(containerId, labels, values, colors) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -103,7 +108,6 @@ function drawDoughnutChart(containerId, labels, values, colors) {
             tooltip.style('opacity', 0);
         });
 
-    // מקרא (legend) בתחתית, במקום legend: { position: 'bottom' } של Chart.js
     const legend = d3.select(container)
         .append('div')
         .attr('class', 'd3-legend');
@@ -120,16 +124,14 @@ function drawDoughnutChart(containerId, labels, values, colors) {
     item.append('span').text(d => d.label);
 }
 
-// === גרף 2: קצב פרסום פוסטים לאורך זמן (נתונים חיים מ-MongoDB, מקובצים לפי תאריך בשרת) ===
 async function loadTimelineChart() {
     try {
         const res = await fetch('/api/posts/stats/timeline?days=14');
         if (!res.ok) throw new Error('שגיאה בטעינת נתוני ציר הזמן');
-        const data = await res.json(); // { labels: [...], data: [...] }
+        const data = await res.json(); 
 
         drawTimelineChart('timelineChart', data.labels, data.data);
 
-        // ציור מחדש בעת שינוי גודל החלון, כדי לשמור על responsive כמו קודם
         window.addEventListener('resize', debounce(() => {
             drawTimelineChart('timelineChart', data.labels, data.data);
         }, 200));
@@ -141,7 +143,6 @@ async function loadTimelineChart() {
     }
 }
 
-// מצייר גרף קו (line chart) עם מילוי שטח, בעזרת D3.js, בתוך div נתון
 function drawTimelineChart(containerId, labels, values) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -172,7 +173,6 @@ function drawTimelineChart(containerId, labels, values) {
         .nice()
         .range([height, 0]);
 
-    // ציר Y, מתחיל מ-0 ומציג רק מספרים שלמים (כמו precision: 0 ב-Chart.js)
     g.append('g')
         .call(d3.axisLeft(y).ticks(Math.min(yMax, 5)).tickFormat(d3.format('d')))
         .call(sel => sel.select('.domain').remove())
@@ -237,7 +237,6 @@ function drawTimelineChart(containerId, labels, values) {
         });
 }
 
-// עוזר קטן לדחיית ביצוע פונקציה (לצמצום קריאות ציור מחדש בעת resize)
 function debounce(fn, wait) {
     let timeout;
     return function (...args) {
@@ -253,8 +252,6 @@ function errorMessageNode(text) {
     return p;
 }
 
-// === שירות Web חיצוני: קריאה אמיתית ל-Open-Meteo (דרך נתיב ה-API של השרת שלנו) ===
-// לוח קצר של קודי מזג אוויר (WMO) לתצוגה ידידותית עם אימוג'י מתאים
 const WEATHER_CODE_MAP = {
     0: ['בהיר', '☀️'],
     1: ['בהיר בעיקר', '🌤️'],
@@ -294,8 +291,6 @@ async function fetchWeather() {
     button.textContent = 'טוען...';
 
     try {
-        // הקריאה הזו מגיעה לנתיב /api/weather בשרת שלנו, שהוא-עצמו פונה בפועל
-        // ל-Web Service חיצוני (Open-Meteo) ומחזיר לנו את התוצאה המעובדת
         const res = await fetch('/api/weather?city=' + encodeURIComponent(city));
         const data = await res.json();
 
@@ -332,6 +327,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') fetchWeather();
     });
 
-    // טעינה ראשונית של מזג אוויר לעיר ברירת המחדל שבתיבת הקלט
     fetchWeather();
 });
