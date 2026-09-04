@@ -1410,3 +1410,202 @@ async function loadCategoryCounts() {
 
 loadCategoryCounts();
 loadCategoryCounts();
+
+// פתיחת מודל הסטטיסטיקות וטעינת הנתונים לגרף
+function openStatsModal() {
+    const modal = document.getElementById('statsModal');
+    modal.style.display = 'block';
+    
+    // שליפת ה-ID של המשתמש המחובר (בהתאם למה ששמור אצלכם ב-localStorage / sessionStorage)
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser'));
+    const userId = currentUser ? currentUser._id : null;
+
+    if (userId) {
+        renderUserPostsChart(userId);
+    } else {
+        console.error("משתמש לא מחובר");
+    }
+}
+
+// סגירת מודל הסטטיסטיקות
+function closeStatsModal() {
+    document.getElementById('statsModal').style.display = 'none';
+}
+
+async function renderUserPostsChart(userId) {
+    // === הגדרות עיצוב - שני אותם כאן כדי לשלוט בצבעי הגרף ===
+    const chartColors = {
+        bars: '#f63bea',        // צבע העמודות (כחול)
+        barsHover: '#b91dd8',   // צבע עמודה במעבר עכבר
+        averageLine: '#23e600', // צבע קו הממוצע (אדום - כמו Pinterest)
+        axisText: '#333333',    // צבע הטקסט בצירים
+        gridLines: '#e5e5e5'    // צבע קווי הרשת ברקע
+    };
+
+    try {
+        const response = await fetch(`/api/posts/stats/user-posts/${userId}`);
+        if (!response.ok) {
+            throw new Error('השרת החזיר שגיאה: ' + response.status);
+        }
+        const dataset = await response.json();
+
+        const svgEl = document.getElementById('chart-svg');
+        const svg = d3.select(svgEl);
+        svg.selectAll("*").remove();
+
+        const width = +svgEl.getAttribute('width');
+        const height = +svgEl.getAttribute('height');
+       const margin = { top: 30, right: 40, bottom: 65, left: 65 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+
+        if (!dataset || dataset.length === 0) {
+            svg.append("text")
+               .attr("x", width / 2)
+               .attr("y", height / 2)
+               .attr("text-anchor", "middle")
+               .text("אין עדיין נתונים להצגה");
+            return;
+        }
+
+        dataset.sort((a, b) => a._id.localeCompare(b._id));
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // --- scales ---
+        const x = d3.scaleBand()
+            .domain(dataset.map(d => d._id))
+            .range([0, innerWidth])
+            .padding(0.3);
+
+        const maxCount = d3.max(dataset, d => d.count);
+        const y = d3.scaleLinear()
+            .domain([0, maxCount])
+            .nice()
+            .range([innerHeight, 0]);
+
+        // --- קווי רשת אופקיים (עוזר לקרוא ערכים) ---
+        g.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y).ticks(Math.min(maxCount, 5)).tickSize(-innerWidth).tickFormat(''))
+            .selectAll("line")
+            .attr("stroke", chartColors.gridLines);
+        g.select(".grid .domain").remove();
+
+        // --- ציר X עם תאריכים ---
+       // --- ציר X עם תאריכים ---
+g.append("g")
+    .attr("transform", `translate(0,${innerHeight})`)
+    .call(d3.axisBottom(x).tickFormat(d => {
+        const parts = d.split('-'); // YYYY-MM-DD -> DD/MM
+        return `${parts[2]}/${parts[1]}`;
+    }))
+    .selectAll("text")
+    .attr("transform", "rotate(-40)")
+    .style("text-anchor", "end")
+    .attr("dx", "-0.6em") // דחיפה קלה הצידה בגלל הסיבוב
+    .attr("dy", "1.8em") // מרחיק את הטקסט למטה בצורה משמעותית מהציר
+    .attr("fill", chartColors.axisText);
+
+        // כותרת ציר X
+        g.append("text")
+            .attr("x", innerWidth / 2)
+            .attr("y", innerHeight + 50)
+            .attr("text-anchor", "middle")
+            .attr("fill", chartColors.axisText)
+            .style("font-size", "13px")
+            .text("תאריך פרסום");
+
+        // --- ציר Y עם מספרי פוסטים ---
+        g.append("g")
+            .call(d3.axisLeft(y).ticks(Math.min(maxCount, 5)).tickFormat(d3.format("d")))
+            .selectAll("text")
+            .attr("fill", chartColors.axisText);
+
+        // כותרת ציר Y
+        g.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -innerHeight / 2)
+            .attr("y", -38)
+            .attr("text-anchor", "middle")
+            .attr("fill", chartColors.axisText)
+            .style("font-size", "13px")
+            .text("כמות פוסטים");
+
+        // --- tooltip ---
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "d3-chart-tooltip")
+            .style("position", "absolute")
+            .style("background", "#222")
+            .style("color", "#fff")
+            .style("padding", "6px 10px")
+            .style("border-radius", "6px")
+            .style("font-size", "12px")
+            .style("pointer-events", "none")
+            .style("opacity", 0);
+
+        // --- עמודות ---
+        g.selectAll("rect")
+            .data(dataset, d => d._id)
+            .join("rect")
+            .attr("x", d => x(d._id))
+            .attr("y", d => y(d.count))
+            .attr("width", x.bandwidth())
+            .attr("height", d => innerHeight - y(d.count))
+            .attr("fill", chartColors.bars)
+            .on("mouseover", function (event, d) {
+                d3.select(this).attr("fill", chartColors.barsHover);
+                tooltip.style("opacity", 1)
+                    .html(`<b>${d._id}</b><br>${d.count} פוסטים`);
+            })
+            .on("mousemove", function (event) {
+                tooltip.style("left", (event.pageX + 12) + "px")
+                       .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function () {
+                d3.select(this).attr("fill", chartColors.bars);
+                tooltip.style("opacity", 0);
+            });
+
+        // --- קו ממוצע ---
+        const avg = d3.mean(dataset, d => d.count);
+
+        g.append("line")
+            .attr("x1", 0)
+            .attr("x2", innerWidth)
+            .attr("y1", y(avg))
+            .attr("y2", y(avg))
+            .attr("stroke", chartColors.averageLine)
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "6,4");
+
+        const legend = g.append("g")
+            .attr("transform", `translate(100, -10)`); 
+
+        // הטקסט עצמו
+        legend.append("text")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("fill", chartColors.averageLine)
+            .style("font-size", "12px")
+            .text(`ממוצע יומי: ${avg.toFixed(1)} פוסטים`);
+
+        legend.append("rect")
+            .attr("x", 15) 
+            .attr("y", -6)
+            .attr("width", 16)
+            .attr("height", 3)
+            .attr("fill", chartColors.averageLine);
+    } catch (error) {
+        console.error("שגיאה בטעינת נתוני הגרף:", error);
+        const svg = d3.select("#chart-svg");
+        svg.selectAll("*").remove();
+        svg.append("text")
+           .attr("x", 200)
+           .attr("y", 150)
+           .attr("text-anchor", "middle")
+           .attr("fill", "red")
+           .text("שגיאה בטעינת הנתונים מהשרת");
+    }
+}
