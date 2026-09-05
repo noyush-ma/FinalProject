@@ -289,6 +289,9 @@ body.dark-mode nav .friends-icon {
     fill: #ffffff;
 }
 
+/* כפתור פעיל בנאב (עמוד נוכחי) */
+
+
 .images {
     margin-right: 95px; 
     margin-left: 20px;
@@ -375,6 +378,7 @@ body.dark-mode nav .friends-icon {
     object-fit: cover;
 }
 
+/* תמונות רוחביות (landscape) מוצגות במלואן, ללא חיתוך */
 #modalImg.landscape, #modalVideo.landscape {
     object-fit: contain;
 }
@@ -809,6 +813,7 @@ body.dark-mode .trash-icon {
     object-fit: contain;
 }
 
+/* מציגים תמיד רק אחת מבין שתי הגרסאות (בהירה/כהה) - לא את שתיהן יחד */
 .share-static-img.share-dark {
     display: none;
 }
@@ -1067,15 +1072,20 @@ body.active-pink {
 
 .badge {
   position: absolute;
-  bottom: 50%;
-  right: 5px;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
   background-color: red;
   color: white;
   border-radius: 50%;
-  padding: 3px 7px;
-  font-size: 12px;
+  padding: 0 4px;
+  font-size: 11px;
   font-weight: bold;
-  display: none; 
+  display: none;
+  box-sizing: border-box;
 }
 
 .badge.show {
@@ -1144,6 +1154,7 @@ body.dark-mode .notification-toast {
     color: #111111;
 }
 
+/* ==================== מרכז ההתראות (מודל) ==================== */
 .notifications-modal-content {
     width: 420px;
     height: auto;
@@ -1325,6 +1336,7 @@ body.dark-mode .filter-dropdown {
     color: #ffffff;
 }
 
+/* העיצוב של המודל */
 .modalP {
   display: none; 
   position: fixed; 
@@ -1419,6 +1431,7 @@ body.dark-mode .close-btn:hover {
   cursor: pointer;
 }
 
+/* שורת ה-checkbox של שיתוף פייסבוק - inline לצד הלייבל */
 .fb-share-checkbox-group {
   display: flex;
   flex-direction: row-reverse;
@@ -1457,6 +1470,7 @@ body.dark-mode .fb-share-checkbox-group label {
   background: #ad081b;
 }
 
+/* עיצוב אחיד לכל השדות בתוך המודל (כולל התפריטים הנפתחים) */
 .modalP-content input, 
 .modalP-content textarea,
 .modalP-content select {
@@ -1486,6 +1500,7 @@ body.dark-mode .modalP-content select {
   color: #ffffff;
 }
 
+/* התאמה מיוחדת לתפריטים הנפתחים (select) */
 .modalP-content select {
   cursor: pointer;
   height: 35px;
